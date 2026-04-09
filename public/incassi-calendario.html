@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendario Incassi</title>
+  <link rel="stylesheet" href="styles.css?v=17_2026031207" />
+  <link rel="stylesheet" href="incassi-calendario.css?v=17_2026031207" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="backbtn" href="incassi.html">←</a>
+      <div class="title">Calendario incassi</div>
+      
+    </header>
+
+    <main class="page">
+      <div class="cal-head">
+        <button class="btn" id="prevMonth">‹</button>
+        <div class="cal-title" id="monthTitle">—</div>
+        <button class="btn" id="nextMonth">›</button>
+      </div>
+
+      <div class="totals">
+        <div class="totals-row"><span>Totale mese:</span> <b id="totMese">—</b></div>
+        <div class="totals-row"><span>Totale anno:</span> <b id="totAnno">—</b></div>
+      </div>
+
+      <div class="day-list" id="dayList"></div>
+
+      <div class="hint">
+        Tocca un giorno per aggiungere/modificare l’incasso manuale (nota + importo). Gli incassi da ordini restano automatici.
+      </div>
+    </main>
+  </div>
+
+  <!-- Popup giorno: riepilogo automatico + modifica manuale -->
+  <div class="incassi-popup" id="popup">
+    <div class="popup-box">
+      <div class="popup-head">
+        <div class="popup-title" id="popupDate">—</div>
+        <button class="popup-close" id="closeBtn" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="popup-body">
+        <div class="auto-box">
+          <div class="auto-box-title">Incassi registrati del giorno</div>
+          <div id="autoSummary" class="auto-summary">Nessun incasso automatico registrato.</div>
+          <div id="autoEntries" class="auto-entries"></div>
+        </div>
+        <label class="lbl">Cliente</label><input id="manualClient" list="clientsDatalist" placeholder="Cliente" autocomplete="off"><datalist id="clientsDatalist"></datalist><label class="lbl">Note incasso (una riga = un incasso)</label>
+        <textarea id="note" placeholder="Es: Rossi Auto 250\nAcconto Bianchi 100"></textarea>
+        <label class="lbl">Importo manuale</label>
+        <input id="manualAmount" type="text" inputmode="decimal" placeholder="0,00">
+        <label class="lbl">Importo totale giorno (auto-calcolato)</label>
+        <input id="amount" type="text" inputmode="decimal" placeholder="0,00" readonly>
+        <div class="hint">Suggerimento: le note calcolano il totale manuale anche con la virgola (es. 1,5). Il totale giorno somma manuali + automatici.</div>
+      </div>
+      <div class="popup-actions">
+        <button class="btn primary" id="saveBtn">Salva</button>
+        <button class="btn danger" id="deleteBtn">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/nav.js?v=17_2026031207"></script>
+  <script src="scripts/dashboard-menu.js?v=17_2026031207"></script>
+  <script type="module" src="incassi-calendario.js?v=17_2026031207"></script>
+</body>
+</html>

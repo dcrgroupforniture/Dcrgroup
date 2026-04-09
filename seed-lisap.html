@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <title>Seed Listino LISAP</title>
+</head>
+<body>
+
+<h2>Caricamento Listino LISAP</h2>
+<button id="loadBtn">Carica listino LISAP</button>
+<p id="status"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDsS2ZP2HqvDTgUjlwxTLttrcQmuqUKyOY",
+  authDomain: "definitivo-dcr-group.firebaseapp.com",
+  projectId: "definitivo-dcr-group",
+  storageBucket: "definitivo-dcr-group.firebasestorage.app",
+  messagingSenderId: "363900943966",
+  appId: "1:363900943966:web:0b9f82c97cb37e50a3becf"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* =========================
+   LISTINO LISAP COMPLETO
+========================= */
+
+const products = [
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "LK Creamcolor Oil Protection Complex", format: "100 ml", price: 14.50 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Escalation", format: "100 ml", price: 15.50 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Filter Douscolor", format: "60 ml", price: 16.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Douscolor Glamour", format: "75 ml", price: 14.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "LK Fruit", format: "100 ml", price: 15.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "LK Creamcolor Antigiallo Fruit", format: "100 ml", price: 14.95 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Escalation Easy Absolute 3", format: "60 ml", price: 15.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Up To 9", format: "500 g", price: 44.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Up To 10 Pasta di Carbone", format: "500 g", price: 60.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "DCM 10 Levels Lightning Powder", format: "500 g", price: 40.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Clay Argilla Grigia", format: "400 g", price: 50.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Platinum Polvere Grigia", format: "500 g", price: 60.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Lightening Oil", format: "500 ml", price: 35.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Color Remover", format: "25 g", price: 6.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Color", format: "100 ml", price: 16.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Care Shampoo Anti-giallo", format: "1000 ml", price: 40.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Care Maschera Anti-giallo", format: "1000 ml", price: 50.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Care Maschera Anti-giallo", format: "500 ml", price: 30.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Care Spray Anti-giallo", format: "125 ml", price: 15.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Light Scale Care Mousse Anti-giallo", format: "250 ml", price: 18.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Bleach & Lights ProTech", format: "1000 g", price: 66.00 },
+
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Lisap Developer 5 Vol", format: "1000 ml", price: 16.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Lisap Developer 10 Vol", format: "1000 ml", price: 16.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Lisap Developer 20 Vol", format: "1000 ml", price: 16.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Lisap Developer 30 Vol", format: "1000 ml", price: 16.00 },
+{ brand: "LISAP", category: "MONDO TECNICO LISAP", name: "Lisap Developer 40 Vol", format: "1000 ml", price: 16.00 },
+
+];
+
+document.getElementById("loadBtn").addEventListener("click", async () => {
+  const status = document.getElementById("status");
+  status.textContent = "Caricamento in corso...";
+
+  try {
+    for (const p of products) {
+      await addDoc(collection(db, "products"), p);
+    }
+    status.textContent = "✅ Listino LISAP caricato correttamente!";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "❌ Errore durante il caricamento";
+  }
+});
+</script>
+
+</body>
+</html>

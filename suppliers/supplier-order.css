@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  background: #f4f6f9;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header {
+  background: white;
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+.container {
+  padding: 15px;
+}
+
+table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+#addRow {
+  background: #17a2b8;
+  color: white;
+}
+
+#saveOrder {
+  background: #28a745;
+  color: white;
+  width: 100%;
+}

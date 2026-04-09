@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Incassi</title>
+
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css?v=16_2026031207" />
+  <link rel="stylesheet" href="mobile.css?v=15_2026031207" />
+  <link rel="stylesheet" href="incassi.css?v=15_2026031207" />
+</head>
+
+<body class="page incassi-dark">
+  <header class="top-bar incassi-topbar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">Incassi</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="incassi.html" selected>INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+    </select>
+  </header>
+
+  <main class="page-content incassi-wrap">
+    <div class="incassi-head">
+      <div>
+        <h1 class="incassi-h1">Dashboard Incassi</h1>
+        <p class="incassi-sub">Incassato vs Fatturato (ordini). Incassi automatici da ordini + manuali.</p>
+      </div>
+      <div class="incassi-actions">
+        <button class="incassi-btn" id="btnApriCalendarioTop" type="button">Apri calendario</button>
+        <span id="restoreStatus" class="backup-status"></span>
+        <button class="incassi-btn primary" id="btnNuovoIncasso">Registra incasso</button>
+      </div>
+    </div>
+
+    <section class="incassi-grid">
+      <!-- KPI + grafici -->
+      <div class="incassi-col">
+        <div class="incassi-kpi-card">
+          <div class="incassi-kpi kpi-oggi" id="cardKpiOggi">
+            <div>
+              <div class="kpi-name">Incassato oggi</div>
+              <div class="kpi-val" id="kpiOggi">—</div>
+            </div>
+            <div class="kpi-badge" id="kpiOggiBadge">OGGI</div>
+          </div>
+          <div class="incassi-kpi kpi-anno" id="cardKpiMese">
+            <div>
+              <div class="kpi-name">Incassato mese</div>
+              <div class="kpi-val" id="kpiMese">—</div>
+            </div>
+            <div class="kpi-badge">MESE</div>
+          </div>
+          <div class="incassi-kpi kpi-mese" id="cardKpiAnno">
+            <div>
+              <div class="kpi-name">Incassato totale annuo</div>
+              <div class="kpi-val" id="kpiIncAnno">—</div>
+            </div>
+            <div class="kpi-badge">ANNO</div>
+          </div>
+          <div class="incassi-kpi kpi-fattmese" id="cardKpiFattMese">
+            <div>
+              <div class="kpi-name">Fatturato mese</div>
+              <div class="kpi-val" id="kpiFattMese">—</div>
+            </div>
+            <div class="kpi-badge">ORDINI</div>
+          </div>
+        </div>
+
+        <div class="incassi-card">
+          <div class="incassi-card-head">
+            <div>
+              <div class="card-title">Incassi mensili</div>
+              <div class="card-sub">Totale mensile degli incassi effettuati</div>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartMain"></canvas></div>
+        </div>
+
+        <div class="incassi-card">
+          <div class="incassi-card-head">
+            <div>
+              <div class="card-title">Restante da incassare</div>
+              <div class="card-sub">Somma del restante di tutti gli ordini con acconto</div>
+            </div>
+          </div>
+          <div class="incassi-metric">
+            <div class="metric-big" id="kpiRestante">—</div>
+            <div class="metric-sub">Totale residuo ordini con acconto</div>
+          </div>
+        </div>
+
+        <div class="incassi-row3">
+          <div class="incassi-card">
+            <div class="incassi-card-head"><div class="card-title">Media incasso</div><div class="card-sub">Ultimi 30 giorni</div></div>
+            <div class="incassi-metric">
+              <div class="metric-big" id="kpiMedia30">—</div>
+              <div class="metric-sub" id="kpiMedia30Sub">€/giorno</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonna destra -->
+      <aside class="incassi-side">
+        <div class="incassi-card side">
+          <div class="incassi-card-head">
+            <div>
+              <div class="card-title">Conto</div>
+              <div class="card-sub">Saldo nella colonna destra</div>
+            </div>
+          </div>
+          <div class="saldo">
+            <div class="saldo-val" id="saldoVal">—</div>
+            <div class="saldo-sub" id="saldoSub">Calcolato su Incassi − Spese (mese)</div>
+          </div>
+          <div class="divider"></div>
+          <div class="mini">
+            <div class="mini-row"><span>Incassi mese</span><b id="miniIncassiMese">—</b></div>
+            <div class="mini-row"><span>Spese mese</span><b id="miniSpeseMese">—</b></div>
+          </div>
+        </div>
+
+        <div class="incassi-card side">
+          <div class="incassi-card-head">
+            <div>
+              <div class="card-title">Calendario mese</div>
+              <div class="card-sub">Tocca un giorno per modificare l’incasso</div>
+            </div>
+          </div>
+          <div class="side-cal-head">
+            <button class="incassi-btn" id="sidePrevMonth" type="button">‹</button>
+            <div class="side-cal-title" id="sideMonthTitle">—</div>
+            <button class="incassi-btn" id="sideNextMonth" type="button">›</button>
+          </div>
+          <div class="side-cal-list" id="sideCalList"></div>
+          <div class="side-actions">
+            <a class="incassi-btn" href="incassi-calendario.html">Apri calendario</a>
+          </div>
+        </div>
+
+        <div class="incassi-card side">
+          <div class="incassi-card-head">
+            <div>
+              <div class="card-title">Stato dati</div>
+              <div class="card-sub" id="statusText">Caricamento…</div>
+            </div>
+          </div>
+          <div class="mini">
+            <div class="mini-row"><span>Record incassi</span><b id="statIncassiCount">—</b></div>
+            <div class="mini-row"><span>Record ordini</span><b id="statOrdersCount">—</b></div>
+          </div>
+
+          <div class="backup-wrap">
+            <button class="incassi-btn" id="btnBackupMenu" aria-haspopup="true" aria-expanded="false">Backup sistema ▾</button>
+            <div class="backup-menu" id="backupMenu" aria-label="Backup sistema" hidden>
+              <button class="backup-item" id="btnExportCsv">Esporta CSV</button>
+              <button class="backup-item" id="btnExportJson">Esporta JSON</button>
+              <button class="backup-item" id="btnExportAll">Backup completo</button>
+              <button class="backup-item danger" id="btnRestoreAll">Ripristina backup</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Popup modifica giorno (compatibile con dati già esistenti) -->
+  <div class="incassi-popup" id="popup">
+    <div class="popup-box">
+      <div class="popup-head">
+        <div class="popup-title" id="popupDate">—</div>
+        <button class="popup-close" id="closeBtn" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="popup-body">
+        <div class="auto-box">
+          <div class="auto-box-title">Incassi registrati del giorno</div>
+          <div id="autoSummary" class="auto-summary">Nessun incasso automatico registrato.</div>
+          <div id="autoEntries" class="auto-entries"></div>
+        </div>
+        <label class="lbl">Cliente (obbligatorio per incasso manuale)</label>
+        <input id="manualClient" list="clientsDatalist" placeholder="Inizia a scrivere il nome…" autocomplete="off">
+        <datalist id="clientsDatalist"></datalist>
+
+        <label class="lbl">Dettaglio incasso (opzionale)</label>
+        <textarea id="note" placeholder="Es: Rossi Auto 250\nAcconto Bianchi 100"></textarea>
+        <label class="lbl">Importo manuale</label>
+        <input id="manualAmount" type="text" inputmode="decimal" placeholder="0,00">
+        <label class="lbl">Importo totale giorno (auto-calcolato)</label>
+        <input id="amount" type="text" inputmode="decimal" placeholder="0,00" readonly>
+        <div class="hint">Suggerimento: le note calcolano il totale manuale anche con la virgola (es. 1,5). Il totale giorno somma manuali + automatici.</div>
+      </div>
+      <div class="popup-actions">
+        <button class="incassi-btn primary" id="saveBtn">Salva</button>
+        <button class="incassi-btn danger" id="deleteBtn">Elimina</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./incassi.js?v=70_2026031207"></script>
+<!-- FABFIX_RESTORE_BACKUP_START -->
+<script>
+/**
+ * Ripristino backup compatibile con:
+ * - backup_v1 con struttura: { collections: { ... } }
+ * - nomi collection in ITA (ordini/clienti/spese/scadenze/fornitori...) o ENG (orders/clients/expenses/payments...)
+ * Fix Firestore 400:
+ * - rimuove 'id' dai dati prima del set()
+ * - rimuove campi undefined / NaN
+ */
+function _fabfixDeepClean(obj) {
+  if (obj === undefined) return undefined;
+  if (obj === null) return null;
+  if (typeof obj === 'number' && !isFinite(obj)) return undefined;
+  if (Array.isArray(obj)) {
+    const arr = obj.map(_fabfixDeepClean).filter(v => v !== undefined);
+    return arr;
+  }
+  if (typeof obj === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (k === 'id') continue; // ID sta nel doc(id), non nei dati
+      const cleaned = _fabfixDeepClean(v);
+      if (cleaned !== undefined) out[k] = cleaned;
+    }
+    return out;
+  }
+  return obj;
+}
+
+async function _fabfixDeleteCollection(db, colName) {
+  // Cancella tutti i documenti della collection (best effort)
+  // Se le regole Firestore non permettono delete, fallirà e verrà mostrato l'errore.
+  const colRef = db.collection(colName);
+  while (true) {
+    const snap = await colRef.limit(450).get();
+    if (snap.empty) break;
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
+}
+
+async function ripristinaBackup() {
+  try {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const ok = confirm('ATTENZIONE: il ripristino sovrascrive i dati attuali.\n\nVuoi continuare?');
+      if (!ok) return;
+
+      let raw = await file.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (err) {
+        alert('JSON non valido: ' + err.message);
+        return;
+      }
+
+      const collections = data && data.collections ? data.collections : null;
+      if (!collections || typeof collections !== 'object') {
+        alert('Formato backup non valido: manca "collections".');
+        return;
+      }
+
+      const db = firebase.firestore();
+
+      // Mappatura nomi collection (ITA -> ENG reali nel gestionale)
+      const map = {
+        'incassi': 'incassi',
+        'ordini': 'orders',
+        'orders': 'orders',
+        'clienti': 'clients',
+        'clients': 'clients',
+        'spese': 'expenses',
+        'expenses': 'expenses',
+        'scadenze': 'payments',
+        'payments': 'payments',
+        'fornitori': 'suppliers',
+        'suppliers': 'suppliers',
+        'fatturefornitori': 'supplierInvoices',
+        'fatture_fornitori': 'supplierInvoices',
+        'supplierinvoices': 'supplierInvoices',
+        'supplierInvoices': 'supplierInvoices'
+      };
+
+      // UI: prova a mostrare un loader se esiste
+      const setStatus = (msg) => {
+        const el = document.getElementById('restoreStatus');
+        if (el) el.textContent = msg;
+      };
+      setStatus('Ripristino in corso...');
+
+      // 1) Cancella collections target (best effort)
+      const targetCols = new Set();
+      for (const [k,docs] of Object.entries(collections)) {
+        if (!Array.isArray(docs) || docs.length===0) continue; // SAFE: non toccare collection vuote nel backup
+        const norm = String(k).trim();
+        const keyLower = norm.toLowerCase();
+        const target = map[keyLower] || map[norm] || norm;
+        targetCols.add(target);
+      }
+
+      for (const colName of targetCols) {
+        setStatus('Cancellazione dati: ' + colName + '...');
+        await _fabfixDeleteCollection(db, colName);
+      }
+
+      // 2) Ripristina
+      let written = 0;
+      for (const [k, docs] of Object.entries(collections)) {
+        const norm = String(k).trim();
+        const keyLower = norm.toLowerCase();
+        const colName = map[keyLower] || map[norm] || norm;
+
+        if (!Array.isArray(docs) || docs.length===0) continue;
+
+        setStatus('Ripristino: ' + colName + ' (' + docs.length + ')...');
+
+        // batch commit (<=500)
+        for (let i = 0; i < docs.length; i += 450) {
+          const slice = docs.slice(i, i + 450);
+          const batch = db.batch();
+          slice.forEach((d) => {
+            if (!d || typeof d !== 'object') return;
+            const docId = d.id ? String(d.id) : db.collection(colName).doc().id;
+            const cleaned = _fabfixDeepClean(d);
+            const ref = db.collection(colName).doc(docId);
+            batch.set(ref, cleaned, { merge: false });
+          });
+          await batch.commit();
+          written += slice.length;
+        }
+      }
+
+      setStatus('');
+      alert('Ripristino completato. Documenti ripristinati: ' + written);
+      // Ricarica pagina per aggiornare dashboard/letture
+      location.reload();
+    };
+    input.click();
+  } catch (err) {
+    console.error('Ripristino backup errore:', err);
+    alert('Errore durante il ripristino: ' + (err && err.message ? err.message : err));
+  }
+}
+</script>
+<!-- FABFIX_RESTORE_BACKUP_END -->
+  <script src="scripts/dashboard-menu.js?v=16_2026031207"></script>
+
+  <!-- Lista Incassi (popup) -->
+  <div class="modal-overlay hidden" id="listModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="listModalTitle">Lista</div>
+        <button class="modal-close" id="listModalClose">✕</button>
+      </div>
+      <div class="modal-body" id="listModalBody"></div>
+    </div>
+  </div>
+
+</body>
+</html>

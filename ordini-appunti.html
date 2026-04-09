@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ordini (Appunti lavoro)</title>
+  <link rel="stylesheet" href="styles.css?v=15_20260225222215" />
+  <link rel="stylesheet" href="mobile.css?v=15_20260225222215" />
+  <link rel="stylesheet" href="ordini-appunti.css?v=69_20260306235000" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="btn-back" href="index.html" aria-label="Indietro">←</a>
+      <h1 class="title">Ordini</h1>
+      <div class="spacer"></div>
+
+      <!-- Fallback navigazione (nascosto da nav.js) -->
+      <select id="quickNav" class="quick-nav">
+        <option value="">Vai a…</option>
+        <option value="index.html">HOME</option>
+        <option value="clients.html">CLIENTI</option>
+        <option value="suppliers.html">FORNITORI</option>
+        <option value="scadenze.html">SCADENZE</option>
+        <option value="incassi.html">INCASSI</option>
+        <option value="spese.html">SPESE</option>
+        <option value="listini.html">LISTINI</option>
+        <option value="statistiche.html">STATISTICHE</option>
+        <option value="agenda.html">AGENDA</option>
+        <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+        <option value="ordini-appunti.html">APPUNTI ORDINI</option>
+      </select>
+    </header>
+
+    <main class="container">
+      <section class="card" style="max-width: 980px; margin: 0 auto;">
+        <h2 style="margin: 0 0 6px 0;">Blocco note lavoro</h2>
+        <p style="margin: 0 0 12px 0; opacity: .8;">
+          Scrivi qui tutte le cose ordinate dai clienti. Salvataggio automatico su Firebase.
+        </p>
+
+        <textarea id="workNotes" class="notes" placeholder="Es: Mario Rossi — 5 shampoo — consegna venerdì\nCliente X — richiamo martedì\n…" style="min-height: 260px;"></textarea>
+
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <button id="saveBtn" class="btn primary">Salva</button>
+          <button id="clearBtn" class="btn">Svuota</button>
+          <span id="status" style="margin-left:auto; opacity:.7; align-self:center;"></span>
+        </div>
+
+        <hr style="margin:16px 0; border:none; border-top:1px solid rgba(0,0,0,.12);" />
+
+        <div id="notesPrintBar" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 10px 0;">
+          <button id="selectAllNotesBtn" class="btn">Seleziona tutte</button>
+          <button id="clearSelectedNotesBtn" class="btn">Deseleziona</button>
+          <button id="printSelectedNotesBtn" class="btn primary">Stampa selezionate</button>
+          <span id="selectedNotesCount" style="margin-left:auto; opacity:.7;"></span>
+        </div>
+
+        <h3 style="margin:0 0 8px 0;">Storico note</h3>
+        <div class="small" style="opacity:.75; margin-bottom:10px;">Le note salvate finiscono qui. Il blocco sopra resta libero per una nuova nota.</div>
+
+        <div id="notesHistory" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/nav.js?v=15_20260225222215"></script>
+  <script type="module" src="ordini-appunti.js?v=69_20260306235000"></script>
+  <script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+</body>
+</html>

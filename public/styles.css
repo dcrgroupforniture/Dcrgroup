@@ -1,0 +1,543 @@
+*,*::before,*::after{box-sizing:border-box;}
+html,body{max-width:100%;overflow-x:hidden;}
+/* iOS safe-area (evita che la barra del browser "tagli" la parte alta) */
+body{padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);}
+/* =========================
+   RESET
+========================= */
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  /* Palette più contrastata e "app-like" */
+  --brand: #1f4fd8;          /* blu principale */
+  --brand-dark: #163da8;
+  --brand-soft: rgba(31,79,216,.14);
+
+  --success: #16a34a;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+
+  --home-bg: #0b1220;         /* home più scura */
+  --page-bg: #f2f6ff;         /* chiaro con leggero tono blu */
+
+  --text-dark: #0f172a;
+  --text-muted: #475569;
+  --text-light: #ffffff;
+
+  /* Card e bordi (stile "BORDO") */
+  --card-bg: #ffffff;
+  --card-border: rgba(31,79,216,.22);
+  --card-border-soft: rgba(15,23,42,.10);
+  --card-shadow: 0 10px 26px rgba(15,23,42,.06);
+}
+
+/* =========================
+   COLORI BASE
+========================= */
+body.home {
+  min-height: 100vh;
+  background: var(--home-bg);
+  color: var(--text-light);
+}
+
+body.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 420px at 12% -10%, rgba(31,79,216,.10), transparent 55%),
+    radial-gradient(900px 520px at 92% 10%, rgba(6,182,212,.08), transparent 60%),
+    var(--page-bg);
+  color: var(--text-dark);
+}
+
+/* =========================
+   MOBILE: leggibilità e tap target
+========================= */
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  input, select, textarea, button { font-size: 16px !important; }
+  button, .btn, .primary, .secondary {
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+  }
+  .card, .panel, .container { padding: 14px !important; }
+}
+
+/* =========================
+   HEADER HOME (se usi header semplice)
+========================= */
+header.app-header {
+  width: 100%;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header.app-header .brand-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Striscia tricolore sotto header (home e pagine interne se vuoi) */
+.tricolore-bar {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #008C45 0 33.33%, #F4F5F0 33.33% 66.66%, #CD212A 66.66% 100%);
+}
+
+/* =========================
+   TOP BAR INTERNA (FIXATA BENE)
+========================= */
+/* Header uniforme (tutte le pagine) */
+.top-bar,
+.topbar{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(64px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  background: linear-gradient(180deg, #ffffff, #f7faff);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom: 1px solid rgba(15,23,42,.10);
+  z-index: 1000;
+}
+
+/* Back uniforme (button o link) */
+.back-btn,
+.btn-back{
+  background: var(--brand);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,.35);
+  font-size: 18px;
+  width: 48px;
+  height: 44px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(31,79,216,.20);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 🔒 Forza stile back anche se qualche pagina ha stili inline o link non-button */
+.topbar .btn-back,
+.topbar .back-btn,
+.top-bar .btn-back,
+.top-bar .back-btn{
+  background: var(--brand) !important;
+  color:#fff !important;
+  border:2px solid rgba(255,255,255,.35) !important;
+  width:48px !important;
+  height:44px !important;
+  border-radius:16px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-decoration:none !important;
+  box-shadow:0 10px 22px rgba(31,79,216,.20) !important;
+}
+.back-btn:active,
+.btn-back:active{transform:translateY(1px)}
+.back-btn:hover,
+.btn-back:hover{background: var(--brand-dark)}
+
+/* titolo pagina interno */
+.page-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+  flex: 1;
+}
+
+/* compat: header alternativo (ordini-appunti.html) */
+.topbar .title{
+  font-weight: 900;
+  font-size: 20px;
+  margin: 0;
+  color: var(--text-dark);
+  letter-spacing: .2px;
+}
+.topbar .spacer{flex:1}
+
+/* =========================
+   CONTENUTO PAGINE INTERNE
+========================= */
+.page-content {
+  padding: 20px;
+  padding-top: 90px; /* spazio sotto la top-bar */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-content h1 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.page-content h2 {
+  margin-top: 22px;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+hr.sep {
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.15);
+  margin: 18px 0;
+}
+
+/* =========================
+   DASHBOARD (HOME)
+========================= */
+.dashboard {
+  min-height: calc(100vh - 66px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px;
+  max-width: 920px;
+  width: 100%;
+  padding: 22px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border-soft);
+  border-radius: 18px;
+  padding: 22px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  background: rgba(31,79,216,.04);
+  border-color: var(--card-border);
+}
+
+/* Card interne (pagine chiare) */
+body.page .card,
+.page-content .card,
+.container .card{
+  background: #fff;
+  border: 2px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+}
+
+.icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* =========================
+   LISTE (CLIENTI / FORNITORI / ECC.)
+========================= */
+.list, #clientsList, #suppliersList {
+  background: #fff;
+  border-radius: 12px;
+  margin: 16px 0;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.client-row,
+.supplier-row,
+.order-row,
+.invoice-row {
+  background: #fff;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.client-row:hover,
+.supplier-row:hover,
+.order-row:hover,
+.invoice-row:hover {
+  background: #f0f4ff;
+}
+
+.client-name, .supplier-name {
+  font-weight: 700;
+}
+
+.client-total, .supplier-total {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+/* bottoncini azione (matita/cestino ecc.) */
+.edit-btn, .delete-btn, .small-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.edit-btn:hover, .small-btn:hover {
+  background: rgba(31,79,216,0.10);
+}
+
+.delete-btn:hover {
+  background: rgba(205,33,42,0.10);
+}
+
+/* =========================
+   FORM
+========================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-weight: 700;
+  font-size: 13px;
+  color: #222;
+}
+
+input, select, textarea {
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(31,79,216,0.55);
+  box-shadow: 0 0 0 3px rgba(31,79,216,0.12);
+}
+
+/* =========================
+   BOTTONI
+========================= */
+.primary-btn, button.primary-btn, .menu-button {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.primary-btn:hover, button.primary-btn:hover, .menu-button:hover {
+  background: var(--brand-dark);
+}
+
+.actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* =========================
+   “FLAG BAR” stile foto cliente (linee verde/rosso e badge centrale)
+========================= */
+.flag-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 6px 0 10px;
+}
+
+.flag-header::before,
+.flag-header::after{
+  content: "";
+  height: 3px;
+  flex: 1;
+  border-radius: 999px;
+}
+
+.flag-header::before{ background: #008C45; }
+.flag-header::after{ background: #CD212A; }
+
+.flag-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(31,79,216,0.10);
+  border: 1px solid rgba(31,79,216,0.20);
+  color: #0b1b44;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.flag-badge .mini-back {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 28px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 520px) {
+  header.app-header .brand-title {
+    font-size: 22px;
+  }
+
+  .top-bar {
+    height: 56px;
+    padding: 0 12px;
+  }
+
+  .page-content {
+    padding-top: 80px;
+  }
+
+  .page-content h1 {
+    font-size: 24px;
+  }
+}
+/* ===== FIX iPhone: niente overlay che blocca i tap ===== */
+.section-head,
+.flag-line,
+.pill-title,
+.pill-icon{
+  pointer-events: none !important;
+}
+
+/* i bottoni devono stare sopra */
+.toolbar,
+.primary-btn,
+button,
+#newSupplierBtn{
+  position: relative;
+  z-index: 5;
+}
+
+/* se hai pseudo-elementi decorativi su header o simili */
+header::before,
+header::after{
+  pointer-events: none !important;
+}
+
+
+/* Quick navigation dropdown */
+.quick-nav{margin-left:auto;background:#f8fafc;border:1px solid #d1d5db;color:#111827;padding:8px 10px;border-radius:10px;font-weight:700;font-size:13px;max-width:190px}
+.quick-nav:focus{outline:none;border-color:#1f4fd8;box-shadow:0 0 0 3px rgba(31,79,216,.12)}
+
+/* Payment badges */
+.pay-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.badge-paid{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.badge-partial{background:#fff7ed;color:#9a3412;border:1px solid #fdba74}
+.badge-due{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+
+.order-main{font-weight:800}
+.order-sub{font-size:12px;color:#6b7280;margin-top:4px}
+.order-row{background:#ffffff;padding:12px 14px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.order-row:hover{background:#f0f4ff}
+
+/* === Button style aliases (used by Preventivo/Clienti/Ordini pages) === */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:20px;border:2px solid rgba(15,23,42,.14);background:#f8fafc;color:var(--text-dark);font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(15,23,42,.06);-webkit-tap-highlight-color:transparent}
+.btn:active{transform:translateY(1px)}
+.primary,.btn.primary{background:var(--brand);color:#fff;border-color:rgba(255,255,255,.35);box-shadow:0 12px 26px rgba(31,79,216,.22)}
+.secondary,.btn.secondary{background:#eef2ff;color:var(--brand);border-color:rgba(31,79,216,.30)}
+.danger,.btn.danger{background:#ffe4e6;color:#9f1239;border-color:rgba(239,68,68,.32)}
+.ghost,.btn.ghost{background:transparent;border-color:#d1d5db;color:#111827}
+.btn.full{width:100%}
+
+/* Tablet/iPad: contenuti più “puliti” e niente overflow laterale */
+@media (max-width: 1024px){
+  .page-content{max-width:100%;padding-left:14px;padding-right:14px}
+  table{max-width:100%}
+  body{overflow-x:hidden}
+}
+
+
+/* Dashboard menu (stile iPhone) */
+
+.dashnav-btn{margin-left:auto;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 12px; border-radius:14px;
+  border:1px solid rgba(15,23,42,.12);
+  background:#fff; color:var(--text-dark);
+  box-shadow: 0 10px 25px rgba(2,6,23,.08);
+  font-weight:800;
+}
+.dashnav-btn-ico{display:inline-flex; width:28px; height:28px; align-items:center; justify-content:center; border-radius:10px; background:rgba(37,99,235,.12); color:#2563eb;}
+.dashnav-overlay{position:fixed; inset:0; background:rgba(2,6,23,.35); display:none; z-index:9999; padding:16px;}
+.dashnav-overlay.open{display:flex; align-items:center; justify-content:center;}
+.dashnav-panel{width:min(720px, 100%); max-height:min(86vh,900px); background:#fff; border-radius:20px; box-shadow: 0 20px 55px rgba(2,6,23,.35); overflow:auto;}
+.dashnav-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid rgba(15,23,42,.10);}
+.dashnav-title{font-weight:900; color:var(--text-dark);}
+.dashnav-close{border:0; background:transparent; font-size:26px; line-height:1; padding:2px 8px; cursor:pointer; color:var(--text-dark);}
+.dashnav-grid{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; padding:14px;}
+.dashnav-item{border:1px solid rgba(15,23,42,.10); background:#f8fafc; border-radius:18px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer;}
+.dashnav-item:hover{background:#eef2ff;}
+.dashnav-ico{width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; font-weight:900;}
+.dashnav-item-txt{font-weight:800; color:var(--text-dark); font-size:12px; text-align:center;}
+@media (max-width:520px){
+  .dashnav-overlay.open{align-items:stretch;}
+  .dashnav-panel{border-radius:18px;}
+  .dashnav-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
+}
+html,body{overflow-x:hidden;}
+
+.top-bar .dashnav-btn,.topbar .dashnav-btn,.top-actions .dashnav-btn,.topbar-actions .dashnav-btn,header .dashnav-btn{margin-left:auto;}

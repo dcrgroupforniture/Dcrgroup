@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ordini Clienti (Preventivo)</title>
+  <link rel="stylesheet" href="styles.css?v=15_20260225222215" />
+  <link rel="stylesheet" href="mobile.css?v=15_20260225222215" />
+  <style>
+    /* Card centrata e stabile (PC + iPhone) */
+    .quote-card{max-width:1100px;margin:86px auto 26px;padding:20px 18px;border-radius:16px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.08);position:relative;z-index:1}
+    .quote-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .quote-head h1{margin:0;font-size:28px}
+    .quote-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .quote-meta input{min-width:220px}
+    .quote-table{width:100%;border-collapse:collapse;margin-top:14px;table-layout:fixed}
+    .quote-table th:nth-child(1), .quote-table td:nth-child(1){width:auto}
+    .quote-table th:nth-child(2), .quote-table td:nth-child(2){width:120px}
+    .quote-table th:nth-child(3), .quote-table td:nth-child(3){width:140px}
+    .quote-table th:nth-child(4), .quote-table td:nth-child(4){width:140px}
+    .quote-table th:nth-child(5), .quote-table td:nth-child(5){width:56px}
+    /* iOS Safari can bump font-size/padding: don't clip inputs */
+    .quote-table th,.quote-table td{border:1px solid rgba(0,0,0,.12);padding:10px;vertical-align:top;overflow:visible}
+    .quote-table th{background:rgba(0,0,0,.04);text-align:center}
+    .quote-table td:nth-child(2),.quote-table td:nth-child(3),.quote-table td:nth-child(4){text-align:center}
+    .quote-table input{width:100%;box-sizing:border-box;font-size:16px;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.18)}
+    .quote-table input:focus{outline:2px solid rgba(19,124,249,.35)}
+    /* Bottone elimina riga: compatto e allineato */
+    .quote-table button.danger{width:38px;height:38px;padding:0;border-radius:12px;display:inline-flex;align-items:center;justify-content:center}
+    /* evita layer invisibili sopra i bottoni su iOS */
+    .quote-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:3}
+    /* ✅ Tap affidabile su iOS/iPad: nessun layer sopra i bottoni */
+    .table-scroll{position:relative;z-index:1}
+    .quote-actions{z-index:999;}
+    .quote-actions, .quote-actions *{pointer-events:auto}
+    .quote-card{transform:none !important}
+    .totals{margin-top:12px;display:flex;justify-content:flex-end}
+    .totals .box{min-width:280px;border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:14px;background:#fff}
+    .totals .row{display:flex;justify-content:space-between;margin:6px 0;font-weight:800}
+    .small{font-size:12px;opacity:.75}
+
+    /* Mobile: layout a "schede" per evitare tagli e garantire click */
+    @media (max-width: 560px){
+  .quote-card{margin:78px 10px 20px;padding:16px 14px}
+  .quote-head h1{font-size:26px}
+  .quote-meta input{min-width:0;width:100%}
+  .quote-actions button{flex:1;justify-content:center; min-height:48px; border-radius:14px; font-weight:900; border:1px solid rgba(31,79,216,.16); box-shadow:0 8px 18px rgba(15,23,42,.08)}
+
+  .quote-table{border:none;margin-top:12px;table-layout:auto}
+  .quote-table thead{position:absolute;left:-9999px;top:-9999px}
+
+  /* ✅ iPhone: riga "barra unica" dentro lo schermo (niente scroll laterale/verticale inutile) */
+  .quote-table, .quote-table tbody{display:block;width:100%}
+
+  .quote-table tr{
+    display:grid;
+    grid-template-columns: 1fr 72px 92px 92px 44px;
+    grid-template-areas:
+      "desc desc desc desc del"
+      "qty  price tot  tot  del";
+    gap:8px;
+    align-items:center;
+    border:1px solid rgba(0,0,0,.12);
+    border-radius:14px;
+    padding:10px;
+    background:#fff;
+    margin-bottom:10px;
+  }
+
+  .quote-table td{border:none;padding:0;display:block}
+  .quote-table td::before{display:none}
+
+  .quote-table td:nth-child(1){grid-area:desc}
+  .quote-table td:nth-child(2){grid-area:qty}
+  .quote-table td:nth-child(3){grid-area:price}
+  .quote-table td:nth-child(4){grid-area:tot; text-align:right; font-weight:900; font-size:16px; padding-right:2px}
+  .quote-table td:nth-child(5){grid-area:del; justify-self:end}
+
+  .quote-table input{
+    width:100%;
+    max-width:none;
+    box-sizing:border-box;
+    padding:10px;
+    border-radius:12px;
+    font-size:15px;
+  }
+
+  /* input numerici più bassi e leggibili */
+  .quote-table td:nth-child(2) input,
+  .quote-table td:nth-child(3) input{
+    padding:9px 10px;
+  }
+
+  .quote-table button.danger{width:36px;height:36px;border-radius:12px}
+}
+
+    /* Tablet/iPad: evita righe che “scappano” fuori e rende più leggibile */
+    @media (max-width: 1024px){
+      .quote-card{margin:80px 12px 22px;padding:18px 16px}
+      .quote-table th,.quote-table td{padding:9px}
+      .quote-table input{padding:10px}
+      .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
+      .quote-table{min-width:820px}
+      .quote-actions{gap:12px; z-index:30}
+
+      /* ✅ iPad: bottoni grandi/rotondi + tap affidabile */
+      .quote-actions button{
+        min-height:56px;
+        padding:14px 18px;
+        border-radius:18px;
+        font-size:18px;
+        font-weight:900;
+        position:relative;
+        z-index:50;
+        touch-action:manipulation;
+        -webkit-tap-highlight-color: transparent;
+        pointer-events:auto;
+      }
+    }
+  
+    /* Header brand */
+    .quote-head{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+    @media(min-width:900px){.quote-head{grid-template-columns:auto 1fr auto;align-items:center}}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-logo{width:86px;height:auto;object-fit:contain}
+    @media(min-width:900px){.brand-logo{width:110px}}
+    .brand-title{font-weight:800;letter-spacing:.4px}
+    .brand-sub{font-size:12px;opacity:.85;margin-top:2px}
+    .title h1{margin:0}
+
+.quote-actions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:stretch;margin-top:16px}
+.quote-actions button{
+  min-height:48px;
+  border-radius:16px;
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow:0 10px 20px rgba(15,23,42,.08);
+  font-size:14px;
+  font-weight:900;
+  padding:12px 14px;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.quote-actions button:hover{transform:translateY(-1px);box-shadow:0 14px 24px rgba(15,23,42,.10)}
+.quote-actions .primary{background:linear-gradient(180deg,#2f78ff,#1f5fd6);color:#fff;}
+.quote-actions .secondary{background:rgba(255,255,255,.96);color:#1f4fd8;}
+.quote-actions .danger{background:#fff1f2;color:#b42318;border-color:rgba(239,68,68,.18);}
+@media (max-width: 900px){.quote-actions{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media (max-width: 560px){.quote-actions{grid-template-columns:1fr 1fr;gap:8px}.quote-actions button{min-height:46px;padding:12px;font-size:13px;border-radius:14px;}}
+</style>
+</head>
+<body>
+  <header class="top-bar">
+    <button type="button" onclick="window.location.href='index.html'" class="back-btn" aria-label="Indietro">←</button>
+    <select id="quickNav" class="nav-select">
+      <option value="">Vai a...</option>
+      <option value="index.html">Home</option>
+      <option value="clients.html">Clienti</option>
+      <option value="suppliers.html">Fornitori</option>
+      <option value="incassi.html">Incassi</option>
+      <option value="spese.html">Spese</option>
+      <option value="scadenze.html">Scadenze</option>
+      <option value="agenda.html">Agenda</option>
+      <option value="statistiche.html">Statistiche</option>
+      <option value="ordini-clienti.html">Ordini Clienti</option>
+    </select>
+  </header>
+
+  <div class="quote-card" id="quoteRoot">
+    
+    <div class="quote-head">
+      <div class="brand">
+        <img class="brand-logo" src="img/logo.png" alt="DCR GROUP" />
+        <div class="brand-text">
+          <div class="brand-title">DCR GROUP</div>
+          <div class="brand-sub">di Di Caro Luca • +39 3337377008</div>
+        </div>
+      </div>
+      <div class="title">
+        <h1>Preventivo</h1>
+        <div class="small">Compila le righe e salva: lo storico verrà mostrato sotto. Puoi esportare PDF/immagine e inviare su WhatsApp.</div>
+      </div>
+      <div class="quote-meta">
+        <input id="clientName" placeholder="Cliente (nome e cognome)" />
+        <input id="quoteDate" type="date" />
+      </div>
+    </div>
+
+
+    <div class="table-scroll" id="rowsTableWrap" aria-label="Scorrimento tabella">
+    <table class="quote-table" id="rowsTable" aria-label="Righe preventivo">
+      <thead>
+        <tr>
+          <th style="width:52%">Descrizione prodotto</th>
+          <th style="width:16%">Quantità</th>
+          <th style="width:16%">Costo (€)</th>
+          <th style="width:16%">Totale (€)</th>
+          <th style="width:60px"></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    </div>
+
+    <!-- iPhone: righe in "barra unica" (tutto dentro lo schermo, senza confusione) -->
+    <div id="rowsMobile" class="pv-mobile" aria-label="Righe preventivo mobile"></div>
+
+    <div class="quote-actions">
+      <button type="button" id="addRow" class="primary">+ Riga</button>
+      <button type="button" id="save" class="secondary">Salva</button>
+      <button type="button" id="shareWhats" class="secondary">Invia WhatsApp</button>
+      <button type="button" id="exportPdf" class="secondary">Ricevuta PDF</button>
+      <button type="button" id="exportImg" class="secondary">Ricevuta immagine</button>
+      <button type="button" id="reset" class="danger">Svuota</button>
+    </div>
+
+    <div class="totals">
+      <div class="box">
+        <div class="row"><span>Totale</span><span id="grandTotal">0,00 €</span></div>
+      </div>
+    </div>
+  
+  <div class="quote-card" style="margin-top:16px;">
+    <div class="quote-head" style="grid-template-columns:1fr;">
+      <div>
+        <h2 style="margin:0 0 6px 0;">Storico preventivi</h2>
+        <div class="small">Dal più recente. Azioni: Apri, PDF, WhatsApp, Elimina.</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="quote-table" aria-label="Storico preventivi">
+        <thead>
+          <tr>
+            <th style="width:110px;">N°</th>
+            <th style="width:120px;">Data</th>
+            <th>Cliente</th>
+            <th style="width:140px;text-align:right;">Totale</th>
+            <th style="width:240px;">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  <!-- Librerie per esportazione (NO integrity: Safari/iPhone blocca se hash non combacia) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <script type="module" src="/nav.js?v=15_20260225222215"></script>
+  <script type="module" src="ordini-clienti.js?v=15_20260225222215"></script>
+  <script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+</body>
+</html>

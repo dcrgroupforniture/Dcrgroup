@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ordine</title>
+
+  <!-- CSS base + pagina ordine -->
+  <!-- Cache busting (iOS Safari tende a tenere in cache i CSS) -->
+  <link rel="stylesheet" href="/styles.css?v=53" />
+  <link rel="stylesheet" href="/order.css?v=53" />
+</head>
+
+<body class="order-page">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button id="backBtn" class="icon-btn" aria-label="Indietro" onclick="history.back()">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+    </button>
+
+    <div class="topbar-title">Ordine</div>
+
+    <div class="topbar-actions">
+      <button id="menuBtn" class="icon-btn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Cliente -->
+    <section class="card card--client">
+      <div class="card-head">
+        <div>
+          <div class="label">Cliente</div>
+        </div>
+        <div class="muted order-number hidden"><span>Numero ordine</span> <strong id="orderNumberLabel"></strong></div>
+      </div>
+
+      <div class="grid-2 grid-2--client">
+        <div class="select-like">
+          <input id="clientName" type="text" readonly placeholder="Seleziona cliente" />
+          <span class="chev">▾</span>
+        </div>
+
+        <div class="select-like select-like--status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <select id="orderStatus">
+            <option value="in_lavorazione">In lavorazione</option>
+            <option value="completato">Completato</option>
+            <option value="annullato">Annullato</option>
+          </select>
+          <span class="chev">▾</span>
+        </div>
+      </div>
+
+      <!-- Data ordine (necessaria per incassi/statistiche) -->
+      <div class="row mt row--date">
+        <label class="muted small" for="orderDate">Data ordine</label>
+        <input id="orderDate" type="date" class="input" />
+      </div>
+
+      <!-- hidden compat -->
+      <input type="hidden" id="orderNumber" value="" />
+    </section>
+
+    <!-- Prodotti -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <div class="title">Prodotti</div>
+          <div class="muted small">Suggerimenti automatici da listini e banca dati, con prezzo sempre modificabile.</div>
+        </div>
+        <div class="muted small">Descrizione • Quantità • Prezzo</div>
+      </div>
+
+      <!-- Righe prodotti (lista responsive, niente tabella fragile) -->
+      <div id="rows" class="ff-rows-list"></div>
+
+      <div class="row mt">
+        <button class="btn btn-light btn-add" id="addRowBtn" type="button">+ Aggiungi prodotto</button>
+      </div>
+
+      <div class="row between mt">
+        <div></div>
+        <div class="totals-mini">
+          <div class="trow"><span>Subtotale</span><strong id="subTotal">0.00</strong></div>
+          <div class="trow trow-discount">
+            <span>Sconto %</span>
+            <div class="inline">
+              <input id="discountPercent" class="input input--sm" type="number" min="0" max="100" step="1" value="0" />
+            </div>
+          </div>
+
+          <div class="trow trow-vat">
+            <span>IVA</span>
+            <div class="inline">
+              <label class="switch" title="Attiva/disattiva IVA">
+                <input type="checkbox" id="ivaCheck" checked />
+                <span class="slider"></span>
+              </label>
+              <select id="ivaRate" class="select select--sm" title="Aliquota IVA">
+                <option value="0.22" selected>22%</option>
+                <option value="0.10">10%</option>
+                <option value="0.04">4%</option>
+                <option value="0">0%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="trow"><span>Imponibile</span><strong id="netAmount">0.00</strong></div>
+          <div class="trow"><span>Totale IVA</span><strong id="vatAmount">0.00</strong></div>
+          <div class="trow big"><span>Totale ordine</span><strong id="grandTotal">0.00</strong></div>
+
+          <!-- compat vecchia UI -->
+          <span id="totalDiscount" class="hidden">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pagamenti + Scadenze -->
+    <section class="grid-2-col">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="title">Pagamenti</div>
+            <div class="muted small">Collegati agli Incassi senza cambiare la struttura dati.</div>
+          </div>
+        </div>
+
+        <div class="pay-summary">
+          <div class="pay-row">
+            <span class="muted">Totale ordine</span>
+            <strong id="payTotal">€ 0,00</strong>
+          </div>
+          <div class="pay-row">
+            <span class="pill pill-paid">Pagato</span>
+            <strong id="paidValue">€ 0,00</strong>
+          </div>
+          <div class="pay-row">
+            <span class="pill pill-residual">Residuo</span>
+            <strong id="residualValue">€ 0,00</strong>
+          </div>
+        </div>
+
+        <div id="paymentsListNew" class="payments-list"></div>
+
+        <div class="row mt">
+          <button class="btn btn-primary w100" type="button" id="openPaymentModalAlt">+ Registra pagamento</button>
+        </div>
+
+        <!-- elementi richiesti da order.js -->
+        <div class="hidden">
+          <select id="paymentStatus">
+            <option value="da_incassare">Da incassare</option>
+            <option value="incassato">Incassato</option>
+            <option value="acconto">Acconto</option>
+          </select>
+
+          <div id="depositBox" class="hidden"></div>
+          <input id="depositAmount" type="number" step="0.01" />
+          <input id="residualAmount" type="number" step="0.01" />
+
+          <select id="paymentMethod">
+            <option value="Contanti">Contanti</option>
+            <option value="Bonifico Bancario" selected>Bonifico Bancario</option>
+            <option value="Carta">Carta</option>
+            <option value="Altro">Altro</option>
+          </select>
+          <input id="iban" type="text" placeholder="MT103-4934-ABCD" />
+          <input id="isCash" type="checkbox" />
+          <input id="isTransfer" type="checkbox" />
+        </div>
+
+        <!-- compat extra -->
+        <span id="payResidual" class="hidden"></span>
+
+        <!-- elementi UI rimossi ma richiesti da order-ui.js per aprire il modal -->
+        <button id="registerPaymentBtn" class="hidden" type="button">Registra pagamento</button>
+
+        <!-- compat: vecchio mini cliente (non visibile) -->
+        <input id="clientNameMini" type="text" class="hidden" readonly />
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="title">Scadenze</div>
+            <div class="muted small">Promemoria e importi collegati all'ordine.</div>
+          </div>
+          <button id="scadenzeInfoBtn" class="icon-btn icon-btn--sm" aria-label="Info scadenze">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11 17h2v-6h-2Zm0-8h2V7h-2ZM12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2Z"/></svg>
+          </button>
+        </div>
+
+        <div class="pay-row">
+          <span class="muted">Totale scadenze</span>
+          <strong id="miniDueTotal">€ 0,00</strong>
+        </div>
+
+        <div class="row mt">
+          <label class="muted small" for="dueDate">Data scadenza</label>
+          <input id="dueDate" type="date" class="input" />
+        </div>
+
+        <div class="row mt">
+          <label class="muted small" for="dueAmount">Importo scadenza</label>
+          <input id="dueAmount" type="number" step="0.01" class="input" />
+        </div>
+
+        <div class="row mt gap">
+          <button id="sendReminderBtn" class="btn btn-light w100" type="button">Invia promemoria</button>
+          <button id="registerIncassoBtn" class="btn btn-primary w100" type="button">Salva scadenza</button>
+        </div>
+
+        <div id="dueAlert" class="due-alert hidden"></div>
+        <span id="daysLate" class="hidden"></span>
+        <input id="dueDays" type="number" class="hidden" />
+        <input id="isInsoluto" type="checkbox" class="hidden" />
+      </div>
+    </section>
+
+    <!-- spacers -->
+    <div style="height: 92px"></div>
+  </main>
+
+  <!-- Footer azioni -->
+  <footer class="footer">
+    <button id="saveOrderBtn" class="btn btn-primary flex1" type="button">
+      <span class="icon">💾</span><span>Salva ordine</span>
+    </button>
+    <button id="shareReceiptBtn" class="btn btn-whats flex1" type="button">
+      <span class="icon">🟢</span><span>Invia WhatsApp</span>
+    </button>
+    <button id="shareReceiptPdfBtn" class="btn btn-primary flex1" type="button">
+      <span class="icon">📄</span><span>Salva PDF</span>
+    </button>
+
+    <!-- opzionale immagine -->
+    <button id="shareReceiptImgBtn" class="hidden" type="button"></button>
+  </footer>
+
+  <!-- MODAL pagamento -->
+  <div id="paymentModalBackdrop" class="modal-backdrop hidden"></div>
+  <div id="paymentModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Registra pagamento">
+    <div class="modal-head">
+      <div class="modal-title">Registra pagamento</div>
+      <button id="paymentModalClose" class="icon-btn" aria-label="Chiudi">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="muted small">Tipo</label>
+      <select id="paymentStatusModal" class="select">
+        <option value="da_incassare">Da incassare</option>
+        <option value="incassato">Incassato</option>
+        <option value="acconto">Acconto</option>
+      </select>
+
+      <div class="row mt">
+        <label class="muted small">Importo acconto</label>
+        <input id="depositAmountModal" type="number" step="0.01" class="input" placeholder="0,00" />
+      </div>
+
+      <div class="row mt">
+        <label class="muted small">Metodo</label>
+        <select id="paymentMethodModal" class="select">
+          <option value="Contanti">Contanti</option>
+          <option value="Bonifico Bancario" selected>Bonifico Bancario</option>
+          <option value="Carta">Carta</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+
+      <div class="row mt">
+        <label class="muted small">Riferimento</label>
+        <input id="ibanModal" type="text" class="input" placeholder="MT103-4934-ABCD" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="paymentModalCancel" class="btn btn-light flex1" type="button">Annulla</button>
+      <button id="paymentModalApply" class="btn btn-primary flex1" type="button">Applica</button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script type="module" src="/order.js"></script>
+
+  <!-- UI mapping modal->campi reali + apertura da tasto alternativo -->
+  <script type="module">
+    const byId = (id) => document.getElementById(id);
+
+    // apri modal anche dal bottone nella card Pagamenti
+    const alt = byId("openPaymentModalAlt");
+    const openMain = byId("registerPaymentBtn");
+    if (alt && openMain) alt.addEventListener("click", () => openMain.click());
+
+    // sincronizza i campi del modal con quelli reali usati da order.js
+    const ps = byId("paymentStatus");
+    const da = byId("depositAmount");
+    const pm = byId("paymentMethod");
+    const ib = byId("iban");
+
+    const psM = byId("paymentStatusModal");
+    const daM = byId("depositAmountModal");
+    const pmM = byId("paymentMethodModal");
+    const ibM = byId("ibanModal");
+
+    function syncToModal() {
+      if (psM && ps) psM.value = ps.value;
+      if (daM && da) daM.value = da.value || "";
+      if (pmM && pm) pmM.value = pm.value;
+      if (ibM && ib) ibM.value = ib.value || "";
+    }
+    function syncFromModal() {
+      if (ps && psM) ps.value = psM.value;
+      if (da && daM) da.value = daM.value || "";
+      if (pm && pmM) pm.value = pmM.value;
+      if (ib && ibM) ib.value = ibM.value || "";
+
+      // trigger ricalcoli
+      [ps, da, pm, ib].forEach(el => {
+        if (!el) return;
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    }
+
+    // quando apro il modal, copia i valori
+    const btn = byId("registerPaymentBtn");
+    btn?.addEventListener("click", syncToModal);
+
+    // quando applico, copia dal modal ai campi reali
+    byId("paymentModalApply")?.addEventListener("click", syncFromModal);
+  </script>
+
+  <script type="module" src="/order-ui.js"></script>
+
+  <!-- Menu hamburger: torna alla Home/Dashboard (index) -->
+  <script>
+    (function(){
+      const btn = document.getElementById('menuBtn');
+      // Dashboard (pagina principale)
+      if(btn) btn.addEventListener('click', ()=>{ window.location.assign('/clients.html'); });
+    })();
+  </script>
+</body>
+</html>

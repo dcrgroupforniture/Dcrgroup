@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DCR GROUP Ordini</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/logo-dcr.jpeg">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div class="hero card">
+    <img class="hero-logo" src="./assets/logo-dcr.jpeg" alt="Logo DCR GROUP">
+    <div class="welcome-title">Ciao <span id="helloName">Cliente</span>!</div>
+    <p class="welcome-sub">Benvenuta nell'area ordini 😊</p>
+    <a class="hero-cta" href="./pages/catalog.html">ORDINI DCR GROUP</a>
+  </div>
+
+  <div class="section-title"><h2>🔥 OFFERTE DELLA SETTIMANA</h2></div>
+  <div class="banner-panel">
+    <div class="offer-grid" id="weeklyList"></div>
+    <a class="full-pill" href="./pages/catalog.html">SCOPRI TUTTE LE OFFERTE</a>
+  </div>
+
+  <div class="section-title"><h2>⚡ RIORDINO VELOCE</h2></div>
+  <div class="reorder-card">
+    <div class="reorder-note">Il tuo ultimo ordine:</div>
+    <ul id="reorderList"><li>Caricamento prodotti...</li></ul>
+    <button id="reorderBtn" class="reorder-btn">RIORDINA IN 1 CLICK</button>
+  </div>
+
+  <div class="section-title"><h2>🛍 CATALOGO</h2></div>
+  <div class="catalog-grid" id="catalogGrid"></div>
+
+  <div class="section-title"><h2>⭐ I TUOI PRODOTTI</h2></div>
+  <div class="list" id="favList"></div>
+
+  <div class="section-title"><h2>⚡ OFFERTE GIORNALIERE</h2></div>
+  <div class="list" id="dailyList"></div>
+
+  <div class="section-title"><h2>Contatti</h2></div>
+  <div class="banner-panel">
+    <strong>DCR GROUP di Luca Di Caro</strong>
+    <div class="small" style="margin-top:8px">Tel. 3337377008 · Email luca.dicaro@yahoo.it</div>
+    <div class="small" style="margin-top:8px">Sconto cliente: <span id="discountPill">0%</span></div>
+  </div>
+</div>
+<script type="module" src="./js/home.js"></script>
+<a class="cart-fab" href="./pages/cart.html">🛒<span data-cart-count>0</span></a>
+<div class="bottom-nav"><div class="nav-inner"><a href="index.html" class="active"><span>Home</span></a><a href="pages/catalog.html"><span>Catalogo</span></a><a href="pages/cart.html"><span>Carrello</span></a><a href="pages/orders.html"><span>Ordini</span></a><a href="pages/profile.html"><span>Profilo</span></a></div></div>
+<script src="./js/app.js"></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}</script>
+</body>
+</html>

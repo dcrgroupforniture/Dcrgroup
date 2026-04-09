@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Catalogo - DCR GROUP</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../assets/logo-dcr.jpeg">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="topbar">
+    <div class="brand-wrap">
+      <img src="../assets/logo-dcr.jpeg" alt="logo">
+      <div><div class="brand-title">Catalogo prodotti</div><div class="brand-sub">Ricerca veloce per marchio e categoria</div></div>
+    </div>
+    <span class="badge"><span id="seedCount">0</span> prodotti</span>
+  </div>
+
+  <div class="grid-2">
+    <input id="search" placeholder="Cerca per nome, codice, marchio...">
+    <select id="brand"></select>
+    <select id="category"></select>
+  </div>
+
+  <div class="section-title"><h2>Risultati</h2></div>
+  <div class="product-grid" id="productList"></div>
+</div>
+<script src="../js/app.js"></script>
+<script type="module" src="../js/catalog.js"></script>
+
+  <a class="cart-fab" href="./cart.html">🛒<span data-cart-count>0</span></a>
+  <div class="bottom-nav"><div class="nav-inner"><a href="../index.html" class=""><span>Home</span></a><a href="./catalog.html" class="active"><span>Catalogo</span></a><a href="./cart.html" class=""><span>Carrello</span></a><a href="./orders.html" class=""><span>Ordini</span></a><a href="./profile.html" class=""><span>Profilo</span></a></div></div>
+  <script src="./js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('../service-worker.js').catch(()=>{});
+}
+</script></body>
+</html>

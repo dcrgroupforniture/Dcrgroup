@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Scadenze</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="deadlines.css">
+  <script type="module" src="deadlines.js" defer></script>
+</head>
+<body>
+
+<header class="header">
+  <button onclick="history.back()">←</button>
+  <h1>Scadenze</h1>
+</header>
+
+<main class="container">
+
+  <!-- NAV CALENDARIO -->
+  <div class="calendar-nav">
+    <button id="prevMonth">‹</button>
+    <h2 id="currentMonth"></h2>
+    <button id="nextMonth">›</button>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="calendar" id="calendar"></div>
+
+  <!-- TOTALI -->
+  <div class="totals-card">
+    <div>Totale mese: € <strong id="monthTotal">0.00</strong></div>
+    <div>Totale anno: € <strong id="yearTotal">0.00</strong></div>
+  </div>
+
+</main>
+
+<!-- MODAL INSERIMENTO -->
+<div class="modal hidden" id="modal">
+  <div class="modal-content">
+    <h3 id="modalDate"></h3>
+
+    <input id="deadlineName" placeholder="Nome scadenza">
+    <input id="deadlineAmount" type="number" step="0.01" placeholder="Importo €">
+
+    <div class="modal-actions">
+      <button id="saveDeadline">Salva</button>
+      <button id="closeModal">Annulla</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

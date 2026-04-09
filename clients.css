@@ -1,0 +1,466 @@
+/* ============================
+   CLIENTI (NUOVO LAYOUT)
+   Ispirato alle reference: sidebar + KPI colorati
+   Coerente con lo stile FabFix (rounded + soft shadow)
+   ============================ */
+
+:root{
+  --fx-radius: 18px;
+  --fx-radius-sm: 12px;
+  --fx-border: rgba(17, 24, 39, .10);
+  --fx-shadow: 0 10px 30px rgba(17,24,39,.08);
+  --fx-shadow-sm: 0 6px 16px rgba(17,24,39,.08);
+}
+
+body{margin:0;}
+
+main.page-content{
+  max-width: 1400px;
+}
+
+.clients-shell{
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-areas: "sidebar content";
+  gap: 16px;
+  padding: 14px;
+}
+
+.clients-sidebar{ grid-area: sidebar; }
+.clients-content{ grid-area: content; }
+
+/* ===== Sidebar ===== */
+.clients-sidebar{
+  background: rgba(255,255,255,.82);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-radius);
+  box-shadow: var(--fx-shadow-sm);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  display:flex;
+  flex-direction: column;
+  min-height: calc(100vh - 110px);
+}
+
+.sidebar-head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 14px 14px 10px 14px;
+}
+
+.sidebar-title{
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: .2px;
+}
+
+.sidebar-search{
+  padding: 0 14px 12px 14px;
+}
+
+.sidebar-search input{
+  width:100%;
+  border: 1px solid var(--fx-border);
+  border-radius: 999px;
+  padding: 10px 12px;
+  outline: none;
+  background: rgba(255,255,255,.9);
+}
+
+.sidebar-list{
+  padding: 6px 10px 10px 10px;
+  overflow: auto;
+  flex: 1;
+}
+
+.client-item{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.client-item:hover{ background: rgba(31,79,216,.06); }
+
+.client-item .name{
+  font-weight: 700;
+  font-size: 14.5px;
+  color: #0f172a;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.client-item .meta{
+  font-size: 12px;
+  opacity: .75;
+  margin-top: 2px;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.client-item .right{
+  text-align:right;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.client-item .total{
+  font-weight: 800;
+  color: #1f4fd8;
+  font-size: 13.5px;
+}
+
+.sidebar-footer{
+  border-top: 1px solid var(--fx-border);
+  padding: 12px 14px 14px 14px;
+  background: rgba(255,255,255,.9);
+}
+
+.sidebar-total-label{
+  font-size: 12px;
+  opacity: .7;
+}
+
+.sidebar-total-value{
+  font-size: 18px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+/* ===== Content ===== */
+.clients-content{
+  background: rgba(255,255,255,.72);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-radius);
+  box-shadow: var(--fx-shadow);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  min-height: calc(100vh - 110px);
+}
+
+.content-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.content-title{
+  margin:0;
+  font-size: 26px;
+  letter-spacing: .2px;
+}
+
+.content-sub{
+  margin-top: 6px;
+  opacity: .75;
+}
+
+.period-switch{
+  display:flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--fx-border);
+  background: rgba(255,255,255,.85);
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.pill{
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: transparent;
+  font-weight: 700;
+  white-space: nowrap;
+  flex: 1 1 0;
+  min-width: 92px;
+  text-align: center;
+}
+
+@media(max-width:520px){
+  .period-switch{ width:100%; flex-wrap:nowrap; gap:4px; padding:4px; }
+  .pill{ min-width:0; padding:8px 6px; font-size:12px; flex:1 1 25%; }
+}
+
+.pill.active{
+  background: rgba(31,79,216,.12);
+}
+
+.kpi-grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.kpi-card{
+  border-radius: var(--fx-radius);
+  padding: 14px 14px 12px 14px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: var(--fx-shadow-sm);
+  background: rgba(255,255,255,.9);
+}
+
+.kpi-label{ font-weight: 800; opacity: .86; }
+.kpi-value{ font-size: 26px; font-weight: 950; margin-top: 8px; }
+.kpi-hint{ margin-top: 6px; opacity: .70; font-size: 12.5px; }
+
+.kpi-blue{ background: rgba(59,130,246,.10); }
+.kpi-green{ background: rgba(34,197,94,.12); }
+.kpi-orange{ background: rgba(249,115,22,.13); }
+.kpi-red{ background: rgba(239,68,68,.12); }
+
+.bottom-grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.bottom-card{
+  border-radius: var(--fx-radius);
+  padding: 14px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: var(--fx-shadow-sm);
+  background: rgba(255,255,255,.9);
+}
+
+.bottom-title{ font-weight: 900; opacity: .85; }
+.bottom-value{ font-size: 22px; font-weight: 950; margin-top: 8px; }
+.bottom-sub{ opacity: .65; margin-top: 6px; }
+
+.bottom-muted{ background: rgba(255,255,255,.55); }
+
+/* ===== Buttons (coerenti con FabFix) ===== */
+.btn{
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.btn-sm{ padding: 8px 12px; font-size: 13px; }
+
+.btn-primary{
+  background: rgba(31,79,216,.14);
+  color: #0f172a;
+}
+.btn-primary:hover{ background: rgba(31,79,216,.18); }
+
+/* ===== Mobile (iPhone) ===== */
+@media (max-width: 900px){
+  /* Su mobile: Riepilogo in alto, lista clienti sotto (richiesta) */
+  .clients-shell{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "content"
+      "sidebar";
+  }
+  .clients-sidebar,
+  .clients-content{ min-height: auto; }
+}
+
+@media (max-width: 520px){
+  .clients-shell{ padding: 10px; gap: 10px; }
+  .kpi-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bottom-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .content-title{ font-size: 22px; }
+  .kpi-value{ font-size: 22px; }
+}
+
+
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9999;
+}
+.modal-overlay.hidden{ display:none; }
+.modal-card{
+  width: min(720px, 100%);
+  max-height: 85vh;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(2,6,23,.25);
+  border: 1px solid rgba(148,163,184,.35);
+}
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 14px 14px 10px 14px;
+  border-bottom: 1px solid rgba(148,163,184,.25);
+}
+.modal-title{ font-weight: 800; font-size: 16px; }
+.modal-close{
+  border: 0;
+  background: rgba(59,130,246,.12);
+  color:#1d4ed8;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+}
+.modal-body{
+  padding: 10px 14px 14px 14px;
+  overflow:auto;
+  max-height: calc(85vh - 54px);
+}
+.modal-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,.22);
+  margin-bottom: 10px;
+}
+.modal-row .meta{ opacity:.75; font-size: 12px; }
+.modal-row .amt{ font-weight: 900; }
+.modal-row button{
+  border:0;
+  background: rgba(59,130,246,.12);
+  color:#1d4ed8;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor:pointer;
+}
+
+
+/* ============================
+   FIX RESPONSIVE (iPhone/iPad)
+   - niente overflow a destra
+   - lista clienti: nome + importo sempre su 1 riga (iPad)
+   ============================ */
+html, body{max-width:100%; overflow-x:hidden;}
+main.page-content{max-width:100%;}
+.clients-shell{width:100%; max-width:100%;}
+.clients-sidebar, .clients-content{min-width:0;}
+
+/* Riga cliente: no wrap, nome ellissi, importo sempre a destra */
+.client-item{flex-wrap:nowrap;}
+.client-item .left{min-width:0;}
+.client-item .name{min-width:0;}
+.client-item .meta{min-width:0;}
+.client-item .right{white-space:nowrap;}
+
+@media (max-width: 520px){
+  .clients-shell{padding:10px;}
+  .clients-content{padding:12px;}
+  .clients-sidebar{min-height:auto;}
+}
+
+/* KPI cliccabili (liste) */
+#cardOrdersYear{ cursor: pointer; }
+#cardOrdersYear:hover{ filter: brightness(1.03); }
+
+/* =========================
+   ANALYTICS DASHBOARD (stile come screenshot)
+========================= */
+.clients-analytics{ margin-top: 18px; }
+.analytics-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+.analytics-card{
+  background:#fff;
+  border:1px solid rgba(15,23,42,.10);
+  border-radius:18px;
+  box-shadow:0 10px 26px rgba(15,23,42,.06);
+  overflow:hidden;
+}
+.analytics-card.wide{ grid-column: span 2; }
+.ac-title{
+  font-weight:800;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(15,23,42,.08);
+  background: linear-gradient(180deg, #ffffff, #f6f9ff);
+}
+.ac-body{ padding: 12px 14px; min-height: 280px; }
+.analytics-card.wide .ac-body{ min-height: 320px; }
+#chartRevenue{ width:100% !important; height:260px !important; display:block; }
+.ac-kpi{
+  font-size: 26px;
+  font-weight: 900;
+  margin-top: 6px;
+}
+.table-wrap{ overflow:auto; max-height: 240px; }
+.mini-table{ width:100%; border-collapse:collapse; font-size: 13px; }
+.mini-table th, .mini-table td{ padding:8px 10px; border-bottom:1px solid rgba(15,23,42,.08); text-align:left; }
+.mini-table th{ position: sticky; top: 0; background:#fff; }
+
+/* iPad: 2 colonne + tabelle a destra */
+@media (max-width: 1100px){
+  .analytics-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analytics-card.wide{ grid-column: span 2; }
+}
+@media (max-width: 760px){
+  .analytics-grid{ grid-template-columns: 1fr; }
+  .analytics-card.wide{ grid-column: span 1; }
+}
+
+/* iPhone: niente scroll pagina -> dashboard in TAB (nascondo analytics di default) */
+@media (max-width: 600px){
+  .clients-analytics{ display:none; }
+}
+
+
+.ac-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.products-bank-section{margin-top:12px;}
+.products-bank-card .ac-body{display:flex;flex-direction:column;gap:12px;}
+.products-bank-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.pb-kpi{border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:12px;background:rgba(255,255,255,.75);box-shadow:var(--fx-shadow-sm);}
+.pb-kpi span{display:block;font-size:12px;opacity:.7;}
+.pb-kpi strong{display:block;font-size:24px;font-weight:900;margin-top:6px;}
+.products-modal-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.products-modal-summary>div{background:rgba(255,255,255,.8);border:1px solid var(--fx-border);border-radius:12px;padding:10px;}
+@media (max-width: 800px){.products-bank-kpis,.products-modal-summary{grid-template-columns:1fr;}}
+
+
+/* ===== Banca dati prodotti: impaginazione più pulita ===== */
+.products-bank-card .table-wrap{margin-top:14px;}
+#tblProductsBank{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;}
+#tblProductsBank thead th{padding:12px 10px;background:rgba(15,23,42,.04);font-size:13px;}
+#tblProductsBank tbody td{padding:14px 10px;line-height:1.45;vertical-align:top;}
+#tblProductsBank th:nth-child(1),#tblProductsBank td:nth-child(1){width:54px;text-align:center;}
+#tblProductsBank th:nth-child(2),#tblProductsBank td:nth-child(2){width:auto;word-break:break-word;font-weight:700;}
+#tblProductsBank th:nth-child(3),#tblProductsBank td:nth-child(3),#tblProductsBank th:nth-child(4),#tblProductsBank td:nth-child(4){width:90px;text-align:center;}
+#tblProductsBank th:nth-child(5),#tblProductsBank td:nth-child(5){width:140px;text-align:right;white-space:nowrap;}
+#tblProductsBank tbody tr:nth-child(even){background:rgba(248,250,255,.82);}
+#tblProductsBank tbody tr:hover{background:rgba(59,130,246,.05);}
+@media (max-width: 860px){
+  .products-bank-kpis{grid-template-columns:1fr;}
+  #tblProductsBank thead{display:none;}
+  #tblProductsBank,#tblProductsBank tbody,#tblProductsBank tr,#tblProductsBank td{display:block;width:100%;}
+  #tblProductsBank tbody{display:grid;gap:12px;}
+  #tblProductsBank tr{border:1px solid rgba(15,23,42,.10);border-radius:16px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.05);padding:12px;}
+  #tblProductsBank td{border:none;padding:0;margin-top:8px;text-align:left !important;white-space:normal !important;}
+  #tblProductsBank td:first-child{margin-top:0;color:#64748b;font-weight:800;}
+  #tblProductsBank td:nth-child(2){font-size:16px;line-height:1.38;margin-top:4px;}
+  #tblProductsBank td:nth-child(3),#tblProductsBank td:nth-child(4),#tblProductsBank td:nth-child(5){display:flex;justify-content:space-between;gap:12px;align-items:center;}
+  #tblProductsBank td:nth-child(3)::before{content:"Pezzi";font-weight:800;color:#64748b;}
+  #tblProductsBank td:nth-child(4)::before{content:"Vendite";font-weight:800;color:#64748b;}
+  #tblProductsBank td:nth-child(5)::before{content:"Ultimo prezzo";font-weight:800;color:#64748b;}
+}

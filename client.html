@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scheda cliente</title>
+
+  <link rel="stylesheet" href="./styles.css?v=15_20260225222215">
+  <link rel="stylesheet" href="./mobile.css?v=15_20260225222215">
+  <link rel="stylesheet" href="./client.css?v=15_20260225222215">
+</head>
+
+<body>
+
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='clients.html'">←</button>
+    <span class="page-title">Cliente</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="incassi.html">INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+    </select>
+  </header>
+
+  <main class="page-content">
+
+    <div class="client-shell">
+
+      <!-- MAIN -->
+      <section class="client-main">
+        <div class="client-head">
+          <div>
+            <h1 id="clientName" class="client-title">Nuovo cliente</h1>
+            <div class="client-sub" id="clientSub">Anagrafica e storico ordini</div>
+          </div>
+        </div>
+
+        <!-- ACTION TILES -->
+        <div class="tiles">
+          <button id="addOrder" class="tile tile-blue" type="button">
+            <div class="tile-title">Crea ordine</div>
+            <div class="tile-sub">Inserisci un nuovo ordine per questo cliente</div>
+          </button>
+
+          <button id="saveClient" class="tile tile-green" type="button">
+            <div class="tile-title">Modifica cliente</div>
+            <div class="tile-sub">Salva modifiche anagrafica</div>
+          </button>
+
+          <button id="deleteClient" class="tile tile-red" type="button">
+            <div class="tile-title">Elimina cliente</div>
+            <div class="tile-sub">Elimina cliente (non consigliato)</div>
+          </button>
+        </div>
+
+        <!-- ANAGRAFICA -->
+        <div class="panel">
+          <div class="panel-title">Anagrafica cliente</div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Nome cliente</label>
+              <input type="text" id="name" placeholder="Nome e cognome / ragione sociale">
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="email" placeholder="email@dominio.it">
+            </div>
+
+            <div class="field">
+              <label>Telefono</label>
+              <input type="text" id="phone" placeholder="+39 ...">
+            </div>
+
+            <div class="field">
+              <label>Comune</label>
+              <input type="text" id="city" placeholder="Città">
+            </div>
+
+            <div class="field">
+              <label>P. IVA</label>
+              <input type="text" id="vat" placeholder="Partita IVA">
+            </div>
+          </div>
+        </div>
+
+        <!-- STORICO ORDINI -->
+        <div class="panel">
+          <div class="panel-title">Storico ordini</div>
+          <div class="panel-sub">Clicca un ordine per aprire. Usa ✏️ / 🗑️ per modificare o eliminare.</div>
+          <div id="ordersList" class="orders"></div>
+        </div>
+
+      </section>
+
+      <!-- SIDE KPI -->
+      <aside class="client-side">
+        <div class="side-card">
+          <div class="side-label">Ordini totali</div>
+          <div class="side-value" id="kpiOrdersTotal">0</div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-label">Fatturato annuo</div>
+          <div class="side-value" id="kpiRevenueYear">€ 0,00</div>
+          <div class="side-hint">Anno corrente</div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-label">Totale incassi</div>
+          <div class="side-value" id="kpiIncassi">€ 0,00</div>
+          <div class="side-hint">Da ordini (Incassato/Acconto)</div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-label">Da incassare</div>
+          <div class="side-value" id="kpiDaIncassare">€ 0,00</div>
+        </div>
+      </aside>
+
+    </div>
+    <section class="panel" style="margin:16px 14px 0 14px;">
+      <div class="panel-title">Banca dati prodotti cliente</div>
+      <div class="panel-sub">Prodotti acquistati dal cliente in progressivo dallo storico ordini.</div>
+      <div class="table-wrap" style="margin-top:12px;">
+        <table class="mini-table" id="clientProductsTable">
+          <thead><tr><th>#</th><th>Prodotto</th><th>Pezzi</th><th>Ordini</th><th>Ultimo prezzo</th></tr></thead>
+          <tbody><tr><td colspan="5">Nessun prodotto registrato.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./client.js?v=15_20260225222215"></script>
+  <script type="module" src="/nav.js?v=15_20260225222215"></script>
+  <script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login clienti - DCR GROUP</title>
+  <link rel="icon" href="./assets/logo-dcr.jpeg">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="card login-card">
+      <div class="brand-wrap" style="flex-direction:column;text-align:center;margin-bottom:14px">
+        <img src="./assets/logo-dcr.jpeg" alt="Logo DCR GROUP">
+        <div class="brand-title" style="font-size:2.2rem">DCR GROUP</div>
+        <div class="brand-sub">Accesso clienti parrucchieri</div>
+      </div>
+      <div class="notice" style="margin-bottom:14px">Accedi con email e password Firebase. Il cliente deve essere abilitato nella collection <strong>clients</strong>.</div>
+      <form id="loginForm" class="list">
+        <input id="email" type="email" placeholder="Email" required>
+        <input id="password" type="password" placeholder="Password" required>
+        <button id="loginBtn" class="btn full" type="submit">Entra</button>
+      </form>
+      <div class="notice" style="margin-top:14px">Requisiti: documento cliente con almeno <strong>email</strong>, <strong>portalEnabled</strong>, opzionale <strong>authUid</strong>.</div>
+    </div>
+  </div>
+  <script src="./js/app.js"></script>
+  <script type="module" src="./js/login.js"></script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}</script>
+</body>
+</html>

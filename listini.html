@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Listini Prezzi</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="listini.css" />
+</head>
+<body class="page">
+
+  <div class="topbar">
+    <a class="btn-back" href="index.html">←</a>
+    <div class="title">Listini Prezzi</div>
+    <select id="quickNav" class="quick-nav"><option value="">Vai a…</option><option value="index.html">HOME</option><option value="clients.html">CLIENTI</option><option value="suppliers.html">FORNITORI</option><option value="scadenze.html">SCADENZE</option><option value="incassi.html">INCASSI</option><option value="spese.html">SPESE</option><option value="listini.html">LISTINI</option><option value="agenda.html">AGENDA</option><option value="ordini-clienti.html">ORDINI CLIENTI</option></select>
+  </div>
+
+  <main class="listini-wrap">
+    <div class="listini-shell">
+      <div class="listini-head">
+        <div>
+          <h1 class="listini-title">Listini</h1>
+          <p class="listini-sub">Cerca un prodotto in tutti i listini oppure seleziona un listino da aprire.</p>
+        </div>
+      </div>
+
+
+      <section class="catalog-import-card">
+        <div class="catalog-import-head">
+          <div>
+            <h2 class="catalog-import-title">Cataloghi • Carica listino</h2>
+            <p class="catalog-import-sub">Carica i listini PDF/CVS conosciuti e aggiorna automaticamente la collezione <strong>products</strong>.</p>
+          </div>
+          <div id="catalogImportBadge" class="catalog-import-badge">Nessun file analizzato</div>
+        </div>
+        <div class="catalog-import-actions">
+          <input type="file" id="catalogFiles" class="catalog-file-input" multiple accept=".pdf,.csv,.xlsx,.xls" />
+          <button type="button" class="catalog-btn secondary" id="analyzeCatalogBtn">Analizza file selezionati</button>
+          <button type="button" class="catalog-btn" id="loadLisapDemoBtn">Carica demo LISAP 2026</button>
+          <button type="button" class="catalog-btn success" id="importCatalogBtn" disabled>Aggiorna prodotti</button>
+        </div>
+        <div id="catalogImportStatus" class="catalog-import-status">Puoi usare i 3 PDF LISAP/Keraplant oppure un CSV con colonne: brand,line,category,name,format,price,active.</div>
+        <div class="catalog-import-grid">
+          <div class="catalog-import-panel">
+            <div class="catalog-import-panel-title">File analizzati</div>
+            <div id="catalogFilesList" class="catalog-files-list"></div>
+          </div>
+          <div class="catalog-import-panel">
+            <div class="catalog-import-panel-title">Anteprima prodotti</div>
+            <div id="catalogPreviewSummary" class="catalog-preview-summary"></div>
+            <div class="table-wrap">
+              <table class="mini-table">
+                <thead><tr><th>#</th><th>Prodotto</th><th>Linea</th><th>Cat.</th><th>Formato</th><th>Prezzo</th></tr></thead>
+                <tbody id="catalogPreviewRows"><tr><td colspan="6">Nessuna anteprima.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="global-search-wrap">
+        <input type="text" id="globalSearch" class="global-search" placeholder="Cerca prodotto in tutti i listini..." />
+        <div id="indexBadge" class="global-badge">Indice: 0</div>
+      </div>
+
+      <div id="searchResults" class="search-results">
+        <div class="search-results-title">Risultati ricerca</div>
+        <div id="resultsList"></div>
+        <div class="search-hint">Tocca un risultato per aprire il listino corrispondente.</div>
+      </div>
+
+      <section class="price-lists" id="listsGrid"></section>
+
+      <section class="history-card">
+        <div class="search-results-title">Storico ordini listini</div>
+        <div id="storicoOrdiniListini"></div>
+      </section>
+
+      <section class="history-card">
+        <div class="search-results-title">Banca dati prodotti LISAP</div>
+        <div id="lisapProductsBank"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="nav.js"></script>
+  <script src="scripts/dashboard-menu.js"></script>
+  <script src="listini.js" type="module"></script>
+</body>
+</html>

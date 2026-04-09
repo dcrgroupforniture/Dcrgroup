@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profilo - DCR GROUP</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../assets/logo-dcr.jpeg">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="topbar">
+    <div class="brand-wrap">
+      <img src="../assets/logo-dcr.jpeg" alt="logo">
+      <div><div class="brand-title">Profilo cliente</div><div class="brand-sub">Dati account e sconti</div></div>
+    </div>
+  </div>
+  <div class="list">
+    <div class="card"><strong>Azienda / salone</strong><div id="companyName" class="muted" style="margin-top:6px"></div></div>
+    <div class="card"><strong>Email</strong><div id="email" class="muted" style="margin-top:6px"></div></div>
+    <div class="card"><strong>Sconto cliente</strong><div id="discount" class="muted" style="margin-top:6px"></div></div>
+    <button class="btn-ghost" id="logoutBtn">Esci</button>
+  </div>
+</div>
+<script src="../js/app.js"></script>
+<script type="module" src="../js/profile.js"></script>
+
+  <a class="cart-fab" href="./cart.html">🛒<span data-cart-count>0</span></a>
+  <div class="bottom-nav"><div class="nav-inner"><a href="../index.html" class=""><span>Home</span></a><a href="./catalog.html" class=""><span>Catalogo</span></a><a href="./cart.html" class=""><span>Carrello</span></a><a href="./orders.html" class=""><span>Ordini</span></a><a href="./profile.html" class="active"><span>Profilo</span></a></div></div>
+  <script src="./js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('../service-worker.js').catch(()=>{});
+}
+</script></body>
+</html>

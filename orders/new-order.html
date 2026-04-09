@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuovo Ordine</title>
+
+  <link rel="stylesheet" href="clients.css">
+</head>
+
+<body>
+
+<header class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <h1>Nuovo Ordine</h1>
+</header>
+
+<main class="container">
+
+  <section class="card">
+    <h2>Righe Ordine</h2>
+
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Prodotto</th>
+          <th>Quantità</th>
+          <th>Prezzo</th>
+          <th>Totale</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orderBody"></tbody>
+    </table>
+
+    <button id="addRowBtn" class="add-btn">➕ Aggiungi riga</button>
+
+    <h3 id="orderTotal">Totale: € 0.00</h3>
+
+    <button id="saveOrderBtn" class="primary-btn">💾 Salva Ordine</button>
+  </section>
+
+</main>
+
+<script type="module" src="order.js"></script>
+</body>
+</html>

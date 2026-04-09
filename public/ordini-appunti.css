@@ -1,0 +1,63 @@
+/* Ordini (Appunti) - fix layout mobile (iPhone)
+   Obiettivo: pagina centrata, pulsanti visibili, niente overflow orizzontale.
+*/
+
+/* evita scroll orizzontale su mobile */
+html, body{ max-width:100%; overflow-x:hidden; }
+
+/* barra bottoni stampa: va a capo */
+#notesPrintBar{ flex-wrap:wrap; }
+
+/* elementi storico note */
+.note-item{
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.note-sel{ padding-top:2px; }
+.note-meta{
+  min-width: 160px;
+  font-weight: 800;
+  opacity: .75;
+  font-size: 12px;
+}
+.note-body{
+  white-space: pre-wrap;
+  flex: 1;
+}
+.note-actions{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+}
+
+/* iPhone: tutto dentro la larghezza schermo */
+@media (max-width: 520px){
+  .note-item{ flex-wrap:wrap; }
+  .note-meta{ min-width:0; flex:1 1 100%; }
+  .note-body{ flex:1 1 100%; }
+  .note-actions{ width:100%; justify-content:flex-end; flex-wrap:wrap; }
+  .note-actions .btn{ width:auto; }
+}
+
+
+.page{padding-top:calc(86px + env(safe-area-inset-top));}
+.container{padding-top:18px !important;}
+.topbar{position:fixed !important;top:0;left:0;right:0;z-index:1000;}
+@media (max-width:900px){.page{padding-top:calc(94px + env(safe-area-inset-top));}}
+
+body{padding-top:0 !important;}
+.topbar{min-height:72px;padding-top:calc(env(safe-area-inset-top) + 8px) !important;padding-bottom:12px !important;box-sizing:border-box;}
+.page{padding-top:calc(104px + env(safe-area-inset-top)) !important;}
+.container{padding-top:28px !important;}
+@media (max-width:900px){.page{padding-top:calc(116px + env(safe-area-inset-top)) !important;}}
+
+
+.topbar{min-height:84px !important;padding-top:calc(env(safe-area-inset-top) + 14px) !important;padding-bottom:14px !important;}
+.page{padding-top:calc(128px + env(safe-area-inset-top)) !important;}
+.container{padding-top:38px !important;}
+@media (max-width:900px){.page{padding-top:calc(138px + env(safe-area-inset-top)) !important;}}

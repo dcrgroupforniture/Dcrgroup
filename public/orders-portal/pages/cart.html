@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrello - DCR GROUP</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../assets/logo-dcr.jpeg">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="topbar">
+    <div class="brand-wrap">
+      <img src="../assets/logo-dcr.jpeg" alt="logo">
+      <div><div class="brand-title">Carrello</div><div class="brand-sub">Controlla quantità, totale e note</div></div>
+    </div>
+    <span class="badge">Articoli: <span data-cart-count>0</span></span>
+  </div>
+
+  <div id="cartList" class="list"></div>
+  <div class="card" style="margin-top:12px">
+    <div class="row between"><strong>Totale</strong><span class="price" id="cartTotal">€0,00</span></div>
+    <div style="margin-top:12px"><textarea id="notes" placeholder="Note ordine, giorni consegna, richieste particolari..."></textarea></div>
+    <div class="grid-2" style="margin-top:12px">
+      <button class="btn secondary" id="btnOrder">Salva ordine</button>
+      <button class="btn" id="btnWhats">Invia WhatsApp</button>
+    </div>
+  </div>
+</div>
+<script src="../js/app.js"></script>
+<script type="module" src="../js/cart.js"></script>
+
+  <a class="cart-fab" href="./cart.html">🛒<span data-cart-count>0</span></a>
+  <div class="bottom-nav"><div class="nav-inner"><a href="../index.html" class=""><span>Home</span></a><a href="./catalog.html" class=""><span>Catalogo</span></a><a href="./cart.html" class="active"><span>Carrello</span></a><a href="./orders.html" class=""><span>Ordini</span></a><a href="./profile.html" class=""><span>Profilo</span></a></div></div>
+  <script src="./js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('../service-worker.js').catch(()=>{});
+}
+</script></body>
+</html>

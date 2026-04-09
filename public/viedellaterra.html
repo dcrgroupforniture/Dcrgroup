@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LE VIE DELLA TERRA</title>
+  <style>
+
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --brand:#1f4fd8;
+  --brand2:#163da8;
+  --radius:14px;
+}
+*{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text)}
+.top-bar{
+  position:fixed;top:0;left:0;right:0;height:64px;
+  background:#fff;display:flex;align-items:center;gap:12px;
+  padding:0 16px;border-bottom:1px solid var(--line);
+  z-index:1000;
+}
+.back-btn{
+  background:var(--brand);color:#fff;border:none;
+  font-size:18px;line-height:1;
+  padding:10px 14px;border-radius:12px;cursor:pointer;
+}
+.back-btn:hover{background:var(--brand2)}
+.page-title{font-weight:700;font-size:16px;letter-spacing:.2px}
+.page-content{max-width:1100px;margin:0 auto;padding:92px 16px 24px}
+.h1{font-size:28px;margin:0 0 12px;font-weight:800}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.toolbar{
+  display:flex;gap:12px;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;margin-bottom:12px
+}
+.search{
+  flex:1;
+  padding:12px 14px;border-radius:12px;border:1px solid #d1d5db;
+  outline:none;background:#fff
+}
+.search:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,79,216,.12)}
+.badge{
+  background:var(--brand);color:#fff;border-radius:999px;
+  padding:8px 12px;font-weight:700;font-size:13px
+}
+.table-wrap{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow-x:auto; overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  box-shadow:0 14px 30px rgba(0,0,0,.06);
+}
+table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
+thead th{
+  position:sticky;top:0;background:#f8fafc;z-index:1;
+  text-align:left;padding:12px;border-bottom:1px solid var(--line);
+  font-weight:800;
+}
+tbody td{
+  padding:10px 12px;border-bottom:1px solid #eef2f7;vertical-align:middle
+}
+tbody tr:hover{background:#f6f8ff}
+.col-desc{font-weight:700}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.small{font-size:12px;color:var(--muted)}
+.footer-note{margin-top:10px;color:var(--muted);font-size:12px}
+
+/* ✅ Mobile/fit: colonne dentro una sola schermata */
+.price-table th:nth-child(1), .price-table td:nth-child(1){width:72%;}
+.price-table th:nth-child(2), .price-table td:nth-child(2){width:28%;}
+/* testo prodotto può andare a capo */
+.col-desc{word-break:break-word;overflow-wrap:anywhere;hyphens:auto;}
+@media (max-width:560px){
+  thead th{white-space:normal;}
+
+  .top-bar{height:58px}
+  .page-content{padding-top:82px}
+  .h1{font-size:24px}
+  table{font-size:13px;}
+  thead th, tbody td{padding:10px}
+  thead th{white-space:normal}
+}
+
+.price-table thead th:nth-child(1), .price-table tbody td:nth-child(1){width:70%}
+.price-table thead th:nth-child(2), .price-table tbody td:nth-child(2){width:30.0%}
+  </style>
+</head>
+<body>
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">LE VIE DELLA TERRA</span>
+  
+  <select id="quickNav" class="quick-nav"><option value="">Vai a…</option><option value="index.html">HOME</option><option value="clients.html">CLIENTI</option><option value="suppliers.html">FORNITORI</option><option value="scadenze.html">SCADENZE</option><option value="incassi.html">INCASSI</option><option value="spese.html">SPESE</option><option value="listini.html">LISTINI</option><option value="statistiche.html">STATISTICHE</option><option value="agenda.html">AGENDA</option><option value="ordini-clienti.html">ORDINI CLIENTI</option></select>
+</header>
+
+  <main class="page-content">
+    <h1 class="h1">LE VIE DELLA TERRA</h1>
+    <p class="sub">Listino prezzi (IVA inclusa)</p>
+
+    <div class="toolbar">
+      <input id="search" class="search" type="text" placeholder="Cerca prodotto..." autocomplete="off" />
+      <span id="countBadge" class="badge">0</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="price-table" aria-label="Listino prezzi LE VIE DELLA TERRA">
+        <thead>
+          <tr>
+            <th>Prodotto</th>
+            <th class="num">Prezzo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer-note" id="shownInfo"></div>
+  </main>
+
+  <script>
+const ITEMS = [{"codice": "LVD1005A01*****", "descrizione": "01 COLORLIFE 200ml ARGENTO COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005A11*****", "descrizione": "11 COLORLIFE 200ml GRIGIO COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005A13*****", "descrizione": "13 colorlife 200ml beige color treatment", "prezzo": 20.62}, {"codice": "LVD1005C33*****", "descrizione": "33 COLORLIFE 200ml DORATO COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005D43*****", "descrizione": "43 COLORLIFE 200ml DORATO RAME COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005D44*****", "descrizione": "44 COLORLIFE 200ml RAME COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1018********", "descrizione": "NO YELLOW MASCHERA PER CAPELLI BIONDI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1019********", "descrizione": "COLORLIFE POROSITY EQUALIZER 100ML", "prezzo": 16.47}, {"codice": "LVD1030********", "descrizione": "COLOR LIFE SHAMPOO POST COLORE 1000ML", "prezzo": 25.62}, {"codice": "LVD1012********", "descrizione": "PURE PIGMENT NEUTRO 400ML", "prezzo": 43.8}, {"codice": "LVD1013********", "descrizione": "NO ORANGE SHAMPOO PER CAPELLI CASTANI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1014********", "descrizione": "NO ORANGE MASK PER CAPELLI CASTANI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1015********", "descrizione": "NO RED SHAMPOO PER CAPELLI CASTAN0 SCURI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1016********", "descrizione": "NO RED MASCHERA PER CAPELLI CASTAN0 SCURI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1017********", "descrizione": "NO YELLOW SHAMPOO PER CAPELLI BIONDI COLOR LIFE 250ML", "prezzo": 15.25}, {"codice": "LVD1011B2******", "descrizione": "2 COLOR LIFE MASK 400 ml BLUEBERRY VIOLA MIRTILLO", "prezzo": 32.82}, {"codice": "LVD1011C3******", "descrizione": "3 COLOR LIFE MASK 400 ml VANILLA DORATO VANIGLIA", "prezzo": 32.82}, {"codice": "LVD1011D4******", "descrizione": "4 COLOR LIFE MASK 400 ml ORANGE ROSSO ARANCIA", "prezzo": 32.82}, {"codice": "LVD1011F6******", "descrizione": "6 COLOR LIFE MASK 400 ml CHERRY ROSSO CILIEGIA", "prezzo": 32.82}, {"codice": "LVD1011G7******", "descrizione": "7 COLOR LIFE MASK 400 ml CHOCOLATE CIOCCOLATO", "prezzo": 32.82}, {"codice": "LVD1011Z*******", "descrizione": "CONDITIONER NEUTRAL COLORLIFE 1000 ML", "prezzo": 36.48}, {"codice": "LVD1010B2******", "descrizione": "2 COLOR LIFE MASK 150 ml BLUEBERRY VIOLA MIRTILLO", "prezzo": 15.25}, {"codice": "LVD1010C3******", "descrizione": "3 COLOR LIFE MASK 150 ml VANILLA DORATO VANIGLIA", "prezzo": 15.25}, {"codice": "LVD1010D4******", "descrizione": "4 COLOR LIFE MASK 150 ml ORANGE ROSSO ARANCIA", "prezzo": 15.25}, {"codice": "LVD1010F6******", "descrizione": "6 COLOR LIFE MASK 150 ml CHERRY ROSSO CILIEGIA", "prezzo": 15.25}, {"codice": "LVD1010G7******", "descrizione": "7 COLOR LIFE MASK 150 ml CHOCOLATE CIOCCOLATO", "prezzo": 15.25}, {"codice": "LVD1011A1******", "descrizione": "1 COLOR LIFE MASK 400 ml ARGENTO GHIACCIO", "prezzo": 32.82}, {"codice": "LVD1009GIALLO**", "descrizione": "PURE PIGMENT GIALLO 100ml", "prezzo": 31.6}, {"codice": "LVD1009RAME****", "descrizione": "PURE PIGMENT RAME 100ml", "prezzo": 31.6}, {"codice": "LVD1009ROSSO***", "descrizione": "PURE PIGMENT ROSSO 100ml", "prezzo": 31.6}, {"codice": "LVD1009VERDE***", "descrizione": "PURE PIGMENT VERDE 100ml", "prezzo": 31.6}, {"codice": "LVD1009VIOLA***", "descrizione": "PURE PIGMENT VIOLA 100ml", "prezzo": 31.6}, {"codice": "LVD1010A1******", "descrizione": "1 COLOR LIFE MASK 150 ml ARGENTO GHIACCIO", "prezzo": 15.25}, {"codice": "LVD1008B22*****", "descrizione": "SUBLIME CONTRASTS 22 VIOLA", "prezzo": 20.62}, {"codice": "LVD1008C33*****", "descrizione": "SUBLIME CONTRASTS 33 DORATO", "prezzo": 20.62}, {"codice": "LVD1008D44*****", "descrizione": "SUBLIME CONTRASTS 44 RAME", "prezzo": 20.62}, {"codice": "LVD1008F66*****", "descrizione": "SUBLIME CONTRASTS 66 ROSSO", "prezzo": 20.62}, {"codice": "LVD1008G77*****", "descrizione": "sublime contrasts 77 moka", "prezzo": 20.62}, {"codice": "LVD1009BLU*****", "descrizione": "PURE PIGMENT BLU 100ml", "prezzo": 31.6}, {"codice": "LVD1005G73*****", "descrizione": "73 COLORLIFE 200ml CACAO COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005G77*****", "descrizione": "77 COLORLIFE 200ml MOKA COLOR TREATMENT", "prezzo": 20.62}, {"codice": "LVD1005H87*****", "descrizione": "81 COLORLIFE 200ml BLACK COLOR TREATMENT", "prezzo": 32.82}, {"codice": "LVD1005X00*****", "descrizione": "00 colorlife 400ml neutro color treatment", "prezzo": 20.5}, {"codice": "LVD1008A01*****", "descrizione": "SUBLIME CONTRASTS 01 ARGENTO", "prezzo": 20.62}, {"codice": "LVD1008A11*****", "descrizione": "SUBLIME CONTRASTS 11 GRIGIO", "prezzo": 20.62}, {"codice": "LVD7020********", "descrizione": "MAC VOLUME SPRAY 150ml NR 01", "prezzo": 17.02}, {"codice": "LVD7021********", "descrizione": "MAC GLOSS JELLY 150ml NR 02", "prezzo": 17.02}, {"codice": "LVD7022********", "descrizione": "mac curl cream 100ml nr 03", "prezzo": 17.02}, {"codice": "LVD7023********", "descrizione": "MAC DARK GEL 100ml NR 04", "prezzo": 13.3}, {"codice": "LVD7025********", "descrizione": "MAC VOLUME FOAM 300ml NR 12", "prezzo": 17.02}, {"codice": "LVD7027********", "descrizione": "MAC GLOSS POMADE 100ml NR 14", "prezzo": 17.02}, {"codice": "LVD7040********", "descrizione": "MAC STRONG HOLD GELTUBO 250ML", "prezzo": 16.47}, {"codice": "LVD7041********", "descrizione": "MAC MATT SALT SPRAY 150ML", "prezzo": 17.02}, {"codice": "LVD7042********", "descrizione": "MAC VOLUME HAIR SPRAY 300ML", "prezzo": 17.02}, {"codice": "LVD7034********", "descrizione": "MAC FIXING SPRAY 500ML NR 25", "prezzo": 19.4}, {"codice": "LVD7035********", "descrizione": "mac fixing spray 100ml nr 25", "prezzo": 8.42}, {"codice": "LVD7036********", "descrizione": "MAC SHINE SPRAY 300ML NR 15", "prezzo": 17.02}, {"codice": "LVD7037********", "descrizione": "MAC FIXING SPRAY 300ml NR 25", "prezzo": 15.8}, {"codice": "LVD7038********", "descrizione": "MAC CURL CREAM 150ml", "prezzo": 24.38}, {"codice": "LVD7039********", "descrizione": "MAC HEAT PROTECTION SPRAY 150ML", "prezzo": 17.02}, {"codice": "LVD7028********", "descrizione": "MAC ECO HAIR SPRAY 300ml NR 21", "prezzo": 23.06}, {"codice": "LVD7029********", "descrizione": "MAC STYLING FOAM 300ml NR 22", "prezzo": 17.02}, {"codice": "LVD7030********", "descrizione": "MAC STYLING GLAZE 150ml NR 23", "prezzo": 17.02}, {"codice": "LVD7031********", "descrizione": "MAC MATTE PASTE 100ml", "prezzo": 18.54}, {"codice": "LVD7032********", "descrizione": "MAC DARK GEL 250ML NR 04", "prezzo": 23.12}, {"codice": "LVD7033********", "descrizione": "MAC STYLING GEL 250ML NR 26", "prezzo": 17.02}, {"codice": "LVD5030********", "descrizione": "K-HEMP STARTER SHAMPOO 400ml", "prezzo": 26.72}, {"codice": "LVD5031********", "descrizione": "K-HEMP SUPER SMOOTHIG GEL 400ml", "prezzo": 280.6}, {"codice": "LVD5032********", "descrizione": "K-HEMP FREQUENT SHAMPOO 250ml", "prezzo": 15.74}, {"codice": "LVD5033********", "descrizione": "K-HEMP FREQUENT SHAMPOO 400ml", "prezzo": 24.28}, {"codice": "LVD5034********", "descrizione": "K-HEMP SMOOTHING CONDITIONER 250ml", "prezzo": 19.52}, {"codice": "LVD5035********", "descrizione": "K-HEMP SMOOTHING CONDITIONER 400ml", "prezzo": 30.38}, {"codice": "LVD5036********", "descrizione": "K-HEMP SMOOTHING CREAM 100ml", "prezzo": 16.96}, {"codice": "LVD5039********", "descrizione": "K-HEMP SMOOTHING KERATIN CREAM 250 ML NEW", "prezzo": 145.18}, {"codice": "LVD1007A00*****", "descrizione": "neutro natural life 500 gr. neutro", "prezzo": 49.17}, {"codice": "LVD1007A0040gr*", "descrizione": "NEUTRO NATURAL LIFE 40 GR. NEUTRO", "prezzo": 10.86}, {"codice": "LVD1007A11*****", "descrizione": "11 NATURAL LIFE LVDT 40gr BIONDO SCURO CENERE", "prezzo": 15.74}, {"codice": "LVD1007A13*****", "descrizione": "13 NATURAL LIFE LVDT 40gr CASTANO NOCE", "prezzo": 15.74}, {"codice": "LVD1007A18*****", "descrizione": "18 NATURAL LIFE LVDT 40gr GRIGIO", "prezzo": 15.74}, {"codice": "LVD1007A32*****", "descrizione": "32 NATURAL LIFE LVDT 40gr CANNELLA", "prezzo": 15.74}, {"codice": "LVD1007A73*****", "descrizione": "73 NATURAL LIFE LVDT 40gr CACAO", "prezzo": 15.74}, {"codice": "LVD1007A74*****", "descrizione": "74 NATURAL LIFE LVDT 40gr NOCCIOLA", "prezzo": 15.74}, {"codice": "LVD1007A77*****", "descrizione": "77 NATURAL LIFE LVDT 40gr MOKA", "prezzo": 15.74}, {"codice": "LVD1007A81*****", "descrizione": "81 NATURAL LIFE LVDT 40gr NERO", "prezzo": 24.28}, {"codice": "LVD1007B*******", "descrizione": "NATURAL LIFE HYDRATING ESSENTIAL OILS 250ml", "prezzo": 42.7}, {"codice": "LVD1007C*******", "descrizione": "NATURAL LIFE THERMAL WATER 1000ml", "prezzo": 14.52}, {"codice": "LVD1007A33*****", "descrizione": "33 NATURAL LIFE LVDT 40gr BIONDO DORATO", "prezzo": 15.74}, {"codice": "LVD1007A44*****", "descrizione": "44 NATURAL LIFE LVDT 40gr RAME NATURALE", "prezzo": 15.74}, {"codice": "LVD1007A55*****", "descrizione": "55 NATURAL LIFE LVDT 40gr MOGANO", "prezzo": 15.74}, {"codice": "LVD1007A64*****", "descrizione": "64 NATURAL LIFE LVDT 40gr CHILI", "prezzo": 15.74}, {"codice": "LVD1007A66*****", "descrizione": "66 natural life lvdt 40gr rosso acceso", "prezzo": 15.74}, {"codice": "LVD1007A71*****", "descrizione": "71 NATURAL LIFE LVDT 40gr CASTANO CENERE", "prezzo": 24.28}, {"codice": "LVD4014********", "descrizione": "WHITENER BLUE CREAM DECO. POWDER 500 ml", "prezzo": 34.04}, {"codice": "LVD4017********", "descrizione": "WHITENER BLUE POWDER DECO BLU POLVERE 1 KG", "prezzo": 43.68}, {"codice": "LVD4025********", "descrizione": "WHITENER POWDER PLEX 9 BLU 500gr", "prezzo": 34.04}, {"codice": "LVD4029********", "descrizione": "WHITENER BLACK CREAM 500ml", "prezzo": 48.68}, {"codice": "LVD4030********", "descrizione": "WHITENER FREE HAND POLVERE 400gr", "prezzo": 32.82}, {"codice": "LVD4110********", "descrizione": "WHITENER POWDER BLACK 10' 500ml NEW", "prezzo": 48.68}, {"codice": "LVD1004A1******", "descrizione": "TKC CREAM 1 COLOR 100ml 1 NERO", "prezzo": 12.75}, {"codice": "LVD1004C3******", "descrizione": "TKC CREAM 3 COLOR 100ml 3 CASTANO SCURO", "prezzo": 12.75}, {"codice": "LVD1004D4******", "descrizione": "TKC CREAM 4 COLOR 100ml 4 CASTANO", "prezzo": 12.75}, {"codice": "LVD1004X000****", "descrizione": "TKC CREAM NEUTRO COLOR 100ml NEUTRO", "prezzo": 12.75}, {"codice": "LVD1004XBLUE***", "descrizione": "TKC CREAM BLUE COLOR 100ml BLUE", "prezzo": 12.75}, {"codice": "LVD1004XGREEN**", "descrizione": "TKC CREAM GREEN COLOR 100ml GREEN", "prezzo": 12.75}, {"codice": "LVD1004XRED****", "descrizione": "TKC CREAM RED COLOR 100ml RED", "prezzo": 12.75}, {"codice": "LVD1004L10*****", "descrizione": "TKC CREAM 10 COLOR 100ml BIONDO PLATINO", "prezzo": 12.75}, {"codice": "LVD1004H88*****", "descrizione": "TKC CREAM 8.00 COLOR 100ml 8.00 BIONDO CHIARO INTENSO", "prezzo": 12.75}, {"codice": "LVD1004I9******", "descrizione": "TKC CREAM 9 COLOR 100ml 9 BIONDO CHIARISSIMO", "prezzo": 12.75}, {"codice": "LVD1004G77*****", "descrizione": "TKC CREAM 7.00 COLOR 100ml 7.00 BIONDO INTENSO", "prezzo": 12.75}, {"codice": "LVD1004H8******", "descrizione": "TKC CREAM 8 COLOR 100ml 8 BIONDO CHIARO", "prezzo": 12.75}, {"codice": "LVD1004G7******", "descrizione": "TKC CREAM 7 COLOR 100ml 7 BIONDO", "prezzo": 12.75}, {"codice": "LVD1004F66*****", "descrizione": "TKC CREAM 6.00 COLOR 100ml 6.00 BIONDO SCURO INTENSO", "prezzo": 12.75}, {"codice": "LVD1004F6******", "descrizione": "TKC CREAM 6 COLOR 100ml 6 BIONDO SCURO", "prezzo": 12.75}, {"codice": "LVD1004E55*****", "descrizione": "TKC CREAM 5.00 COLOR 100ml 5.00 CASTANO CH. INTENSO", "prezzo": 12.75}, {"codice": "LVD1004E5******", "descrizione": "TKC CREAM 5 COLOR 100ml 5 CASTANO CHIARO", "prezzo": 12.75}, {"codice": "LVD1001XVIOLET*", "descrizione": "POWDER COLOR 100ml VIOLET", "prezzo": 12.18}, {"codice": "LVD1001XBLUE***", "descrizione": "POWDER COLOR 100ml BLUE", "prezzo": 12.18}, {"codice": "LVD1001XGOLD***", "descrizione": "POWDER COLOR 100ml GOLD", "prezzo": 12.18}, {"codice": "LVD1001XGREEN**", "descrizione": "POWDER COLOR 100ml GREEN", "prezzo": 12.18}, {"codice": "LVD1001XORANGE*", "descrizione": "POWDER COLOR 100ml ORANGE", "prezzo": 12.18}, {"codice": "LVD1001XRED****", "descrizione": "POWDER COLOR 100ml RED", "prezzo": 12.18}, {"codice": "LVD1001XSILVER*", "descrizione": "POWDER COLOR 100ml SILVER", "prezzo": 12.18}, {"codice": "LVD1001X000****", "descrizione": "000 POWDER COLOR 100ml ATTIVATORE ULTRASCHIARENTE", "prezzo": 12.18}, {"codice": "LVD1001X1000***", "descrizione": "1000 POWDER COLOR 100ml GOLDEN POWDER NATURALE EXTRA", "prezzo": 12.18}, {"codice": "LVD1001X1110***", "descrizione": "1110 POWDER COLOR 100ml GOLDEN POWDER CENERE EXTRA", "prezzo": 12.18}, {"codice": "LVD1001X1202***", "descrizione": "1202 POWDER COLOR 100ml IRISE'", "prezzo": 12.18}, {"codice": "LVD1001X1207***", "descrizione": "1207 POWDER COLOR 100ml BEIGE", "prezzo": 12.18}, {"codice": "LVD1001X1210***", "descrizione": "1210 POWDER COLOR 100ml GOLDEN POWDER PERLA EXTRA", "prezzo": 12.18}, {"codice": "LVD1021*6******", "descrizione": "OX TONE LIGHT ATTIVATORE IN CREMA 1000 ml", "prezzo": 14.4}, {"codice": "LVD4001********", "descrizione": "OX LVDT OSSIDANTE IN CREMA 10 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4001A*******", "descrizione": "OX LVDT OSSIDANTE IN CREMA 5 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4001B*******", "descrizione": "OX LVDT OSSIDANTE IN CREMA 3,5 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4002********", "descrizione": "OX LVDT OSSIDANTE IN CREMA 20 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4003********", "descrizione": "OX LVDT OSSIDANTE IN CREMA 30 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4111********", "descrizione": "LVDT WHITENER OXY BUTTER 10 vol 1LTl NEW", "prezzo": 16.96}, {"codice": "LVD4112********", "descrizione": "LVDT WHITENER OXY BUTTER 20 vol 1LT NEW", "prezzo": 16.96}, {"codice": "LVD4113********", "descrizione": "LVDT WHITENER OXY BUTTER 30 vol 1LT NEW", "prezzo": 16.96}, {"codice": "LVD8079********", "descrizione": "POWDER TIME SAVER 10' 100ml", "prezzo": 43.8}, {"codice": "LVD4103********", "descrizione": "LVDT OX VELVET CREAM 40 vol 1000 ml", "prezzo": 12.19}, {"codice": "LVD4104********", "descrizione": "LVDT OX VELVET CREAM 5 VOL 1000 ML", "prezzo": 12.19}, {"codice": "LVD4106********", "descrizione": "O-LIGHT GLOSS CLEAR OIL 400 ML", "prezzo": 43.8}, {"codice": "LVD4107********", "descrizione": "LVDT OX VELVET CREAM 3,5 vol 1000 ml", "prezzo": 12.19}, {"codice": "LVD4108********", "descrizione": "LVDT WHITENER OXY BUTTER 20 vol 800 ml NEW", "prezzo": 15.25}, {"codice": "LVD4109********", "descrizione": "lvdt whitener oxy butter 30 vol 800 ml new", "prezzo": 15.25}, {"codice": "LVD4004********", "descrizione": "OX LVDT OSSIDANTE IN CREMA 40 vol 1000 ml", "prezzo": 13.3}, {"codice": "LVD4026********", "descrizione": "FISSAGGIO LVDT 1000ml", "prezzo": 13.3}, {"codice": "LVD4027********", "descrizione": "PERMANENTE LVDT 500ml", "prezzo": 36.48}, {"codice": "LVD4100********", "descrizione": "lvdt ox velvet cream 10 vol 1000 ml", "prezzo": 12.19}, {"codice": "LVD4101********", "descrizione": "lvdt ox velvet cream 20 vol 1000 ml", "prezzo": 12.19}, {"codice": "LVD4102********", "descrizione": "lvdt ox velvet cream 30 vol 1000 ml", "prezzo": 12.19}, {"codice": "LVD1104********", "descrizione": "CARTELLA COLORE POWDER 3 ANTE CIOCCHE", "prezzo": 60.88}, {"codice": "LVD9432********", "descrizione": "sacchetto paper bag", "prezzo": 0.37}, {"codice": "LVD9442********", "descrizione": "CIOTOLA LVDT BORDEAUX", "prezzo": 1.83}, {"codice": "LVD9443********", "descrizione": "PENNELLO TINTURA LVDT BORDEAUX", "prezzo": 1.83}, {"codice": "LVD9483********", "descrizione": "microcamera panema technologies", "prezzo": 701.5}, {"codice": "LVD9541********", "descrizione": "CATALOGO K-HEMP", "prezzo": 12.08}, {"codice": "LVD9715********", "descrizione": "profumatore ambiente lvdt opium 150ml", "prezzo": 13.42}, {"codice": "LVD9716********", "descrizione": "profumatore ambiente lvdt sandalo 150ml", "prezzo": 13.42}, {"codice": "LVD9717********", "descrizione": "profumatore ambiente lvdt melograno 150ml", "prezzo": 13.42}, {"codice": "LVD9670********", "descrizione": "book moda s/s 2023", "prezzo": 12.08}, {"codice": "LVD9674********", "descrizione": "OCCHIALI DA SOLE ZOPPINI", "prezzo": 9.15}, {"codice": "LVD9682********", "descrizione": "CARTELLA LAVENDER COLLECTION", "prezzo": 18.3}, {"codice": "LVD9685********", "descrizione": "shopper in tela laville", "prezzo": 9.15}, {"codice": "LVD9692********", "descrizione": "CARTELLA COLORE TONE LIGHT", "prezzo": 24.28}, {"codice": "LVD9700********", "descrizione": "CATALOGO ORGANIC LOOP 24X24", "prezzo": 12.08}, {"codice": "LVD9555********", "descrizione": "catalogo mac new", "prezzo": 9.64}, {"codice": "LVD9566********", "descrizione": "bilancia digitale lvdt", "prezzo": 42.58}, {"codice": "LVD9601********", "descrizione": "BOLLITORE 1000 ML 2400W", "prezzo": 48.68}, {"codice": "LVD9611********", "descrizione": "CARTELLA COLORE TKC CON CIOCCHE STACCABILI", "prezzo": 48.68}, {"codice": "LVD9622********", "descrizione": "MANTELLINA USA E GETTA LVDT CONF. 30 PZ 90 X 118", "prezzo": 6.09}, {"codice": "LVD9669********", "descrizione": "zaino da viaggio baldinini", "prezzo": 9.15}, {"codice": "LVD7014********", "descrizione": "EVERYWHERE MOSCOW POWDER 30ml POLVERE TEXTURIZZANTE", "prezzo": 17.02}, {"codice": "LVD00805*******", "descrizione": "ANCORETTA MAGNETICA PER COLORMIXER", "prezzo": 8.42}, {"codice": "LVD00806*******", "descrizione": "VASCHETTA INOX PER COLOR MIX", "prezzo": 25.62}, {"codice": "LVD4099********", "descrizione": "WHY SYSTEM STYLING GLAZE 250ml STYLE&FINISH SCONTO 50%", "prezzo": 6.1}, {"codice": "LVD8112********", "descrizione": "LVDT PROTECTIVE OIL 100ML", "prezzo": 19.28}, {"codice": "LVD9208********", "descrizione": "HAND CREAM 100ML", "prezzo": 9.15}, {"codice": "LVD9734********", "descrizione": "LVDT ASCIUGAMANI MICROFIBRA NERI 10PZ", "prezzo": 67.1}, {"codice": "LVD9735********", "descrizione": "LVDT VELVET BARRIERA CREAM 220ML", "prezzo": 8.42}, {"codice": "LVD9776********", "descrizione": "PHON MOVE LIGHT HAYR DRYER", "prezzo": 48.68}, {"codice": "LVD7100********", "descrizione": "ORGANIC LOOP REBALANCING LOTION 150ML", "prezzo": 20.13}, {"codice": "LVD7101********", "descrizione": "ORGANIC LOOP MICELLAR SHAMPOO 300ML", "prezzo": 20.13}, {"codice": "LVD7102********", "descrizione": "ORGANIC LOOP PLUMPING CONDITIONER 300ML", "prezzo": 24.4}, {"codice": "LVD7103********", "descrizione": "ORGANIC LOOP FILLER MASK 150ML", "prezzo": 24.4}, {"codice": "LVD7104********", "descrizione": "ORGANIC LOOP PROTECTIVE SPRAY 150ML", "prezzo": 20.13}, {"codice": "LVD7105********", "descrizione": "ORGANIC LOOP MICELLAR SHAMPOO 500ML", "prezzo": 30.5}, {"codice": "LVD7106********", "descrizione": "ORGANIC LOOP PLUMPING CONDITIONER 500ML", "prezzo": 36.6}, {"codice": "LVD7107********", "descrizione": "ORGANIC LOOP FILLER MASK 500ML", "prezzo": 70.76}, {"codice": "LVD1020X0******", "descrizione": "0 TONE LIGHT 100ML NEUTRO", "prezzo": 14.4}, {"codice": "LVD9584********", "descrizione": "COFANETTO EMOZIONE VACANZE", "prezzo": 120.78}];
+const tbody = document.querySelector("#tbody");
+const searchInput = document.querySelector("#search");
+const countBadge = document.querySelector("#countBadge");
+const shownInfo = document.querySelector("#shownInfo");
+
+function euro(v){
+  if(v === null || v === undefined || Number.isNaN(v)) return "";
+  return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(v);
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function render(list){
+  tbody.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  for(const it of list){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <div class="col-desc">${escapeHtml(it.descrizione)}</div>
+        ${it.codice ? `<div class="small">${escapeHtml(it.codice)}</div>` : ``}
+      </td>
+      <td class="num">${euro(it.prezzo)}</td>
+    `;
+    frag.appendChild(tr);
+  }
+  tbody.appendChild(frag);
+  countBadge.textContent = `${list.length} / ${ITEMS.length}`;
+  shownInfo.textContent = `Mostrati ${list.length} articoli su ${ITEMS.length}.`;
+}
+
+function applyFilter(){
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q){ render(ITEMS); return; }
+  const filtered = ITEMS.filter(it =>
+    (it.descrizione || "").toLowerCase().includes(q) ||
+    (it.codice || "").toLowerCase().includes(q)
+  );
+  render(filtered);
+}
+
+searchInput.addEventListener("input", applyFilter);
+render(ITEMS);
+  </script>
+  <script type="module" src="/nav.js?v=15_20260225222215"></script>
+  <script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+</body>
+</html>

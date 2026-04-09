@@ -1,0 +1,132 @@
+/* riuso stile testata tricolore */
+.section-head{
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin: 6px 0 18px;
+  pointer-events:none;
+}
+.flag-line{
+  height:4px;
+  width: 34%;
+  border-radius: 999px;
+}
+.flag-line.left{ background:#0a7a3d; }
+.flag-line.right{ background:#c62828; }
+.pill-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(31,79,216,0.10);
+  border: 1px solid rgba(31,79,216,0.25);
+  font-weight: 800;
+  letter-spacing: 2px;
+  color:#1f4fd8;
+  text-transform: uppercase;
+}
+.pill-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border-radius: 10px;
+  background:#1f4fd8;
+  color:#fff;
+  font-weight:900;
+}
+
+/* blocchi */
+.card-block{
+  background:#fff;
+  border:1px solid #e6e8ef;
+  border-radius:16px;
+  padding: 16px;
+}
+
+.sep{
+  margin: 22px 0;
+  border:none;
+  border-top:1px solid #e6e8ef;
+}
+
+.invoice-toolbar{
+  margin: 10px 0 12px;
+  display:flex;
+  justify-content:flex-start;
+  gap:10px;
+}
+
+.invoice-total{
+  margin: 0 0 8px;
+}
+
+.invoice-form{
+  background:#fff;
+  border:1px solid #e6e8ef;
+  border-radius:16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.hidden{ display:none; }
+
+.invoice-actions{
+  display:flex;
+  gap:10px;
+  margin-top: 10px;
+}
+
+/* lista fatture */
+.list{
+  background:#fff;
+  border-radius: 16px;
+  overflow:hidden;
+  border: 1px solid #e6e8ef;
+}
+.invoice-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding: 14px 16px;
+  border-bottom:1px solid #eef0f6;
+}
+.invoice-row:last-child{ border-bottom:none; }
+
+.inv-left{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.inv-date{
+  font-weight: 800;
+}
+.inv-amount{
+  font-weight: 900;
+  color:#1f4fd8;
+}
+
+.inv-actions{
+  display:flex;
+  gap:8px;
+}
+.icon-btn{
+  border:none;
+  background: transparent;
+  cursor:pointer;
+  font-size: 18px;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.icon-btn:hover{
+  background:#f1f3fb;
+}
+
+/* mobile */
+@media (max-width:520px){
+  .flag-line{ width: 26%; }
+}

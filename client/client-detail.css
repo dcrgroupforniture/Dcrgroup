@@ -1,0 +1,217 @@
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f9;
+}
+
+/* ===== HEADER ===== */
+.header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.back-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.field {
+  margin-bottom: 8px;
+}
+
+/* ===== ORDINI ===== */
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#newOrderBtn {
+  background: #28a745;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* BLOCCO MESE */
+.month-block {
+  margin-top: 15px;
+}
+
+.month-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* RIGA ORDINE */
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+/* AZIONI ORDINE */
+.order-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.order-actions button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.order-actions button:hover {
+  transform: scale(1.2);
+}
+
+/* ===== MOBILE FIX ===== */
+@media (max-width: 480px) {
+  .order-row {
+    font-size: 14px;
+  }
+
+  .order-actions button {
+    font-size: 20px;
+  }
+}
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  flex-wrap: wrap; /* 🔥 FONDAMENTALE PER MOBILE */
+}
+
+.order-row span:first-child {
+  font-size: 14px;
+  flex: 1;
+}
+
+.order-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.order-actions button {
+  border: none;
+  background: #f1f5f9;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.order-actions button:active {
+  transform: scale(0.95);
+}
+/* ===== FIX TASTI MODIFICA / ELIMINA iOS ===== */
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+.order-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.order-actions button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* matita */
+.order-actions button:first-child {
+  background: #2563eb;
+  color: white;
+}
+
+/* cestino */
+.order-actions button:last-child {
+  background: #dc2626;
+  color: white;
+}
+
+/* effetto tap mobile */
+.order-actions button:active {
+  transform: scale(0.9);
+}
+/* ===== FIX VISIBILITÀ BOTTONI ORDINI ===== */
+
+.order-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.order-actions {
+  display: flex !important;
+  gap: 8px;
+}
+
+.order-actions button {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 16px;
+}

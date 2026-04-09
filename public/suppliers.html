@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fornitori</title>
+
+  <link rel="stylesheet" href="./styles.css?v=15_20260225222215">
+  <link rel="stylesheet" href="./mobile.css?v=15_20260225222215">
+  <link rel="stylesheet" href="./suppliers.css?v=15_20260225222215">
+</head>
+
+<body class="page">
+
+<header class="top-bar">
+  <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+  <span class="page-title">Fornitori</span>
+
+  <select id="quickNav" class="quick-nav">
+    <option value="">Vai a…</option>
+    <option value="index.html">HOME</option>
+    <option value="clients.html">CLIENTI</option>
+    <option value="suppliers.html" selected>FORNITORI</option>
+    <option value="scadenze.html">SCADENZE</option>
+    <option value="incassi.html">INCASSI</option>
+    <option value="spese.html">SPESE</option>
+    <option value="listini.html">LISTINI</option>
+    <option value="statistiche.html">STATISTICHE</option>
+    <option value="agenda.html">AGENDA</option>
+    <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+  </select>
+</header>
+
+<main class="page-content">
+  <div class="suppliers-shell">
+
+    <!-- SIDEBAR: lista fornitori + totale -->
+    <aside class="suppliers-sidebar" aria-label="Lista fornitori">
+      <div class="sidebar-head">
+        <div class="sidebar-title">Fornitori</div>
+        <button id="newSupplierBtn" class="btn btn-primary btn-sm">+ Nuovo</button>
+      </div>
+
+      <div class="sidebar-search">
+        <input type="text" id="searchInput" placeholder="Cerca fornitore...">
+      </div>
+
+      <div id="suppliersList"></div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-total-label">Totale generale (tutti i fornitori)</div>
+        <div class="sidebar-total-value">€ <span id="grandTotal">0.00</span></div>
+      </div>
+    </aside>
+
+    <!-- CONTENT: KPI + collegamenti -->
+    <section class="suppliers-content" aria-label="Riepilogo fornitori">
+      <div class="content-head">
+        <div>
+          <h1 class="content-title">Riepilogo</h1>
+          <div class="content-sub">Totali e accesso rapido.</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-label">Fornitori (quantità)</div>
+          <div class="kpi-value" id="kpiSuppliersCount">0</div>
+        </div>
+
+        <div class="kpi-card kpi-green">
+          <div class="kpi-label">Totale generale</div>
+          <div class="kpi-value" id="kpiSuppliersTotal">€ 0,00</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; color:#667085; font-weight:700; line-height:1.45">Tocca un fornitore nella lista a sinistra per aprire la scheda e gestire ordini/documenti.</div>
+      <div class="analytics-card" style="margin-top:16px;background:#eef5ff;border-radius:20px;padding:16px;border:1px solid rgba(31,79,216,.10);">
+        <div class="content-sub" style="margin-bottom:8px;font-weight:800;color:#334155;">Ordini per fornitore</div>
+        <div class="suppliers-chart-wrap"><canvas id="suppliersChart"></canvas></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script type="module" src="./suppliers.js?v=15_20260225222215"></script>
+<script type="module" src="/nav.js?v=15_20260225222215"></script>
+<script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

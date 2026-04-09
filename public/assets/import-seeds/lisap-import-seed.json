@@ -1,0 +1,4280 @@
+{
+  "version": "2026.03.17",
+  "generatedAt": "2026-03-17T00:00:00Z",
+  "sources": {
+    "LISTINO 2 CVS 2026.pdf": [
+      {
+        "brand": "LISAP",
+        "line": "LK CREAMCOLOR OIL PROTECTION COMPLEX",
+        "category": "Colorazione",
+        "name": "LK Creamcolor OPC Oil Protection Complex",
+        "format": "100 ml",
+        "price": 14.5,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ESCALATION",
+        "category": "Colorazione",
+        "name": "Escalation",
+        "format": "100 ml",
+        "price": 15.5,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "FILTER DOUSCOLOR",
+        "category": "Colorazione",
+        "name": "Filter Douscolor",
+        "format": "60 ml",
+        "price": 14.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DOUSCOLOR",
+        "category": "Colorazione",
+        "name": "Douscolor/Douscolor Glamour",
+        "format": "75 ml",
+        "price": 14.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "LK FRUIT",
+        "category": "Colorazione",
+        "name": "LK FRUIT",
+        "format": "100 ml",
+        "price": 15.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LK CREAMCOLOR ANTIAGE FRUIT",
+        "category": "Colorazione",
+        "name": "LK Creamcolor AntiAge FRUIT",
+        "format": "100 ml",
+        "price": 14.95,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "ESCALATION EASY ABSOLUTE 3",
+        "category": "Colorazione",
+        "name": "Escalation Easy Absolute 3",
+        "format": "60 ml",
+        "price": 15.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Light Scale Up To 9",
+        "format": "500 g",
+        "price": 44.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Light Scale Up To 10 - Pasta di carbone",
+        "format": "500 g",
+        "price": 60.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "DCM 10 Levels - Lightening Powder",
+        "format": "500 g",
+        "price": 40.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Light Scale Clay - Argilla Grigia",
+        "format": "400 g",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Light Scale Platinum - Polvere Grigia",
+        "format": "500 g",
+        "price": 60.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Light Scale Lightening Oil",
+        "format": "500 ml",
+        "price": 35.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECAPAGGIO",
+        "category": "Decolorazione",
+        "name": "Light Scale Color Remover",
+        "format": "25 g",
+        "price": 6.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLORE",
+        "category": "Colorazione",
+        "name": "Light Scale Color",
+        "format": "100 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Shampoo Anti-giallo",
+        "format": "1000 ml",
+        "price": 40.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Maschera Anti-giallo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Maschera Anti-giallo",
+        "format": "500 ml",
+        "price": 30.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Spray Anti-giallo",
+        "format": "125 ml",
+        "price": 15.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Mousse Anti-giallo",
+        "format": "250 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ANTIGIALLO",
+        "category": "Retail",
+        "name": "Light Scale Care Kit Shampoo + Maschera Anti-giallo",
+        "format": "12 x 100 ml",
+        "price": 9.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DECOLORAZIONE",
+        "category": "Decolorazione",
+        "name": "Bleach&Lights ProTech",
+        "format": "1000 g",
+        "price": 66.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "5 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "10 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "20 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "30 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "40 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "20 Vol.",
+        "price": 5.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "30 Vol.",
+        "price": 5.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Lisap Developer",
+        "format": "40 Vol.",
+        "price": 5.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Developer Lisap",
+        "format": "40 Vol.",
+        "price": 5.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Developer Easy 10/30/",
+        "format": "40 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "OSSIDANTI",
+        "category": "Ossidanti",
+        "name": "Developer Lisap Special Blue",
+        "format": "30 Vol.",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Professional Kit",
+        "format": "2x475ml",
+        "price": 185.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ 2 Hair Structure Filler",
+        "format": "475 ml",
+        "price": 80.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ 1 Bond Saver Concentrate *",
+        "format": "5 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ 2 Hair Structure Filler *",
+        "format": "20 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ XTREME COLOR",
+        "category": "Colorazione",
+        "name": "Lisaplex™ Xtreme Color",
+        "format": "60 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ FILTER COLOR",
+        "category": "Colorazione",
+        "name": "Lisaplex™ Filter Color",
+        "format": "100 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER DRY SHAMPOO",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Dry Shampoo",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Balsamo Lamellare Salone",
+        "format": "500 ml",
+        "price": 38.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Balsamo Lamellare Rivendita",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Balsamo Lamellare Bustine",
+        "format": "15 ml",
+        "price": 3.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Lamellar Shampoo Salone",
+        "format": "500 ml",
+        "price": 38.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Lamellar Shampoo Rivendita",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Mask *",
+        "format": "15 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Mask",
+        "format": "250 ml",
+        "price": 30.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Mask",
+        "format": "500 ml",
+        "price": 42.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Shampoo *",
+        "format": "15 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Shampoo",
+        "format": "1000 ml",
+        "price": 45.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Conditioner *",
+        "format": "15 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Conditioner",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Conditioner",
+        "format": "1000 ml",
+        "price": 55.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Cream *",
+        "format": "15 ml",
+        "price": 4.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAPLEX™ BOND SAVER LINE",
+        "category": "Trattamenti",
+        "name": "LISAPLEX™ Bond Saver Cream",
+        "format": "125 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SUNSET RITUAL AFTER SUN",
+        "category": "Retail",
+        "name": "Sunset Ritual After Sun Hair & Body Shampoo",
+        "format": "250 ml",
+        "price": 17.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SUNSET RITUAL AFTER SUN",
+        "category": "Retail",
+        "name": "Sunset Ritual After Sun Hair & Body Repair Mask",
+        "format": "200 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SUNSET RITUAL AFTER SUN",
+        "category": "Retail",
+        "name": "Sunset Ritual Sun Protective Spray",
+        "format": "150 ml",
+        "price": 22.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Anti-Pollution Shampoo",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Anti-Pollution Shampoo",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Bi-Phase Conditioner Spray",
+        "format": "150 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Light Moistur Conditioner",
+        "format": "200 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Light Moistur Conditioner",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Anti-Pollution Shampoo *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Light Moistur Conditioner *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Anti-Pollution Shampoo (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "URBAN SHIELD",
+        "category": "Retail",
+        "name": "Light Moistur Conditioner (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Shampoo",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Shampoo",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Mask",
+        "format": "200 ml",
+        "price": 29.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Mask",
+        "format": "500 ml",
+        "price": 49.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Cream Leave-in",
+        "format": "150 ml",
+        "price": 24.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Oil",
+        "format": "50 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Shampoo *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ELIXIR RENEW",
+        "category": "Retail",
+        "name": "Nourishing Mask *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Pre-Treatment Shampoo -Step 1-",
+        "format": "500 ml",
+        "price": 29.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Straightening Fluid -Step 2-",
+        "format": "500 ml",
+        "price": 290.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Lamination Mask -Step 3-",
+        "format": "500 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Maintaining Shampoo",
+        "format": "250 ml",
+        "price": 22.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Maintaining Mask",
+        "format": "200 ml",
+        "price": 30.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Revitalizing Protective Spray",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "ULTIMATE K",
+        "category": "Retail",
+        "name": "Revitalizing Protective & Styling Spray",
+        "format": "150 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "VOLUME UP",
+        "category": "Retail",
+        "name": "Shampoo Volumizzante",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "VOLUME UP",
+        "category": "Retail",
+        "name": "Shampoo Volumizzante",
+        "format": "1000 ml",
+        "price": 35.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "VOLUME UP",
+        "category": "Retail",
+        "name": "Spray Volumizzante",
+        "format": "150 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "VOLUME UP",
+        "category": "Retail",
+        "name": "Mousse Volumizzante",
+        "format": "250 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Shampoo di Mantenimento Colore",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Shampoo di Mantenimento Colore",
+        "format": "1000 ml",
+        "price": 35.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Shampoo Acidificante Post Colore",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Maschera di Mantenimento Colore",
+        "format": "200 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Maschera di Mantenimento Colore",
+        "format": "500 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Conditioner Acidificante Post Colore",
+        "format": "1000 ml",
+        "price": 45.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Color Vibrance Shampoo *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Color Vibrance Mask *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Shampoo di Mantenimento Colore (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "COLOR VIBRANCE",
+        "category": "Retail",
+        "name": "Maschera di Mantenimento Colore (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Shampoo Curly Cool Elasticizing",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Shampoo Curly Cool Elasticizing",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Conditioner Curly Cool Elasticizing",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Conditioner Curly Cool Elasticizing",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Mousse Curly Cool Elasticizing",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Def. Cream Leavein Curly Cool Elasticizing",
+        "format": "150 ml",
+        "price": 19.5,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Curly Cool Elasticizing Shampoo *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Curly Cool Elasticizing Conditioner *",
+        "format": "10 ml",
+        "price": 2.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Shampoo Curly Cool Elasticizing (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY COOL",
+        "category": "Retail",
+        "name": "Conditioner Curly Cool Elasticizing (Travel Size) Q",
+        "format": "100 ml",
+        "price": 8.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "CHROMA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Chroma Care - Shampoo Rivitalizz.Cap. Col.",
+        "format": "250 ml",
+        "price": 14.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "CHROMA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Chroma Care - Maschera Rivitalizz. Cap. Col.",
+        "format": "500 ml",
+        "price": 32.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "CHROMA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Chroma Care - Maschera Rivitalizz. Cap. Col.",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Conditioner Nutriente",
+        "format": "1000 ml",
+        "price": 34.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Conditioner Nutriente",
+        "format": "250 ml",
+        "price": 16.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Maschera Nutriente",
+        "format": "500 ml",
+        "price": 32.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Maschera Nutriente",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Maschera Nutriente Bustina *",
+        "format": "15 ml",
+        "price": 3.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Crema Nutriente",
+        "format": "125 ml",
+        "price": 17.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "HYDRA CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Hydra Care - Crema Nutriente Bustina *",
+        "format": "15 ml",
+        "price": 3.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Culry Care - Shampoo Elasticizzante",
+        "format": "250 ml",
+        "price": 14.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Culry Care - Maschera Elasticizzante",
+        "format": "500 ml",
+        "price": 32.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "CURLY CARE",
+        "category": "Trattamenti",
+        "name": "T.C.R. Culry Care - Maschera Elasticizzante",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": false
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP SHAMPOO DAILY USE",
+        "category": "Retail",
+        "name": "Lisap Shampoo Daily Use",
+        "format": "5000 ml",
+        "price": 60.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH CORPO/CAPELLI",
+        "category": "Retail",
+        "name": "BHH Crema mani",
+        "format": "75 ml",
+        "price": 10.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH CORPO/CAPELLI",
+        "category": "Retail",
+        "name": "BHH Crema Corpo",
+        "format": "100 ml",
+        "price": 10.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH CORPO/CAPELLI",
+        "category": "Retail",
+        "name": "BHH Crema Barriera",
+        "format": "150 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH CORPO/CAPELLI",
+        "category": "Retail",
+        "name": "BHH Moonlight Balm Trattamento Illuminante Capelli & Corpo",
+        "format": "50 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Island Escape",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Amber Nights",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Summer Memories",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Mystic Moonligth",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Secret Love",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "BHH ETHEREAL SCENTS",
+        "category": "Retail",
+        "name": "BHH Ethereal Scents - Cozy Cashmere",
+        "format": "30 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KEEP CONTROL - NATURAL WAVES",
+        "category": "Trattamenti",
+        "name": "Keep Control NW - Clarifyng Shampoo",
+        "format": "500 ml",
+        "price": 33.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KEEP CONTROL - NATURAL WAVES",
+        "category": "Trattamenti",
+        "name": "Keep Control NW - Hydrating Conditioner",
+        "format": "500 ml",
+        "price": 36.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KEEP CONTROL - NATURAL WAVES",
+        "category": "Trattamenti",
+        "name": "Keep Control NW - Equalizer",
+        "format": "250 ml",
+        "price": 30.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KEEP CONTROL - NATURAL WAVES",
+        "category": "Trattamenti",
+        "name": "Keep Control - Kit Natural Waves Lotion",
+        "format": "100 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Beard Oil",
+        "format": "70 ml",
+        "price": 26.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Beard Wax",
+        "format": "50 ml",
+        "price": 17.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Hair & Beard Shampoo",
+        "format": "300 ml",
+        "price": 15.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Hair Ice Lotion",
+        "format": "250 ml",
+        "price": 26.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Black Gel",
+        "format": "150 ml",
+        "price": 14.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Strong Hold Gel",
+        "format": "150 ml",
+        "price": 14.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Cream Pomade",
+        "format": "100 ml",
+        "price": 17.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Water Pomade",
+        "format": "100 ml",
+        "price": 13.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Ultra Fix Hair Spray",
+        "format": "250 ml",
+        "price": 16.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Beard Cleanser",
+        "format": "100 ml",
+        "price": 14.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Retail",
+        "name": "Bhh Dandy Lozione Energizzante",
+        "format": "150 ml",
+        "price": 29.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "DANDY",
+        "category": "Colorazione",
+        "name": "Bhh Dandy Hair Color",
+        "format": "60 ml",
+        "price": 14.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Volume Up",
+        "format": "6 g",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Setificante Q",
+        "format": "50 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Volumizzante",
+        "format": "200 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Arricciante",
+        "format": "200 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Lisciante",
+        "format": "200 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Lucidante",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Modellante",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Eco Spray",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Mousse Gelee",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Mousse Design Regular",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISAP FASHION",
+        "category": "Styling",
+        "name": "Mousse Design Strong",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Creator Water Wax",
+        "format": "75 ml",
+        "price": 14.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Extrastong Gel",
+        "format": "150 ml",
+        "price": 13.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Sleek Spray",
+        "format": "200 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Strong Mousse",
+        "format": "300 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Shining Gel Mousse",
+        "format": "300 ml",
+        "price": 16.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Eco Spray",
+        "format": "250 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Extrastong Spray Gel",
+        "format": "250 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Gum",
+        "format": "150 ml",
+        "price": 19.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "SCULTURE",
+        "category": "Styling",
+        "name": "Sculture Jelly Gel",
+        "format": "150 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Spray Naturale",
+        "format": "500 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Spray Forte",
+        "format": "500 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Spray no gas Naturale",
+        "format": "300 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Spray no gas Forte",
+        "format": "300 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Spray forte Q",
+        "format": "100 ml",
+        "price": 7.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Mousse Volumizzante",
+        "format": "300 ml",
+        "price": 17.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Mousse Brushing",
+        "format": "300 ml",
+        "price": 17.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "HI-TECH",
+        "category": "Styling",
+        "name": "Mousse Gel Effetto Bagnato",
+        "format": "300 ml",
+        "price": 17.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-One H.Spray Extra Forte",
+        "format": "500 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-One H.Spray Naturale",
+        "format": "500 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-One H.Spray Naturale",
+        "format": "300 ml",
+        "price": 21.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-One H.Spray Naturale Q",
+        "format": "100 ml",
+        "price": 7.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-Two Eco Extra Forte",
+        "format": "300 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "LISYNET",
+        "category": "Styling",
+        "name": "Lisynet-Two Eco Naturale",
+        "format": "300 ml",
+        "price": 27.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FRESH",
+        "category": "Styling",
+        "name": "Re-fresh",
+        "format": "250 ml",
+        "price": 21.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-TOUCH",
+        "category": "Styling",
+        "name": "Re-touch",
+        "format": "75 ml",
+        "price": 11.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Re-foam",
+        "format": "200 ml",
+        "price": 21.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Gel igienizzante",
+        "format": "80 ml",
+        "price": 5.3,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Gel igienizzante (flacone bianco)",
+        "format": "100 ml",
+        "price": 5.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Gel igienizzante",
+        "format": "100 ml",
+        "price": 5.9,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Gel igienizzante",
+        "format": "500 ml",
+        "price": 10.6,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Gel igienizzante",
+        "format": "5000 ml",
+        "price": 84.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "RE-FOAM",
+        "category": "Styling",
+        "name": "Spray igienizzante",
+        "format": "250 ml",
+        "price": 8.5,
+        "active": true
+      }
+    ],
+    "LISTINO KERAPLANT ABSOLUTE + CARE 2 CVS 2026.pdf": [
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Absolute Color",
+        "format": "60 ml",
+        "price": 12.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Shampoo Acidificante Post Colore",
+        "format": "1000 ml",
+        "price": 39.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Conditioner Acidificante Post Colore",
+        "format": "1000 ml",
+        "price": 41.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Hair & Scalp Oil",
+        "format": "50 ml",
+        "price": 19.5,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Multi-Active Mud",
+        "format": "250 g",
+        "price": 35.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Active Essence Balancing",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Active Essence Refining",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Active Essence Calming",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Active Essence Energizing",
+        "format": "250 ml",
+        "price": 25.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Ritual Dual Act Exfolliant",
+        "format": "150 ml",
+        "price": 33.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Balancing Shampoo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Balancing Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Balancing Lotion",
+        "format": "150 ml",
+        "price": 24.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Refining Shampoo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Refining Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Refining Lotion",
+        "format": "150 ml",
+        "price": 24.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Calming Shampoo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Calming Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Calming Lotion",
+        "format": "150 ml",
+        "price": 24.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Energizing Shampoo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Energizing Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Energizing Lotion",
+        "format": "150 ml",
+        "price": 24.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Energizing Fiale (6 fiale da",
+        "format": "8 ml",
+        "price": 38.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Keeping Shampoo",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Keeping Shampoo",
+        "format": "250 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Keeping Mask",
+        "format": "500 ml",
+        "price": 40.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT ABSOLUTE",
+        "category": "Trattamenti",
+        "name": "Keraplant Care Keeping Mask",
+        "format": "200 ml",
+        "price": 25.0,
+        "active": true
+      }
+    ],
+    "LISTINO KERAPLANT (linea in esaurimento).pdf": [
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO DERMO-CALMANTE",
+        "format": "250 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO DERMO-CALMANTE",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO ENERGIZZANTE",
+        "format": "250 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO ENERGIZZANTE",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO NUTRIENTE RIPARATORE",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO NUTRIENTE RIPARATORE",
+        "format": "100 ml",
+        "price": 9.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO PURIFICANTE",
+        "format": "250 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO PURIFICANTE",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO SEBOREGOLATORE",
+        "format": "250 ml",
+        "price": 18.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE SHAMPOO BALANCE-CONTROL",
+        "format": "1000 ml",
+        "price": 50.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE TRATTAMENTO ENERGIZZANTE",
+        "format": "6 x8  ml",
+        "price": 36.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE TRATTAMENTO ENERGIZZANTE INTENSIVO",
+        "format": "100 ml",
+        "price": 45.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE LOZIONE PURIFICANTE",
+        "format": "150 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE LOZIONE DERMOCALMANTE",
+        "format": "150 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE LOZIONE BALANCE-CONTROL",
+        "format": "150 ml",
+        "price": 23.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE OLIO ESSENZIALE ENERGIZZANTE",
+        "format": "30 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE OLIO ESSENZIALE PURIFICANTE",
+        "format": "30 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE OLIO ESSENZIALE BALANCE-CONTROL",
+        "format": "30 ml",
+        "price": 20.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE MUD DETOSSINANTE",
+        "format": "250 ml",
+        "price": 31.0,
+        "active": true
+      },
+      {
+        "brand": "LISAP",
+        "line": "KERAPLANT LEGACY",
+        "category": "Trattamenti",
+        "name": "KERAPLANT NATURE FANGO DERMO-CALMANTE",
+        "format": "250 ml",
+        "price": 31.0,
+        "active": true
+      }
+    ]
+  },
+  "combined": [
+    {
+      "brand": "LISAP",
+      "line": "LK CREAMCOLOR OIL PROTECTION COMPLEX",
+      "category": "Colorazione",
+      "name": "LK Creamcolor OPC Oil Protection Complex",
+      "format": "100 ml",
+      "price": 14.5,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ESCALATION",
+      "category": "Colorazione",
+      "name": "Escalation",
+      "format": "100 ml",
+      "price": 15.5,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "FILTER DOUSCOLOR",
+      "category": "Colorazione",
+      "name": "Filter Douscolor",
+      "format": "60 ml",
+      "price": 14.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DOUSCOLOR",
+      "category": "Colorazione",
+      "name": "Douscolor/Douscolor Glamour",
+      "format": "75 ml",
+      "price": 14.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "LK FRUIT",
+      "category": "Colorazione",
+      "name": "LK FRUIT",
+      "format": "100 ml",
+      "price": 15.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LK CREAMCOLOR ANTIAGE FRUIT",
+      "category": "Colorazione",
+      "name": "LK Creamcolor AntiAge FRUIT",
+      "format": "100 ml",
+      "price": 14.95,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "ESCALATION EASY ABSOLUTE 3",
+      "category": "Colorazione",
+      "name": "Escalation Easy Absolute 3",
+      "format": "60 ml",
+      "price": 15.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Light Scale Up To 9",
+      "format": "500 g",
+      "price": 44.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Light Scale Up To 10 - Pasta di carbone",
+      "format": "500 g",
+      "price": 60.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "DCM 10 Levels - Lightening Powder",
+      "format": "500 g",
+      "price": 40.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Light Scale Clay - Argilla Grigia",
+      "format": "400 g",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Light Scale Platinum - Polvere Grigia",
+      "format": "500 g",
+      "price": 60.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Light Scale Lightening Oil",
+      "format": "500 ml",
+      "price": 35.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECAPAGGIO",
+      "category": "Decolorazione",
+      "name": "Light Scale Color Remover",
+      "format": "25 g",
+      "price": 6.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLORE",
+      "category": "Colorazione",
+      "name": "Light Scale Color",
+      "format": "100 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Shampoo Anti-giallo",
+      "format": "1000 ml",
+      "price": 40.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Maschera Anti-giallo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Maschera Anti-giallo",
+      "format": "500 ml",
+      "price": 30.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Spray Anti-giallo",
+      "format": "125 ml",
+      "price": 15.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Mousse Anti-giallo",
+      "format": "250 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ANTIGIALLO",
+      "category": "Retail",
+      "name": "Light Scale Care Kit Shampoo + Maschera Anti-giallo",
+      "format": "12 x 100 ml",
+      "price": 9.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DECOLORAZIONE",
+      "category": "Decolorazione",
+      "name": "Bleach&Lights ProTech",
+      "format": "1000 g",
+      "price": 66.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "5 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "10 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "20 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "30 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "40 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "20 Vol.",
+      "price": 5.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "30 Vol.",
+      "price": 5.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Lisap Developer",
+      "format": "40 Vol.",
+      "price": 5.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Developer Lisap",
+      "format": "40 Vol.",
+      "price": 5.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Developer Easy 10/30/",
+      "format": "40 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "OSSIDANTI",
+      "category": "Ossidanti",
+      "name": "Developer Lisap Special Blue",
+      "format": "30 Vol.",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Professional Kit",
+      "format": "2x475ml",
+      "price": 185.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ 2 Hair Structure Filler",
+      "format": "475 ml",
+      "price": 80.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ 1 Bond Saver Concentrate *",
+      "format": "5 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ 2 Hair Structure Filler *",
+      "format": "20 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ XTREME COLOR",
+      "category": "Colorazione",
+      "name": "Lisaplex™ Xtreme Color",
+      "format": "60 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ FILTER COLOR",
+      "category": "Colorazione",
+      "name": "Lisaplex™ Filter Color",
+      "format": "100 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER DRY SHAMPOO",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Dry Shampoo",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Balsamo Lamellare Salone",
+      "format": "500 ml",
+      "price": 38.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Balsamo Lamellare Rivendita",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Balsamo Lamellare Bustine",
+      "format": "15 ml",
+      "price": 3.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Lamellar Shampoo Salone",
+      "format": "500 ml",
+      "price": 38.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LAMELLAR WATER",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Lamellar Shampoo Rivendita",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Mask *",
+      "format": "15 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Mask",
+      "format": "250 ml",
+      "price": 30.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Mask",
+      "format": "500 ml",
+      "price": 42.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Shampoo *",
+      "format": "15 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Shampoo",
+      "format": "1000 ml",
+      "price": 45.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Conditioner *",
+      "format": "15 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Conditioner",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Conditioner",
+      "format": "1000 ml",
+      "price": 55.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Cream *",
+      "format": "15 ml",
+      "price": 4.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAPLEX™ BOND SAVER LINE",
+      "category": "Trattamenti",
+      "name": "LISAPLEX™ Bond Saver Cream",
+      "format": "125 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SUNSET RITUAL AFTER SUN",
+      "category": "Retail",
+      "name": "Sunset Ritual After Sun Hair & Body Shampoo",
+      "format": "250 ml",
+      "price": 17.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SUNSET RITUAL AFTER SUN",
+      "category": "Retail",
+      "name": "Sunset Ritual After Sun Hair & Body Repair Mask",
+      "format": "200 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SUNSET RITUAL AFTER SUN",
+      "category": "Retail",
+      "name": "Sunset Ritual Sun Protective Spray",
+      "format": "150 ml",
+      "price": 22.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Anti-Pollution Shampoo",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Anti-Pollution Shampoo",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Bi-Phase Conditioner Spray",
+      "format": "150 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Light Moistur Conditioner",
+      "format": "200 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Light Moistur Conditioner",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Anti-Pollution Shampoo *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Light Moistur Conditioner *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Anti-Pollution Shampoo (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "URBAN SHIELD",
+      "category": "Retail",
+      "name": "Light Moistur Conditioner (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Shampoo",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Shampoo",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Mask",
+      "format": "200 ml",
+      "price": 29.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Mask",
+      "format": "500 ml",
+      "price": 49.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Cream Leave-in",
+      "format": "150 ml",
+      "price": 24.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Oil",
+      "format": "50 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Shampoo *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ELIXIR RENEW",
+      "category": "Retail",
+      "name": "Nourishing Mask *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Pre-Treatment Shampoo -Step 1-",
+      "format": "500 ml",
+      "price": 29.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Straightening Fluid -Step 2-",
+      "format": "500 ml",
+      "price": 290.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Lamination Mask -Step 3-",
+      "format": "500 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Maintaining Shampoo",
+      "format": "250 ml",
+      "price": 22.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Maintaining Mask",
+      "format": "200 ml",
+      "price": 30.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Revitalizing Protective Spray",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "ULTIMATE K",
+      "category": "Retail",
+      "name": "Revitalizing Protective & Styling Spray",
+      "format": "150 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "VOLUME UP",
+      "category": "Retail",
+      "name": "Shampoo Volumizzante",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "VOLUME UP",
+      "category": "Retail",
+      "name": "Shampoo Volumizzante",
+      "format": "1000 ml",
+      "price": 35.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "VOLUME UP",
+      "category": "Retail",
+      "name": "Spray Volumizzante",
+      "format": "150 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "VOLUME UP",
+      "category": "Retail",
+      "name": "Mousse Volumizzante",
+      "format": "250 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Shampoo di Mantenimento Colore",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Shampoo di Mantenimento Colore",
+      "format": "1000 ml",
+      "price": 35.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Shampoo Acidificante Post Colore",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Maschera di Mantenimento Colore",
+      "format": "200 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Maschera di Mantenimento Colore",
+      "format": "500 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Conditioner Acidificante Post Colore",
+      "format": "1000 ml",
+      "price": 45.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Color Vibrance Shampoo *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Color Vibrance Mask *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Shampoo di Mantenimento Colore (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "COLOR VIBRANCE",
+      "category": "Retail",
+      "name": "Maschera di Mantenimento Colore (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Shampoo Curly Cool Elasticizing",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Shampoo Curly Cool Elasticizing",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Conditioner Curly Cool Elasticizing",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Conditioner Curly Cool Elasticizing",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Mousse Curly Cool Elasticizing",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Def. Cream Leavein Curly Cool Elasticizing",
+      "format": "150 ml",
+      "price": 19.5,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Curly Cool Elasticizing Shampoo *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Curly Cool Elasticizing Conditioner *",
+      "format": "10 ml",
+      "price": 2.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Shampoo Curly Cool Elasticizing (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY COOL",
+      "category": "Retail",
+      "name": "Conditioner Curly Cool Elasticizing (Travel Size) Q",
+      "format": "100 ml",
+      "price": 8.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "CHROMA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Chroma Care - Shampoo Rivitalizz.Cap. Col.",
+      "format": "250 ml",
+      "price": 14.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "CHROMA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Chroma Care - Maschera Rivitalizz. Cap. Col.",
+      "format": "500 ml",
+      "price": 32.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "CHROMA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Chroma Care - Maschera Rivitalizz. Cap. Col.",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Conditioner Nutriente",
+      "format": "1000 ml",
+      "price": 34.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Conditioner Nutriente",
+      "format": "250 ml",
+      "price": 16.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Maschera Nutriente",
+      "format": "500 ml",
+      "price": 32.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Maschera Nutriente",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Maschera Nutriente Bustina *",
+      "format": "15 ml",
+      "price": 3.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Crema Nutriente",
+      "format": "125 ml",
+      "price": 17.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "HYDRA CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Hydra Care - Crema Nutriente Bustina *",
+      "format": "15 ml",
+      "price": 3.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Culry Care - Shampoo Elasticizzante",
+      "format": "250 ml",
+      "price": 14.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Culry Care - Maschera Elasticizzante",
+      "format": "500 ml",
+      "price": 32.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "CURLY CARE",
+      "category": "Trattamenti",
+      "name": "T.C.R. Culry Care - Maschera Elasticizzante",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": false
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP SHAMPOO DAILY USE",
+      "category": "Retail",
+      "name": "Lisap Shampoo Daily Use",
+      "format": "5000 ml",
+      "price": 60.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH CORPO/CAPELLI",
+      "category": "Retail",
+      "name": "BHH Crema mani",
+      "format": "75 ml",
+      "price": 10.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH CORPO/CAPELLI",
+      "category": "Retail",
+      "name": "BHH Crema Corpo",
+      "format": "100 ml",
+      "price": 10.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH CORPO/CAPELLI",
+      "category": "Retail",
+      "name": "BHH Crema Barriera",
+      "format": "150 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH CORPO/CAPELLI",
+      "category": "Retail",
+      "name": "BHH Moonlight Balm Trattamento Illuminante Capelli & Corpo",
+      "format": "50 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Island Escape",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Amber Nights",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Summer Memories",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Mystic Moonligth",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Secret Love",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "BHH ETHEREAL SCENTS",
+      "category": "Retail",
+      "name": "BHH Ethereal Scents - Cozy Cashmere",
+      "format": "30 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KEEP CONTROL - NATURAL WAVES",
+      "category": "Trattamenti",
+      "name": "Keep Control NW - Clarifyng Shampoo",
+      "format": "500 ml",
+      "price": 33.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KEEP CONTROL - NATURAL WAVES",
+      "category": "Trattamenti",
+      "name": "Keep Control NW - Hydrating Conditioner",
+      "format": "500 ml",
+      "price": 36.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KEEP CONTROL - NATURAL WAVES",
+      "category": "Trattamenti",
+      "name": "Keep Control NW - Equalizer",
+      "format": "250 ml",
+      "price": 30.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KEEP CONTROL - NATURAL WAVES",
+      "category": "Trattamenti",
+      "name": "Keep Control - Kit Natural Waves Lotion",
+      "format": "100 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Beard Oil",
+      "format": "70 ml",
+      "price": 26.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Beard Wax",
+      "format": "50 ml",
+      "price": 17.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Hair & Beard Shampoo",
+      "format": "300 ml",
+      "price": 15.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Hair Ice Lotion",
+      "format": "250 ml",
+      "price": 26.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Black Gel",
+      "format": "150 ml",
+      "price": 14.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Strong Hold Gel",
+      "format": "150 ml",
+      "price": 14.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Cream Pomade",
+      "format": "100 ml",
+      "price": 17.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Water Pomade",
+      "format": "100 ml",
+      "price": 13.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Ultra Fix Hair Spray",
+      "format": "250 ml",
+      "price": 16.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Beard Cleanser",
+      "format": "100 ml",
+      "price": 14.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Retail",
+      "name": "Bhh Dandy Lozione Energizzante",
+      "format": "150 ml",
+      "price": 29.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "DANDY",
+      "category": "Colorazione",
+      "name": "Bhh Dandy Hair Color",
+      "format": "60 ml",
+      "price": 14.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Volume Up",
+      "format": "6 g",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Setificante Q",
+      "format": "50 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Volumizzante",
+      "format": "200 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Arricciante",
+      "format": "200 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Lisciante",
+      "format": "200 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Lucidante",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Modellante",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Eco Spray",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Mousse Gelee",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Mousse Design Regular",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISAP FASHION",
+      "category": "Styling",
+      "name": "Mousse Design Strong",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Creator Water Wax",
+      "format": "75 ml",
+      "price": 14.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Extrastong Gel",
+      "format": "150 ml",
+      "price": 13.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Sleek Spray",
+      "format": "200 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Strong Mousse",
+      "format": "300 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Shining Gel Mousse",
+      "format": "300 ml",
+      "price": 16.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Eco Spray",
+      "format": "250 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Extrastong Spray Gel",
+      "format": "250 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Gum",
+      "format": "150 ml",
+      "price": 19.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "SCULTURE",
+      "category": "Styling",
+      "name": "Sculture Jelly Gel",
+      "format": "150 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Spray Naturale",
+      "format": "500 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Spray Forte",
+      "format": "500 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Spray no gas Naturale",
+      "format": "300 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Spray no gas Forte",
+      "format": "300 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Spray forte Q",
+      "format": "100 ml",
+      "price": 7.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Mousse Volumizzante",
+      "format": "300 ml",
+      "price": 17.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Mousse Brushing",
+      "format": "300 ml",
+      "price": 17.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "HI-TECH",
+      "category": "Styling",
+      "name": "Mousse Gel Effetto Bagnato",
+      "format": "300 ml",
+      "price": 17.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-One H.Spray Extra Forte",
+      "format": "500 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-One H.Spray Naturale",
+      "format": "500 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-One H.Spray Naturale",
+      "format": "300 ml",
+      "price": 21.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-One H.Spray Naturale Q",
+      "format": "100 ml",
+      "price": 7.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-Two Eco Extra Forte",
+      "format": "300 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "LISYNET",
+      "category": "Styling",
+      "name": "Lisynet-Two Eco Naturale",
+      "format": "300 ml",
+      "price": 27.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FRESH",
+      "category": "Styling",
+      "name": "Re-fresh",
+      "format": "250 ml",
+      "price": 21.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-TOUCH",
+      "category": "Styling",
+      "name": "Re-touch",
+      "format": "75 ml",
+      "price": 11.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Re-foam",
+      "format": "200 ml",
+      "price": 21.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Gel igienizzante",
+      "format": "80 ml",
+      "price": 5.3,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Gel igienizzante (flacone bianco)",
+      "format": "100 ml",
+      "price": 5.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Gel igienizzante",
+      "format": "100 ml",
+      "price": 5.9,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Gel igienizzante",
+      "format": "500 ml",
+      "price": 10.6,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Gel igienizzante",
+      "format": "5000 ml",
+      "price": 84.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "RE-FOAM",
+      "category": "Styling",
+      "name": "Spray igienizzante",
+      "format": "250 ml",
+      "price": 8.5,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Absolute Color",
+      "format": "60 ml",
+      "price": 12.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Shampoo Acidificante Post Colore",
+      "format": "1000 ml",
+      "price": 39.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Conditioner Acidificante Post Colore",
+      "format": "1000 ml",
+      "price": 41.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Hair & Scalp Oil",
+      "format": "50 ml",
+      "price": 19.5,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Multi-Active Mud",
+      "format": "250 g",
+      "price": 35.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Active Essence Balancing",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Active Essence Refining",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Active Essence Calming",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Active Essence Energizing",
+      "format": "250 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Ritual Dual Act Exfolliant",
+      "format": "150 ml",
+      "price": 33.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Balancing Shampoo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Balancing Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Balancing Lotion",
+      "format": "150 ml",
+      "price": 24.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Refining Shampoo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Refining Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Refining Lotion",
+      "format": "150 ml",
+      "price": 24.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Calming Shampoo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Calming Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Calming Lotion",
+      "format": "150 ml",
+      "price": 24.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Energizing Shampoo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Energizing Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Energizing Lotion",
+      "format": "150 ml",
+      "price": 24.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Energizing Fiale (6 fiale da",
+      "format": "8 ml",
+      "price": 38.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Keeping Shampoo",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Keeping Shampoo",
+      "format": "250 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Keeping Mask",
+      "format": "500 ml",
+      "price": 40.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT ABSOLUTE",
+      "category": "Trattamenti",
+      "name": "Keraplant Care Keeping Mask",
+      "format": "200 ml",
+      "price": 25.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO DERMO-CALMANTE",
+      "format": "250 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO DERMO-CALMANTE",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO ENERGIZZANTE",
+      "format": "250 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO ENERGIZZANTE",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO NUTRIENTE RIPARATORE",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO NUTRIENTE RIPARATORE",
+      "format": "100 ml",
+      "price": 9.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO PURIFICANTE",
+      "format": "250 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO PURIFICANTE",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO SEBOREGOLATORE",
+      "format": "250 ml",
+      "price": 18.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE SHAMPOO BALANCE-CONTROL",
+      "format": "1000 ml",
+      "price": 50.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE TRATTAMENTO ENERGIZZANTE",
+      "format": "6 x8  ml",
+      "price": 36.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE TRATTAMENTO ENERGIZZANTE INTENSIVO",
+      "format": "100 ml",
+      "price": 45.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE LOZIONE PURIFICANTE",
+      "format": "150 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE LOZIONE DERMOCALMANTE",
+      "format": "150 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE LOZIONE BALANCE-CONTROL",
+      "format": "150 ml",
+      "price": 23.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE OLIO ESSENZIALE ENERGIZZANTE",
+      "format": "30 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE OLIO ESSENZIALE PURIFICANTE",
+      "format": "30 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE OLIO ESSENZIALE BALANCE-CONTROL",
+      "format": "30 ml",
+      "price": 20.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE MUD DETOSSINANTE",
+      "format": "250 ml",
+      "price": 31.0,
+      "active": true
+    },
+    {
+      "brand": "LISAP",
+      "line": "KERAPLANT LEGACY",
+      "category": "Trattamenti",
+      "name": "KERAPLANT NATURE FANGO DERMO-CALMANTE",
+      "format": "250 ml",
+      "price": 31.0,
+      "active": true
+    }
+  ]
+}

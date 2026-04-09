@@ -1,0 +1,73 @@
+:root{
+  /* Usa la stessa palette/variabili di incassi per coerenza */
+}
+
+/* Piccoli aggiustamenti solo per Scadenze (senza toccare Incassi) */
+.scad-head-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+.scad-calendar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 12px;border:1px solid var(--line);background:rgba(255,255,255,.55);border-radius:14px;cursor:pointer}
+.scad-calendar-row:hover{filter:brightness(1.03)}
+.scad-date{font-weight:900;color:var(--ink)}
+.scad-note{color:var(--muted);font-size:12px;max-width:55ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scad-amt{font-weight:900}
+
+.scad-empty{padding:14px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
+
+/* Modal (riuso stile incassi modal) */
+.scad-modal-grid{display:grid;grid-template-columns: 1fr; gap:10px}
+.scad-field label{display:block;font-weight:800;margin:0 0 6px}
+.scad-field input,.scad-field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;background:rgba(255,255,255,.8)}
+.scad-field textarea{min-height:90px;resize:vertical}
+
+@media (max-width: 920px){
+  .incassi-grid{grid-template-columns: 1fr}
+}
+
+/* Mobile/iPad: rende la testata meno "confusionaria" e più compatta */
+@media (max-width: 780px){
+  .incassi-head{flex-direction:column; align-items:stretch; gap:10px;}
+  .scad-head-actions{justify-content:flex-start; gap:8px;}
+  #monthTitle{flex:1; text-align:center;}
+  .incassi-h1{font-size:28px; margin:0;}
+  .incassi-sub{font-size:13px;}
+}
+
+@media (max-width: 420px){
+  .scad-head-actions .incassi-btn{padding:10px 12px;}
+  #btnNew{width:100%;}
+  .scad-calendar-row{padding:10px 10px;}
+  .scad-note{max-width:32ch;}
+}
+
+/* Layout più pulito su iPhone/iPad: niente promemoria laterale, tutto centrato */
+@media (max-width: 900px){
+  .incassi-side{ display:none; }
+  .incassi-grid{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px){
+  /* Evita taglio sotto barra iOS */
+  .incassi-wrap{ margin-top: calc(76px + env(safe-area-inset-top)); }
+  /* Riduci un po' gli spazi per far entrare meglio tutto */
+  .month-bar{ margin-bottom: 10px; }
+  .kpi-grid{ margin-top: 10px; }
+}
+
+
+.safe-main{padding-left:max(16px, env(safe-area-inset-left)); padding-right:max(16px, env(safe-area-inset-right)); padding-bottom:max(24px, env(safe-area-inset-bottom));}
+@media (max-width: 1100px){ .incassi-grid{ grid-template-columns: 1fr !important; } .incassi-side{ width:auto !important; } }
+
+
+.incassi-topbar{min-height:calc(64px + env(safe-area-inset-top));align-items:center;}
+.safe-main{padding-top:calc(88px + env(safe-area-inset-top)) !important;padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right));padding-bottom:max(24px, env(safe-area-inset-bottom));}
+.header-dashboard{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:14px;}
+@media (max-width:900px){.safe-main{padding-top:calc(92px + env(safe-area-inset-top)) !important;}}
+
+
+.promemoria-compact .card-sub{font-size:11px;line-height:1.25;}
+.promemoria-compact .side-month-label,.promemoria-compact .side-year-label{font-size:11px;}
+.promemoria-compact .side-month-val{font-size:30px;line-height:1.05;}
+.promemoria-compact .side-year-val{font-size:20px;line-height:1.05;}
+.safe-main{padding-top:calc(108px + env(safe-area-inset-top)) !important;}
+.incassi-topbar{position:sticky;top:0;z-index:50;}
+@media (max-width:900px){.safe-main{padding-top:calc(112px + env(safe-area-inset-top)) !important;}}

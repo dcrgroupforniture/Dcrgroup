@@ -1,0 +1,15 @@
+{
+  "name": "DCR GROUP Ordini",
+  "short_name": "DCR Ordini",
+  "start_url": "./login.html",
+  "display": "standalone",
+  "background_color": "#081a33",
+  "theme_color": "#081a33",
+  "icons": [
+    {
+      "src": "./assets/logo-dcr.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

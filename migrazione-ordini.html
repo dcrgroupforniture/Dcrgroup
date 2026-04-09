@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Migrazione Ordini → clientId</title>
+  <!-- Usa lo stylesheet principale: in alcune build "style.css" non esiste -->
+  <link rel="stylesheet" href="styles.css?v=15_20260225222215" />
+  <style>
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .card{background:#fff;border:1px solid #e6e6e6;border-radius:14px;padding:14px;margin:12px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .row > *{flex:0 0 auto}
+    button{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;touch-action:manipulation;pointer-events:auto}
+    .btn{background:#1f55ff;color:#fff}
+    .btn2{background:#111827;color:#fff}
+    .btn3{background:#e5e7eb;color:#111827}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{border-bottom:1px solid #eee;padding:10px;vertical-align:top}
+    th{text-align:left;font-size:13px;color:#374151}
+    select{padding:8px 10px;border-radius:10px;border:1px solid #d1d5db;min-width:220px}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:8px}
+    .ok{color:#059669;font-weight:800}
+    .warn{color:#b45309;font-weight:800}
+    .bad{color:#b91c1c;font-weight:800}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .small{font-size:12px;color:#6b7280}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#f3f4f6;color:#111827;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="margin:8px 0">Migrazione Ordini → <code>clientId</code></h1>
+    <div class="small">Questa pagina collega gli ordini alla raccolta <code>clients</code> scrivendo <code>clientId</code> (e <code>clientName</code>) dentro ogni documento di <code>orders</code>. È la soluzione definitiva per far tornare fatturati e storico.</div>
+
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="btnScan">1) Scansiona DB</button>
+        <button class="btn2" id="btnAuto">2) Collega automatico (da clientName)</button>
+        <button class="btn3" id="btnShowOrphans">3) Mostra ordini non collegati</button>
+        <button class="btn" id="btnSaveManual" disabled>4) Salva collegamenti manuali</button>
+      </div>
+      <div id="status" style="margin-top:10px" class="mono small"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <div>
+          <div><span class="pill">Risultato</span></div>
+          <div id="summary" class="mono" style="margin-top:6px">—</div>
+        </div>
+        <div class="small">Consiglio: prima fai <b>Scansiona DB</b>, poi <b>Collega automatico</b>. Gli ordini rimasti li agganci manualmente e salvi.</div>
+      </div>
+    </div>
+
+    <div class="card" id="orphansCard" style="display:none">
+      <h2 style="margin:6px 0 10px">Ordini non collegati (manuale)</h2>
+      <div class="small">Se un ordine non ha <code>clientName</code> non possiamo collegarlo da soli: seleziona il cliente giusto e poi premi <b>Salva collegamenti manuali</b>.</div>
+      <div style="overflow:auto;margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Totale</th>
+              <th>ID ordine</th>
+              <th>Dettagli</th>
+              <th>Cliente</th>
+            </tr>
+          </thead>
+          <tbody id="orphansTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="small">
+        <b>Nota sicurezza:</b> questa pagina scrive su Firestore. Usala solo tu.
+        Se qualcosa va storto, fai prima un backup (Esporta JSON / Backup completo) e poi ripeti.
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./migrazione-ordini.js?v=15_20260225222215"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
+    }
+    function isStaff() {
+      return isAuthenticated() && request.auth.token.role in ['admin', 'staff'];
+    }
+    function isPortalClient(clientId) {
+      return isAuthenticated() && (
+        request.auth.uid == clientId ||
+        get(/databases/$(database)/documents/clients/$(clientId)).data.authUid == request.auth.uid ||
+        get(/databases/$(database)/documents/clients/$(clientId)).data.email == request.auth.token.email
+      );
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if request.auth.uid == userId || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /clients/{clientId} {
+      allow read: if isStaff() || isPortalClient(clientId);
+      allow create, update, delete: if isStaff();
+    }
+
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isStaff();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow create: if isStaff() || (
+        isAuthenticated() &&
+        request.resource.data.clientId is string &&
+        isPortalClient(request.resource.data.clientId)
+      );
+      allow update, delete: if isStaff();
+    }
+
+    match /promotions/{promotionId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaff();
+    }
+
+    match /clientDiscounts/{docId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow write: if isStaff();
+    }
+
+    match /notifications/{docId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow write: if isStaff();
+    }
+
+    match /clientDevices/{docId} {
+      allow read, write: if isStaff();
+    }
+
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /incassi/{incassoId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

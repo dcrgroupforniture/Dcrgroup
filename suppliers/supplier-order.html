@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Nuovo Ordine Fornitore</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="supplier-order.css">
+  <script type="module" src="supplier-order.js" defer></script>
+</head>
+<body>
+
+<header class="header">
+  <button onclick="history.back()">←</button>
+  <h1>Ordine Fornitore</h1>
+</header>
+
+<main class="container">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Prodotto</th>
+        <th>Quantità</th>
+        <th>Prezzo</th>
+        <th>Totale</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <button id="addRow">➕ Riga</button>
+
+  <h2>Totale: € <span id="grandTotal">0.00</span></h2>
+
+  <button id="saveOrder">💾 Salva Ordine</button>
+
+</main>
+
+</body>
+</html>
