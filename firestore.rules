@@ -6,11 +6,21 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
+
+    // Legge il ruolo dal documento /users/{uid} in Firestore (non custom claims).
+    // Per aggiungere il primo admin: crea manualmente il documento
+    //   /users/<uid>  con il campo  role: "admin"  nella console Firebase.
+    function userRole() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : '';
+    }
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.role == 'admin';
+      return userRole() == 'admin';
     }
     function isStaff() {
-      return isAuthenticated() && request.auth.token.role in ['admin', 'staff'];
+      return userRole() in ['admin', 'staff'];
     }
     function isPortalClient(clientId) {
       return isAuthenticated() && (
@@ -21,7 +31,9 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update: if request.auth.uid == userId || isAdmin();
+      // Ogni utente può leggere il proprio documento (necessario per verificare il ruolo).
+      allow read: if request.auth.uid == userId;
+      allow create, update: if request.auth.uid == userId || isAdmin();
       allow delete: if isAdmin();
     }
 
