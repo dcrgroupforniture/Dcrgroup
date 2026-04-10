@@ -7,20 +7,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Legge il ruolo dal documento /users/{uid} in Firestore (non custom claims).
-    // Per aggiungere il primo admin: crea manualmente il documento
-    //   /users/<uid>  con il campo  role: "admin"  nella console Firebase.
-    function userRole() {
-      return isAuthenticated() &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
-        : '';
-    }
+    // Qualsiasi utente autenticato è considerato staff/admin.
+    // App ad uso interno mono-utente: chiunque abbia un account Firebase può accedere.
     function isAdmin() {
-      return userRole() == 'admin';
+      return isAuthenticated();
     }
     function isStaff() {
-      return userRole() in ['admin', 'staff'];
+      return isAuthenticated();
     }
     function isPortalClient(clientId) {
       return isAuthenticated() && (
