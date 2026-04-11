@@ -78,6 +78,8 @@ let activeFilter     = "all";
 let searchQuery      = "";
 
 /* ── Helpers ──────────────────────────────────────────── */
+const MS_PER_DAY = 86400000;
+
 function eur(n){
   return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0);
 }
@@ -95,7 +97,7 @@ function effectiveStatus(inv){
   if(scad < today) return "scaduta";
   // entro 7 giorni
   const d = new Date(scad);
-  const diff = (d - new Date(today)) / 86400000;
+  const diff = (d - new Date(today)) / MS_PER_DAY;
   if(diff <= 7) return "in_scadenza";
   return "da_pagare";
 }
@@ -377,8 +379,8 @@ function startEdit(inv){
   invoiceNumeroInput.value    = inv.numero    || "";
   invoiceDateInput.value      = inv.date      || todayISO();
   invoiceScadenzaInput.value  = inv.scadenza  || "";
-  invoiceImponibileInput.value= inv.imponibile!= null ? inv.imponibile : "";
-  invoiceIvaInput.value       = inv.iva       != null ? inv.iva       : "22";
+  invoiceImponibileInput.value= inv.imponibile ?? "";
+  invoiceIvaInput.value       = inv.iva       ?? "22";
   invoiceAmountInput.value    = inv.amount    != null ? Number(inv.amount).toFixed(2) : "";
   invoiceDescrizioneInput.value = inv.descrizione || "";
   invCategoriaInput.value     = inv.categoria || "";
@@ -408,7 +410,7 @@ searchInvoiceInput?.addEventListener("input", ()=>{
 /* ── Photo modal ──────────────────────────────────────── */
 function openPhotoModal(url){
   if(!url) return;
-  const isPdf = url.toLowerCase().includes(".pdf") || url.includes("%2F") && url.includes("pdf");
+  const isPdf = url.toLowerCase().includes(".pdf") || (url.includes("%2F") && url.toLowerCase().includes("pdf"));
   photoModalImg.classList.add("hidden");
   photoModalPdf.classList.add("hidden");
   if(isPdf){
