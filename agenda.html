@@ -31,19 +31,22 @@
 
     /* ─── Top bar ─── */
     .top-bar{
-      position:fixed;top:0;left:0;right:0;height:64px;
+      position:fixed;top:0;left:0;right:0;
+      height:calc(64px + env(safe-area-inset-top));
+      padding-top:env(safe-area-inset-top);
       background:#fff;display:flex;align-items:center;gap:12px;
-      padding:0 16px;border-bottom:1px solid var(--line);z-index:1000;
+      padding-left:16px;padding-right:16px;border-bottom:1px solid var(--line);z-index:1000;
     }
     .back-btn{background:var(--brand);color:#fff;border:none;font-size:18px;line-height:1;
-      padding:10px 14px;border-radius:12px;cursor:pointer}
+      padding:10px 14px;border-radius:12px;cursor:pointer;
+      -webkit-tap-highlight-color:transparent;touch-action:manipulation}
     .back-btn:hover{background:var(--brand2)}
     .page-title{font-weight:800;font-size:16px}
 
     /* ─── KPI strip ─── */
     .kpi-strip{
       display:flex;gap:10px;flex-wrap:wrap;
-      padding:80px 16px 0;
+      padding:calc(80px + env(safe-area-inset-top)) 16px 0;
       max-width:1400px;margin:0 auto;
     }
     .kpi-card{
@@ -396,7 +399,7 @@
       .hist-section{grid-row:3}
     }
     @media (max-width:600px){
-      .kpi-strip{gap:8px;padding:74px 10px 0}
+      .kpi-strip{gap:8px;padding:calc(74px + env(safe-area-inset-top)) 10px 0}
       .kpi-card{min-width:calc(50% - 4px);flex:0 0 calc(50% - 4px);padding:10px 12px}
       .kpi-label{font-size:10px}
       .kpi-value{font-size:16px}
@@ -424,7 +427,7 @@
       .hist-tbl th,.hist-tbl td{padding:6px 8px}
     }
     @media (max-width:560px){
-      .top-bar{height:58px}
+      .top-bar{height:calc(58px + env(safe-area-inset-top))}
     }
 
     /* ─── Print ─── */
@@ -435,16 +438,16 @@
     }
 
     /* ─── Dashboard menu (stile iPhone) ─── */
-    .dashnav-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid rgba(15,23,42,.12);background:#fff;color:var(--text-dark);box-shadow:0 10px 25px rgba(2,6,23,.08);font-weight:800;cursor:pointer;}
+    .dashnav-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid rgba(15,23,42,.12);background:#fff;color:var(--text-dark);box-shadow:0 10px 25px rgba(2,6,23,.08);font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
     .dashnav-btn-ico{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:10px;background:rgba(37,99,235,.12);color:#2563eb;}
     .dashnav-overlay{position:fixed;inset:0;background:rgba(2,6,23,.35);display:none;z-index:9999;padding:16px;}
     .dashnav-overlay.open{display:flex;align-items:center;justify-content:center;}
     .dashnav-panel{width:min(720px,100%);max-height:min(86vh,900px);background:#fff;border-radius:20px;box-shadow:0 20px 55px rgba(2,6,23,.35);overflow:auto;}
     .dashnav-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(15,23,42,.10);}
     .dashnav-title{font-weight:900;color:var(--text-dark);}
-    .dashnav-close{border:0;background:transparent;font-size:26px;line-height:1;padding:2px 8px;cursor:pointer;color:var(--text-dark);}
+    .dashnav-close{border:0;background:transparent;font-size:26px;line-height:1;padding:2px 8px;cursor:pointer;color:var(--text-dark);-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
     .dashnav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px;}
-    .dashnav-item{border:1px solid rgba(15,23,42,.10);background:#f8fafc;border-radius:18px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;}
+    .dashnav-item{border:1px solid rgba(15,23,42,.10);background:#f8fafc;border-radius:18px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
     .dashnav-item:hover{background:#eef2ff;}
     .dashnav-ico{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:900;}
     .dashnav-item-txt{font-weight:800;color:var(--text-dark);font-size:12px;text-align:center;}
@@ -844,7 +847,7 @@
         }));
       }catch(e){console.warn('kpi fornitori',e);}
 
-      const saldo=incassiMese-scadenzeMese-speseMese;
+      const saldo=incassiMese-speseMese;
 
       document.getElementById('kpiIncassi').textContent=eur(incassiMese);
       document.getElementById('kpiScadenze').textContent=eur(scadenzeMese);
