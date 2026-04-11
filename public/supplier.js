@@ -15,423 +15,607 @@ import {
   getStorage,
   ref as storageRef,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-const storage = getStorage();
 
 const params = new URLSearchParams(window.location.search);
 let supplierId = params.get("supplierId") || null;
 
-/* ── DOM refs ─────────────────────────────────────────── */
-const supplierNameTitle = document.getElementById("supplierNameTitle");
-const supplierVatBadge  = document.getElementById("supplierVatBadge");
-const nameInput   = document.getElementById("name");
-const emailInput  = document.getElementById("email");
-const phoneInput  = document.getElementById("phone");
-const cityInput   = document.getElementById("city");
-const vatInput    = document.getElementById("vat");
-const saveSupplierBtn = document.getElementById("saveSupplier");
+// ── DOM refs ─────────────────────────────────────────
+const supplierNameTitle   = document.getElementById("supplierNameTitle");
+const supplierVatBadge    = document.getElementById("supplierVatBadge");
+const nameInput           = document.getElementById("name");
+const emailInput          = document.getElementById("email");
+const phoneInput          = document.getElementById("phone");
+const cityInput           = document.getElementById("city");
+const vatInput            = document.getElementById("vat");
+const supplierCategory    = document.getElementById("supplierCategory");
+const saveSupplierBtn     = document.getElementById("saveSupplier");
+const toggleSupplierFormBtn = document.getElementById("toggleSupplierFormBtn");
+const supplierFormCard    = document.getElementById("supplierFormCard");
 
-const statFattureAnno = document.getElementById("statFattureAnno");
-const statTotaleAnno  = document.getElementById("statTotaleAnno");
-const statDaPagare    = document.getElementById("statDaPagare");
-const statScadute     = document.getElementById("statScadute");
+const invStatsGrid        = document.getElementById("invStatsGrid");
+const statCountYear       = document.getElementById("statCountYear");
+const statTotalYear       = document.getElementById("statTotalYear");
+const statDaPagare        = document.getElementById("statDaPagare");
+const statScadute         = document.getElementById("statScadute");
 
-const urgentBlock  = document.getElementById("urgentBlock");
-const urgentList   = document.getElementById("urgentList");
+const urgentSection       = document.getElementById("urgentSection");
+const urgentList          = document.getElementById("urgentList");
 
-const addInvoiceBtn    = document.getElementById("addInvoiceBtn");
-const invoiceForm      = document.getElementById("invoiceForm");
-const saveInvoiceBtn   = document.getElementById("saveInvoiceBtn");
-const cancelInvoiceBtn = document.getElementById("cancelInvoiceBtn");
-const uploadProgress   = document.getElementById("uploadProgress");
-const currentPhotoHint = document.getElementById("currentPhotoHint");
+const addInvoiceBtn       = document.getElementById("addInvoiceBtn");
+const addPhotoInvoiceBtn  = document.getElementById("addPhotoInvoiceBtn");
+const invoiceForm         = document.getElementById("invoiceForm");
+const invoiceFormTitle    = document.getElementById("invoiceFormTitle");
+const saveInvoiceBtn      = document.getElementById("saveInvoiceBtn");
+const cancelInvoiceBtn    = document.getElementById("cancelInvoiceBtn");
 
-const invoiceNumeroInput    = document.getElementById("invoiceNumero");
-const invoiceDateInput      = document.getElementById("invoiceDate");
-const invoiceScadenzaInput  = document.getElementById("invoiceScadenza");
-const invoiceImponibileInput= document.getElementById("invoiceImponibile");
-const invoiceIvaInput       = document.getElementById("invoiceIva");
-const invoiceAmountInput    = document.getElementById("invoiceAmount");
-const invoiceDescrizioneInput = document.getElementById("invoiceDescrizione");
-const invCategoriaInput     = document.getElementById("invoiceCategoria");
-const invoiceStatoInput     = document.getElementById("invoiceStato");
-const invoiceNoteInput      = document.getElementById("invoiceNote");
-const invoicePhotoInput     = document.getElementById("invoicePhoto");
+const invoiceNumberInput  = document.getElementById("invoiceNumber");
+const invoiceDateInput    = document.getElementById("invoiceDate");
+const invoiceDueDateInput = document.getElementById("invoiceDueDate");
+const invoiceAmountInput  = document.getElementById("invoiceAmount");
+const invoiceVatInput     = document.getElementById("invoiceVat");
+const invoiceTotalDisplay = document.getElementById("invoiceTotalDisplay");
+const invoiceDescInput    = document.getElementById("invoiceDesc");
+const invoiceCategoryInput= document.getElementById("invoiceCategory");
+const invoiceStatusInput  = document.getElementById("invoiceStatus");
+const invoiceNotesInput   = document.getElementById("invoiceNotes");
 
-const searchInvoiceInput    = document.getElementById("searchInvoice");
-const filterTabsEl          = document.getElementById("filterTabs");
-const invoiceTableBody      = document.getElementById("invoiceTableBody");
-const emptyMsg              = document.getElementById("emptyMsg");
+const photoFileInput      = document.getElementById("photoFileInput");
+const triggerPhotoBtn     = document.getElementById("triggerPhotoBtn");
+const photoUploadInner    = document.getElementById("photoUploadInner");
+const photoPreviewInner   = document.getElementById("photoPreviewInner");
+const photoPreviewImg     = document.getElementById("photoPreviewImg");
+const photoPreviewName    = document.getElementById("photoPreviewName");
+const removePhotoBtn      = document.getElementById("removePhotoBtn");
 
-const photoModal     = document.getElementById("photoModal");
-const closePhotoModal= document.getElementById("closePhotoModal");
-const closePhotoModalBtn = document.getElementById("closePhotoModalBtn");
-const photoModalImg  = document.getElementById("photoModalImg");
-const photoModalPdf  = document.getElementById("photoModalPdf");
+const invSearch           = document.getElementById("invSearch");
+const filterPills         = document.querySelectorAll(".filter-pill");
+const invoiceTableWrap    = document.getElementById("invoiceTableWrap");
+const invoiceList         = document.getElementById("invoiceList");
+const invoiceEmptyState   = document.getElementById("invoiceEmptyState");
+
+const photoModal          = document.getElementById("photoModal");
+const photoModalBackdrop  = document.getElementById("photoModalBackdrop");
+const photoModalClose     = document.getElementById("photoModalClose");
+const photoModalImg       = document.getElementById("photoModalImg");
+
+const ocrOverlay          = document.getElementById("ocrOverlay");
+const ordersHistorySection= document.getElementById("ordersHistorySection");
+const ordersHistoryBody   = document.getElementById("ordersHistoryBody");
+const toggleOrdersBtn     = document.getElementById("toggleOrdersBtn");
+const ordersList          = document.getElementById("ordersList");
+const ordersEmptyState    = document.getElementById("ordersEmptyState");
 
 let editingInvoiceId = null;
-let editingFotoUrl   = null;
-let allInvoices      = [];
-let activeFilter     = "all";
-let searchQuery      = "";
+let allInvoices = [];
+let activeFilter = "all";
+let photoFile = null;
+let existingPhotoUrl = null;
 
-/* ── Helpers ──────────────────────────────────────────── */
-const MS_PER_DAY = 86400000;
+const storage = getStorage();
 
-function eur(n){
-  return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0);
+// ── Helpers ───────────────────────────────────────────
+function eur(n){ return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0); }
+function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
+function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
+
+function getStatusInfo(inv){
+  const s = inv.status || "da-pagare";
+  if(s === "pagata") return { label:"✅ Pagata", cls:"pagata" };
+  if(s === "pagata-parz") return { label:"⚡ Parz.", cls:"pagata-parz" };
+  if(!inv.dueDate) return { label:"🔵 Da pagare", cls:"da-pagare" };
+  const diff = daysDiff(inv.dueDate);
+  if(diff < 0) return { label:"🔴 Scaduta", cls:"scaduta" };
+  if(diff <= 14) return { label:"🟡 In scadenza", cls:"in-scadenza" };
+  return { label:"🔵 Da pagare", cls:"da-pagare" };
 }
 
-function todayISO(){
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+function getDueCls(dueDate){
+  if(!dueDate) return "none";
+  const diff = daysDiff(dueDate);
+  if(diff < 0) return "overdue";
+  if(diff <= 14) return "soon";
+  return "ok";
 }
 
-function effectiveStatus(inv){
-  if(inv.stato === "pagata") return "pagata";
-  const today = todayISO();
-  const scad = inv.scadenza || "";
-  if(!scad) return "da_pagare";
-  if(scad < today) return "scaduta";
-  // entro 7 giorni
-  const d = new Date(scad);
-  const diff = (d - new Date(today)) / MS_PER_DAY;
-  if(diff <= 7) return "in_scadenza";
-  return "da_pagare";
-}
+// ── Toggle fornitore form ─────────────────────────────
+toggleSupplierFormBtn?.addEventListener("click", () => {
+  const hidden = supplierFormCard.classList.toggle("hidden");
+  toggleSupplierFormBtn.textContent = hidden ? "Modifica" : "Chiudi";
+});
 
-function statusLabel(s){
-  return {da_pagare:"Da pagare", in_scadenza:"In scadenza", scaduta:"Scaduta", pagata:"Pagata"}[s] || s;
-}
-
-/* ── Auto-calc totale ─────────────────────────────────── */
-function recalcTotal(){
-  const imponibile = parseFloat(invoiceImponibileInput.value) || 0;
-  const iva = parseFloat(invoiceIvaInput.value) || 0;
-  invoiceAmountInput.value = (imponibile * (1 + iva / 100)).toFixed(2);
-}
-invoiceImponibileInput?.addEventListener("input", recalcTotal);
-invoiceIvaInput?.addEventListener("input", recalcTotal);
-
-/* ── Supplier load/save ───────────────────────────────── */
+// ── Supplier CRUD ─────────────────────────────────────
 async function loadSupplier(){
   if(!supplierId){
     supplierNameTitle.textContent = "Nuovo fornitore";
+    if(supplierFormCard) supplierFormCard.classList.remove("hidden");
     return;
   }
   const snap = await getDoc(doc(db, "suppliers", supplierId));
   if(!snap.exists()){ supplierNameTitle.textContent = "Fornitore"; return; }
   const s = snap.data();
   supplierNameTitle.textContent = (s.name || "Fornitore").toUpperCase();
-  if(supplierVatBadge && s.vat) supplierVatBadge.textContent = `P.IVA ${s.vat}`;
+  if(supplierVatBadge) supplierVatBadge.textContent = s.vat || "";
   nameInput.value  = s.name  || "";
   emailInput.value = s.email || "";
   phoneInput.value = s.phone || "";
   cityInput.value  = s.city  || "";
   vatInput.value   = s.vat   || "";
+  if(supplierCategory) supplierCategory.value = s.category || "";
+  // collapse form on load if already saved
+  if(supplierFormCard) supplierFormCard.classList.add("hidden");
+  if(toggleSupplierFormBtn) toggleSupplierFormBtn.textContent = "Modifica";
 }
 
-saveSupplierBtn.addEventListener("click", async () => {
+saveSupplierBtn?.addEventListener("click", async () => {
   const data = {
-    name:  nameInput.value.trim(),
-    email: emailInput.value.trim(),
-    phone: phoneInput.value.trim(),
-    city:  cityInput.value.trim(),
-    vat:   vatInput.value.trim()
+    name:     nameInput.value.trim(),
+    email:    emailInput.value.trim(),
+    phone:    phoneInput.value.trim(),
+    city:     cityInput.value.trim(),
+    vat:      vatInput.value.trim(),
+    category: supplierCategory?.value || ""
   };
   if(!data.name){ alert("Inserisci nome fornitore"); return; }
   if(supplierId){
-    await updateDoc(doc(db,"suppliers",supplierId), data);
+    await updateDoc(doc(db, "suppliers", supplierId), data);
     supplierNameTitle.textContent = data.name.toUpperCase();
-    if(supplierVatBadge) supplierVatBadge.textContent = data.vat ? `P.IVA ${data.vat}` : "";
-    alert("Fornitore aggiornato");
+    if(supplierVatBadge) supplierVatBadge.textContent = data.vat;
+    if(supplierFormCard) supplierFormCard.classList.add("hidden");
+    if(toggleSupplierFormBtn) toggleSupplierFormBtn.textContent = "Modifica";
   } else {
-    const ref = await addDoc(collection(db,"suppliers"),{...data,total:0});
+    const ref = await addDoc(collection(db, "suppliers"), { ...data, total: 0 });
     supplierId = ref.id;
     window.location.href = `supplier.html?supplierId=${encodeURIComponent(supplierId)}`;
   }
 });
+
+// ── Photo upload logic ────────────────────────────────
+triggerPhotoBtn?.addEventListener("click", () => photoFileInput?.click());
+removePhotoBtn?.addEventListener("click", () => {
+  photoFile = null;
+  existingPhotoUrl = null;
+  photoFileInput.value = "";
+  photoUploadInner?.classList.remove("hidden");
+  photoPreviewInner?.classList.add("hidden");
+});
+
+photoFileInput?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if(!file) return;
+  // Enforce 10 MB limit
+  if(file.size > 10 * 1024 * 1024){ alert("File troppo grande. Dimensione massima consentita: 10 MB."); photoFileInput.value = ""; return; }
+  photoFile = file;
+  photoPreviewName.textContent = file.name;
+  if(file.type.startsWith("image/")){
+    const reader = new FileReader();
+    reader.onload = (ev) => { photoPreviewImg.src = ev.target.result; };
+    reader.readAsDataURL(file);
+  } else {
+    photoPreviewImg.src = "";
+    photoPreviewImg.alt = "PDF allegato";
+  }
+  photoUploadInner?.classList.add("hidden");
+  photoPreviewInner?.classList.remove("hidden");
+
+  // Auto-fill form via OCR only for images
+  if(file.type.startsWith("image/")){
+    await runOcrAutoFill(file);
+  }
+});
+
+// ── OCR auto-fill ─────────────────────────────────────
+async function runOcrAutoFill(file){
+  if(ocrOverlay) ocrOverlay.classList.remove("hidden");
+  try {
+    const base64 = await fileToBase64(file);
+    const res = await fetch("/api/analyze-invoice", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageBase64: base64, mimeType: file.type })
+    });
+    if(!res.ok) throw new Error(`Risposta server non valida (${res.status}): impossibile analizzare la fattura`);
+    const data = await res.json();
+    if(data.invoiceNumber && !invoiceNumberInput.value)  invoiceNumberInput.value  = data.invoiceNumber;
+    if(data.date          && !invoiceDateInput.value)    invoiceDateInput.value    = data.date;
+    if(data.dueDate       && !invoiceDueDateInput.value) invoiceDueDateInput.value = data.dueDate;
+    if(data.amount != null && !(parseFloat(invoiceAmountInput.value) > 0)){
+      invoiceAmountInput.value = String(data.amount);
+      computeInvoiceTotal();
+    }
+    if(data.vat != null){
+      const vatStr = String(data.vat);
+      const opt = invoiceVatInput?.querySelector(`option[value="${vatStr}"]`);
+      if(opt){ invoiceVatInput.value = vatStr; computeInvoiceTotal(); }
+    }
+    if(data.description && !invoiceDescInput.value) invoiceDescInput.value = data.description;
+  } catch(err){
+    console.warn("OCR fallito:", err);
+  } finally {
+    if(ocrOverlay) ocrOverlay.classList.add("hidden");
+  }
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      // result is "data:image/jpeg;base64,XXXX" – extract only the base64 part
+      const b64 = result.split(",")[1] || "";
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadPhotoFile(suppId, invId){
+  if(!photoFile) return existingPhotoUrl || null;
+  const ext = photoFile.name.split(".").pop();
+  const path = `suppliers/${suppId}/invoices/${invId}/fattura.${ext}`;
+  const sRef = storageRef(storage, path);
+  await uploadBytes(sRef, photoFile);
+  return await getDownloadURL(sRef);
+}
+
+// ── Invoice form controls ─────────────────────────────
+function computeInvoiceTotal(){
+  const base = parseFloat(invoiceAmountInput?.value) || 0;
+  const vat  = parseFloat(invoiceVatInput?.value) || 0;
+  const total = base * (1 + vat / 100);
+  if(invoiceTotalDisplay) invoiceTotalDisplay.value = total > 0 ? `€ ${total.toFixed(2).replace(".",",")}` : "";
+}
+invoiceAmountInput?.addEventListener("input", computeInvoiceTotal);
+invoiceVatInput?.addEventListener("change", computeInvoiceTotal);
+
+function resetForm(){
+  editingInvoiceId = null;
+  photoFile = null;
+  existingPhotoUrl = null;
+  if(invoiceFormTitle) invoiceFormTitle.textContent = "✏️ Nuova fattura fornitore";
+  invoiceNumberInput.value = "";
+  invoiceDateInput.value = todayISO();
+  invoiceDueDateInput.value = "";
+  invoiceAmountInput.value = "";
+  invoiceVatInput.value = "22";
+  invoiceTotalDisplay.value = "";
+  invoiceDescInput.value = "";
+  if(invoiceCategoryInput) invoiceCategoryInput.value = "";
+  invoiceStatusInput.value = "da-pagare";
+  invoiceNotesInput.value = "";
+  if(photoFileInput) photoFileInput.value = "";
+  photoUploadInner?.classList.remove("hidden");
+  photoPreviewInner?.classList.add("hidden");
+}
+
+function openForm(scrollTo = true){
+  if(!requireSupplierSaved()) return;
+  invoiceForm.classList.remove("hidden");
+  if(scrollTo) invoiceForm.scrollIntoView({ behavior:"smooth", block:"start" });
+}
 
 function requireSupplierSaved(){
   if(!supplierId){ alert("Prima salva il fornitore, poi puoi aggiungere le fatture."); return false; }
   return true;
 }
 
-/* ── Invoice form open/close ──────────────────────────── */
-function setFormVisible(visible){
-  invoiceForm.classList.toggle("hidden", !visible);
-}
-
-function resetForm(){
-  editingInvoiceId = null;
-  editingFotoUrl   = null;
-  invoiceNumeroInput.value    = "";
-  invoiceDateInput.value      = todayISO();
-  invoiceScadenzaInput.value  = "";
-  invoiceImponibileInput.value= "";
-  invoiceIvaInput.value       = "22";
-  invoiceAmountInput.value    = "";
-  invoiceDescrizioneInput.value = "";
-  invCategoriaInput.value     = "";
-  invoiceStatoInput.value     = "da_pagare";
-  invoiceNoteInput.value      = "";
-  invoicePhotoInput.value     = "";
-  currentPhotoHint.classList.add("hidden");
-  uploadProgress.classList.add("hidden");
-}
-
-addInvoiceBtn?.addEventListener("click", () => {
-  if(!requireSupplierSaved()) return;
-  resetForm();
-  setFormVisible(true);
-  invoiceForm.scrollIntoView({behavior:"smooth",block:"start"});
+addInvoiceBtn?.addEventListener("click", () => { resetForm(); openForm(); });
+addPhotoInvoiceBtn?.addEventListener("click", () => {
+  resetForm(); openForm();
+  setTimeout(() => photoFileInput?.click(), 400);
 });
+cancelInvoiceBtn?.addEventListener("click", () => invoiceForm.classList.add("hidden"));
 
-cancelInvoiceBtn?.addEventListener("click", () => {
-  setFormVisible(false);
-  resetForm();
-});
-
-/* ── Save invoice ─────────────────────────────────────── */
 saveInvoiceBtn?.addEventListener("click", async () => {
   if(!requireSupplierSaved()) return;
+  const date   = invoiceDateInput.value;
+  const amount = parseFloat(invoiceAmountInput.value);
+  if(!date || Number.isNaN(amount) || amount <= 0){ alert("Compila data e importo validi."); return; }
 
-  const date      = invoiceDateInput.value;
-  const imponibile= parseFloat(invoiceImponibileInput.value) || 0;
-  const iva       = parseFloat(invoiceIvaInput.value) || 0;
-  const amount    = parseFloat(invoiceAmountInput.value) || (imponibile * (1 + iva / 100));
-
-  if(!date){ alert("Inserisci la data fattura"); return; }
-  if(!(amount > 0)){ alert("Inserisci importo valido"); return; }
-
-  let fotoUrl = editingFotoUrl || null;
-
-  const file = invoicePhotoInput.files?.[0];
-  if(file){
-    if(file.size > 10 * 1024 * 1024){ alert("File troppo grande. Massimo 10 MB."); return; }
-    uploadProgress.classList.remove("hidden");
-    try {
-      const path = `suppliers/${supplierId}/invoices/${Date.now()}_${file.name}`;
-      const sref = storageRef(storage, path);
-      await uploadBytes(sref, file);
-      fotoUrl = await getDownloadURL(sref);
-    } catch(e){
-      console.error("Upload foto fallito:", e);
-      alert("Errore caricamento foto: " + e.message);
-      uploadProgress.classList.add("hidden");
-      return;
-    }
-    uploadProgress.classList.add("hidden");
-  }
-
-  const data = {
-    numero:      invoiceNumeroInput.value.trim(),
+  const vat     = parseFloat(invoiceVatInput?.value) || 0;
+  const total   = parseFloat((amount * (1 + vat / 100)).toFixed(2));
+  const payload = {
+    invoiceNumber: invoiceNumberInput?.value.trim() || "",
     date,
-    scadenza:    invoiceScadenzaInput.value || "",
-    imponibile,
-    iva,
-    amount:      parseFloat(amount.toFixed(2)),
-    descrizione: invoiceDescrizioneInput.value.trim(),
-    categoria:   invCategoriaInput.value,
-    stato:       invoiceStatoInput.value,
-    note:        invoiceNoteInput.value.trim(),
-    fotoUrl
+    dueDate:       invoiceDueDateInput?.value || "",
+    amount,
+    vat,
+    total,
+    description:   invoiceDescInput?.value.trim() || "",
+    category:      invoiceCategoryInput?.value || "",
+    status:        invoiceStatusInput?.value || "da-pagare",
+    notes:         invoiceNotesInput?.value.trim() || "",
+    photoUrl:      existingPhotoUrl || null,
+    updatedAt:     new Date().toISOString()
   };
 
-  const ref = collection(db,"suppliers",supplierId,"invoices");
-  if(editingInvoiceId){
-    await updateDoc(doc(ref, editingInvoiceId), data);
+  const ref = collection(db, "suppliers", supplierId, "invoices");
+  let invId = editingInvoiceId;
+
+  if(invId){
+    await updateDoc(doc(ref, invId), payload);
   } else {
-    await addDoc(ref, data);
+    const newRef = await addDoc(ref, { ...payload, createdAt: new Date().toISOString() });
+    invId = newRef.id;
   }
 
-  setFormVisible(false);
-  resetForm();
+  // upload photo if present
+  if(photoFile){
+    try {
+      const url = await uploadPhotoFile(supplierId, invId);
+      payload.photoUrl = url;
+      await updateDoc(doc(ref, invId), { photoUrl: url });
+    } catch(e){ console.warn("Foto non caricata:", e); }
+  }
+
+  invoiceForm.classList.add("hidden");
+  editingInvoiceId = null;
   await loadInvoices();
 });
 
-/* ── Load & render invoices ───────────────────────────── */
-async function loadInvoices(){
-  if(!supplierId){ updateStats([]); return; }
+// ── Filters ───────────────────────────────────────────
+filterPills.forEach(pill => {
+  pill.addEventListener("click", () => {
+    filterPills.forEach(p => p.classList.remove("active"));
+    pill.classList.add("active");
+    activeFilter = pill.dataset.filter || "all";
+    renderInvoiceTable();
+  });
+});
+invSearch?.addEventListener("input", renderInvoiceTable);
 
-  const ref = collection(db,"suppliers",supplierId,"invoices");
-  const q   = query(ref, orderBy("date","desc"));
-  const snap= await getDocs(q);
-
-  allInvoices = [];
-  snap.forEach(d => allInvoices.push({id:d.id,...d.data()}));
-
-  updateStats(allInvoices);
-  renderUrgent(allInvoices);
-  renderTable(allInvoices);
-
-  // aggiorna totale sul documento fornitore
-  const total = allInvoices.reduce((s,i)=>s+(Number(i.amount)||0),0);
-  if(supplierId) await updateDoc(doc(db,"suppliers",supplierId),{total});
+// ── Photo modal ───────────────────────────────────────
+function openPhotoModal(url){
+  if(!photoModal || !url) return;
+  photoModalImg.src = url;
+  photoModal.classList.remove("hidden");
 }
+photoModalClose?.addEventListener("click", () => photoModal.classList.add("hidden"));
+photoModalBackdrop?.addEventListener("click", () => photoModal.classList.add("hidden"));
 
-function updateStats(invoices){
-  const year = new Date().getFullYear();
-  const thisYear = invoices.filter(i=>(i.date||"").startsWith(String(year)));
-  statFattureAnno.textContent = thisYear.length;
-  statTotaleAnno.textContent  = eur(thisYear.reduce((s,i)=>s+(Number(i.amount)||0),0));
+// ── Render invoice table ──────────────────────────────
+function renderInvoiceTable(){
+  const search = (invSearch?.value || "").toLowerCase().trim();
+  const filtered = allInvoices.filter(inv => {
+    const { cls } = getStatusInfo(inv);
+    const matchFilter = activeFilter === "all" || cls === activeFilter;
+    const matchSearch = !search
+      || (inv.invoiceNumber||"").toLowerCase().includes(search)
+      || (inv.description||"").toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
 
-  const unpaid = invoices.filter(i=>effectiveStatus(i)!=="pagata");
-  statDaPagare.textContent = eur(unpaid.reduce((s,i)=>s+(Number(i.amount)||0),0));
-
-  const scadute = invoices.filter(i=>effectiveStatus(i)==="scaduta");
-  statScadute.textContent = scadute.length;
-}
-
-function renderUrgent(invoices){
-  const urgent = invoices.filter(i=>{ const s=effectiveStatus(i); return s==="scaduta"||s==="in_scadenza"; });
-  if(!urgent.length){ urgentBlock.classList.add("hidden"); return; }
-  urgentBlock.classList.remove("hidden");
-  urgentList.innerHTML = urgent.map(inv=>{
-    const s = effectiveStatus(inv);
-    return `<div class="urgent-row">
-      <span class="urgent-num">${inv.numero||"—"}</span>
-      <span class="urgent-desc">${inv.descrizione||""}</span>
-      <span class="urgent-scad">${s==="scaduta"?"⛔ Scaduta il":"⚠️ Scade il"} ${inv.scadenza||"—"}</span>
-      <span>${eur(inv.amount)}</span>
-    </div>`;
-  }).join("");
-}
-
-function filterInvoices(invoices){
-  let list = invoices;
-  if(activeFilter !== "all"){
-    list = list.filter(i=>effectiveStatus(i)===activeFilter);
-  }
-  if(searchQuery){
-    const q = searchQuery.toLowerCase();
-    list = list.filter(i=>
-      (i.numero||"").toLowerCase().includes(q) ||
-      (i.descrizione||"").toLowerCase().includes(q) ||
-      (i.date||"").includes(q)
-    );
-  }
-  return list;
-}
-
-function renderTable(invoices){
-  const filtered = filterInvoices(invoices);
-  invoiceTableBody.innerHTML = "";
+  invoiceList.innerHTML = "";
   if(!filtered.length){
-    emptyMsg.classList.remove("hidden");
+    invoiceEmptyState?.classList.remove("hidden");
     return;
   }
-  emptyMsg.classList.add("hidden");
+  invoiceEmptyState?.classList.add("hidden");
 
-  filtered.forEach(inv=>{
-    const status = effectiveStatus(inv);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td data-label="N° Fattura"><strong>${inv.numero||"—"}</strong></td>
-      <td data-label="Descrizione">${inv.descrizione||"—"}</td>
-      <td data-label="Data">${inv.date||"—"}</td>
-      <td data-label="Scadenza">${inv.scadenza||"—"}</td>
-      <td data-label="Importo"><strong>${eur(inv.amount)}</strong></td>
-      <td data-label="Stato"><span class="status-badge ${status}">${statusLabel(status)}</span></td>
-      <td data-label="Azioni">
-        <div class="inv-actions">
-          ${inv.fotoUrl ? `<button class="icon-btn view-photo-btn" title="Vedi foto">📎</button>` : ""}
-          ${status !== "pagata" ? `<button class="icon-btn pay-btn" title="Segna come pagata">✅ Pagata</button>` : ""}
-          <button class="icon-btn edit-btn" title="Modifica">✏️</button>
-          <button class="icon-btn delete-btn" title="Elimina">🗑️</button>
-        </div>
-      </td>
+  filtered.forEach(inv => {
+    const { label: statusLabel, cls: statusCls } = getStatusInfo(inv);
+    const dueCls = getDueCls(inv.dueDate);
+    const dueText = inv.dueDate ? formatDate(inv.dueDate) : "—";
+
+    const row = document.createElement("div");
+    row.className = "inv-row";
+    row.innerHTML = `
+      <span class="inv-num">${inv.invoiceNumber ? `#${inv.invoiceNumber}` : "—"}</span>
+      <div class="inv-info">
+        <div class="inv-desc">${inv.description || "Fattura del "+formatDate(inv.date)}</div>
+        <div class="inv-supplier-sub">${inv.category ? `📂 ${inv.category}` : ""}</div>
+        <div class="inv-status-mobile"><span class="status-pill ${statusCls}">${statusLabel}</span></div>
+      </div>
+      <span class="inv-date">${formatDate(inv.date)}</span>
+      <span class="inv-due ${dueCls}">${dueText}</span>
+      <span class="inv-amt">${eur(inv.total || inv.amount)}</span>
+      <!-- inv.total is the VAT-inclusive total for new invoices; inv.amount is kept for backward compatibility with old invoices that only stored the base amount -->
+      <span class="status-pill ${statusCls}">${statusLabel}</span>
+      <div class="inv-actions-cell">
+        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${inv.photoUrl}">📷</button>` : ""}
+        <button class="act-btn" title="Modifica" data-edit="${inv.id}">✏️</button>
+        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay="${inv.id}">✅</button>` : ""}
+        <button class="act-btn del-btn" title="Elimina" data-del="${inv.id}">🗑️</button>
+      </div>
+      <!-- Mobile: compact action row always visible on small screens -->
+      <div class="inv-actions-mobile">
+        <button class="act-btn" title="Modifica" data-edit-m="${inv.id}">✏️</button>
+        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay-m="${inv.id}">✅</button>` : ""}
+        <button class="act-btn del-btn" title="Elimina" data-del-m="${inv.id}">🗑️</button>
+      </div>
     `;
 
-    tr.querySelector(".edit-btn")?.addEventListener("click", (e)=>{
+    row.querySelector("[data-photo]")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openPhotoModal(e.currentTarget.dataset.photo);
+    });
+    row.querySelector("[data-edit]")?.addEventListener("click", (e) => {
       e.stopPropagation();
       startEdit(inv);
     });
-
-    tr.querySelector(".delete-btn")?.addEventListener("click", async (e)=>{
+    row.querySelector("[data-pay]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if(!confirm("Eliminare fattura?")) return;
+      if(!confirm("Segna questa fattura come pagata?")) return;
+      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await loadInvoices();
+    });
+    row.querySelector("[data-del]")?.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if(!confirm("Eliminare questa fattura?")) return;
       await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
       await loadInvoices();
     });
 
-    tr.querySelector(".pay-btn")?.addEventListener("click", async (e)=>{
+    row.querySelector("[data-edit-m]")?.addEventListener("click", (e) => {
+      e.stopPropagation(); startEdit(inv);
+    });
+    row.querySelector("[data-pay-m]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if(!confirm("Segna come pagata?")) return;
-      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id),{stato:"pagata"});
+      if(!confirm("Segna questa fattura come pagata?")) return;
+      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await loadInvoices();
+    });
+    row.querySelector("[data-del-m]")?.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if(!confirm("Eliminare questa fattura?")) return;
+      await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
       await loadInvoices();
     });
 
-    tr.querySelector(".view-photo-btn")?.addEventListener("click", (e)=>{
-      e.stopPropagation();
-      openPhotoModal(inv.fotoUrl);
-    });
-
-    invoiceTableBody.appendChild(tr);
+    invoiceList.appendChild(row);
   });
 }
 
 function startEdit(inv){
+  if(!requireSupplierSaved()) return;
   editingInvoiceId = inv.id;
-  editingFotoUrl   = inv.fotoUrl || null;
-  invoiceNumeroInput.value    = inv.numero    || "";
-  invoiceDateInput.value      = inv.date      || todayISO();
-  invoiceScadenzaInput.value  = inv.scadenza  || "";
-  invoiceImponibileInput.value= inv.imponibile ?? "";
-  invoiceIvaInput.value       = inv.iva       ?? "22";
-  invoiceAmountInput.value    = inv.amount    != null ? Number(inv.amount).toFixed(2) : "";
-  invoiceDescrizioneInput.value = inv.descrizione || "";
-  invCategoriaInput.value     = inv.categoria || "";
-  invoiceStatoInput.value     = inv.stato     || "da_pagare";
-  invoiceNoteInput.value      = inv.note      || "";
-  invoicePhotoInput.value     = "";
-  currentPhotoHint.classList.toggle("hidden", !editingFotoUrl);
-  setFormVisible(true);
-  invoiceForm.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
-/* ── Filters ──────────────────────────────────────────── */
-filterTabsEl?.addEventListener("click", (e)=>{
-  const tab = e.target.closest(".filter-tab");
-  if(!tab) return;
-  filterTabsEl.querySelectorAll(".filter-tab").forEach(t=>t.classList.remove("active"));
-  tab.classList.add("active");
-  activeFilter = tab.dataset.filter;
-  renderTable(allInvoices);
-});
-
-searchInvoiceInput?.addEventListener("input", ()=>{
-  searchQuery = searchInvoiceInput.value.trim();
-  renderTable(allInvoices);
-});
-
-/* ── Photo modal ──────────────────────────────────────── */
-function openPhotoModal(url){
-  if(!url) return;
-  const isPdf = url.toLowerCase().includes(".pdf") || (url.includes("%2F") && url.toLowerCase().includes("pdf"));
-  photoModalImg.classList.add("hidden");
-  photoModalPdf.classList.add("hidden");
-  if(isPdf){
-    photoModalPdf.src = url;
-    photoModalPdf.classList.remove("hidden");
+  existingPhotoUrl = inv.photoUrl || null;
+  if(invoiceFormTitle) invoiceFormTitle.textContent = "✏️ Modifica fattura";
+  invoiceNumberInput.value  = inv.invoiceNumber || "";
+  invoiceDateInput.value    = inv.date || todayISO();
+  invoiceDueDateInput.value = inv.dueDate || "";
+  invoiceAmountInput.value  = inv.amount || ""; // base amount (imponibile); total is recalculated via computeInvoiceTotal()
+  invoiceVatInput.value     = String(inv.vat ?? 22);
+  invoiceDescInput.value    = inv.description || "";
+  if(invoiceCategoryInput) invoiceCategoryInput.value = inv.category || "";
+  invoiceStatusInput.value  = inv.status || "da-pagare";
+  invoiceNotesInput.value   = inv.notes || "";
+  computeInvoiceTotal();
+  photoFile = null;
+  if(inv.photoUrl){
+    photoPreviewImg.src = inv.photoUrl;
+    photoPreviewName.textContent = "Foto allegata";
+    photoUploadInner?.classList.add("hidden");
+    photoPreviewInner?.classList.remove("hidden");
   } else {
-    photoModalImg.src = url;
-    photoModalImg.classList.remove("hidden");
+    photoUploadInner?.classList.remove("hidden");
+    photoPreviewInner?.classList.add("hidden");
   }
-  photoModal.classList.remove("hidden");
+  openForm();
 }
 
-function closeModal(){
-  photoModal.classList.add("hidden");
-  photoModalImg.src = "";
-  photoModalPdf.src = "";
+// ── Load & stats ──────────────────────────────────────
+async function loadInvoices(){
+  invoiceList.innerHTML = "";
+  if(!supplierId){ return; }
+
+  const ref = collection(db, "suppliers", supplierId, "invoices");
+  const q   = query(ref, orderBy("date","desc"));
+  const snap = await getDocs(q);
+
+  const currentYear = new Date().getFullYear().toString();
+  let totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
+  const urgent = [];
+
+  allInvoices = [];
+  snap.forEach(docSnap => {
+    const inv = { id: docSnap.id, ...docSnap.data() };
+    allInvoices.push(inv);
+    const amount = Number(inv.total || inv.amount || 0);
+    if((inv.date||"").startsWith(currentYear)){
+      totalYear += amount; countYear++;
+    }
+    const { cls } = getStatusInfo(inv);
+    if(cls === "da-pagare" || cls === "in-scadenza" || cls === "pagata-parz") daPagare += amount;
+    if(cls === "scaduta"){ scadute += amount; urgent.push(inv); }
+    else if(cls === "in-scadenza"){ urgent.push(inv); }
+  });
+
+  // Stats
+  if(allInvoices.length){
+    invStatsGrid?.style.setProperty("display","grid");
+  }
+  if(statCountYear)  statCountYear.textContent  = countYear;
+  if(statTotalYear)  statTotalYear.textContent   = eur(totalYear);
+  if(statDaPagare)   statDaPagare.textContent    = eur(daPagare);
+  if(statScadute)    statScadute.textContent     = eur(scadute);
+
+  // Urgent
+  if(urgent.length){
+    urgentSection?.style.setProperty("display","block");
+    urgentList.innerHTML = `<div class="scad-head">⚠️ Pagamenti in scadenza o scaduti</div>`;
+    urgent.forEach(inv => {
+      const { cls } = getStatusInfo(inv);
+      const diff = inv.dueDate ? daysDiff(inv.dueDate) : null;
+      const dueLabel = diff !== null
+        ? (diff < 0 ? `Scaduta il ${formatDate(inv.dueDate)}` : `Scade il ${formatDate(inv.dueDate)}`)
+        : `Fattura del ${formatDate(inv.date)}`;
+      const dueCls = cls === "scaduta" ? "overdue" : "soon";
+      const row = document.createElement("div");
+      row.className = "scad-row";
+      row.innerHTML = `
+        <div class="scad-info">
+          <div class="scad-supplier">${inv.description || (inv.invoiceNumber ? `#${inv.invoiceNumber}` : "Fattura")}</div>
+          <div class="scad-detail">${inv.invoiceNumber ? `Fattura #${inv.invoiceNumber} · ` : ""}${formatDate(inv.date)}</div>
+        </div>
+        <div class="scad-right">
+          <div class="scad-due ${dueCls}">${dueLabel}</div>
+          <div class="scad-amt">${eur(inv.total || inv.amount)}</div>
+        </div>`;
+      urgentList.appendChild(row);
+    });
+  } else {
+    if(urgentSection) urgentSection.style.display = "none";
+  }
+
+  // update supplier total
+  await updateDoc(doc(db,"suppliers",supplierId), { total: totalYear });
+
+  renderInvoiceTable();
 }
 
-closePhotoModal?.addEventListener("click", closeModal);
-closePhotoModalBtn?.addEventListener("click", closeModal);
-
-/* ── Init ─────────────────────────────────────────────── */
+/* Init */
 await loadSupplier();
 await loadInvoices();
+await loadOrders();
+
+// ── Toggle storico ordini ─────────────────────────────
+toggleOrdersBtn?.addEventListener("click", () => {
+  const hidden = ordersHistoryBody?.classList.toggle("hidden");
+  if(toggleOrdersBtn) toggleOrdersBtn.textContent = hidden ? "Mostra" : "Nascondi";
+});
+
+// ── Load historical orders ────────────────────────────
+async function loadOrders(){
+  if(!supplierId || !ordersHistorySection) return;
+  const ref = collection(db, "suppliers", supplierId, "orders");
+  const q   = query(ref, orderBy("data", "desc"));
+  let snap;
+  try { snap = await getDocs(q); } catch(e){ console.warn("Ordini non caricati:", e); return; }
+  if(snap.empty) return;
+
+  ordersHistorySection.style.display = "block";
+  if(!ordersList) return;
+  ordersList.innerHTML = "";
+  ordersEmptyState?.classList.add("hidden");
+
+  snap.forEach(docSnap => {
+    const o = docSnap.data();
+    // "data" is the Firestore field name used by the legacy supplier-order.js (Italian for "date")
+    const dateVal = o.data?.toDate ? o.data.toDate() : (o.data ? new Date(o.data) : null);
+    const dateStr = dateVal
+      ? `${String(dateVal.getDate()).padStart(2,"0")}/${String(dateVal.getMonth()+1).padStart(2,"0")}/${dateVal.getFullYear()}`
+      : "—";
+    const righe = Array.isArray(o.righe) ? o.righe : [];
+    const itemsHtml = righe.length
+      ? righe.map(r => {
+          const prodotto = (r.prodotto || "—").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+          return `${prodotto} × ${r.quantita ?? 1} (${eur(r.totale || 0)})`;
+        }).join("<br>")
+      : "—";
+    const totale = Number(o.totale || 0);
+
+    const row = document.createElement("div");
+    row.className = "order-row";
+    row.innerHTML = `
+      <span class="order-date">${dateStr}</span>
+      <span class="order-items">${itemsHtml}</span>
+      <span class="order-total">${eur(totale)}</span>
+    `;
+    ordersList.appendChild(row);
+  });
+}
