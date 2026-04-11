@@ -43,6 +43,8 @@
   padding: 10px 14px;
   font-weight: 700;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .ios-nav-overlay{
   position: fixed;
@@ -64,7 +66,7 @@
 }
 .ios-nav-sheet h3{margin:0;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.08);font-size:16px}
 .ios-nav-list{list-style:none;margin:0;padding:0}
-.ios-nav-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer}
+.ios-nav-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .ios-nav-item:active{background:#f2f3f5}
 .ios-nav-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
 .ios-nav-label{font-weight:800}
