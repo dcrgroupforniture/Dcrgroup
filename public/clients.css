@@ -31,11 +31,10 @@ main.page-content{
 
 /* ===== Sidebar ===== */
 .clients-sidebar{
-  background: rgba(255,255,255,.82);
+  background: #ffffff;
   border: 1px solid var(--fx-border);
   border-radius: var(--fx-radius);
   box-shadow: var(--fx-shadow-sm);
-  backdrop-filter: blur(8px);
   overflow: hidden;
   display:flex;
   flex-direction: column;
@@ -53,6 +52,7 @@ main.page-content{
   font-weight: 800;
   font-size: 18px;
   letter-spacing: .2px;
+  color: #312e81;
 }
 
 .sidebar-search{
@@ -136,11 +136,10 @@ main.page-content{
 
 /* ===== Content ===== */
 .clients-content{
-  background: rgba(255,255,255,.72);
+  background: #ffffff;
   border: 1px solid var(--fx-border);
   border-radius: var(--fx-radius);
   box-shadow: var(--fx-shadow);
-  backdrop-filter: blur(10px);
   padding: 16px;
   min-height: calc(100vh - 110px);
 }
@@ -218,10 +217,14 @@ main.page-content{
 .kpi-value{ font-size: 26px; font-weight: 950; margin-top: 8px; }
 .kpi-hint{ margin-top: 6px; opacity: .70; font-size: 12.5px; }
 
-.kpi-blue{ background: rgba(59,130,246,.10); }
-.kpi-green{ background: rgba(34,197,94,.12); }
-.kpi-orange{ background: rgba(249,115,22,.13); }
-.kpi-red{ background: rgba(239,68,68,.12); }
+.kpi-blue{ background: #f0f4ff; border-left: 4px solid #4338ca; }
+.kpi-blue .kpi-value { color: #4338ca; }
+.kpi-green{ background: #f0fdf4; border-left: 4px solid #15803d; }
+.kpi-green .kpi-value { color: #15803d; }
+.kpi-orange{ background: #fff7ed; border-left: 4px solid #c2410c; }
+.kpi-orange .kpi-value { color: #c2410c; }
+.kpi-red{ background: #fef2f2; border-left: 4px solid #b91c1c; }
+.kpi-red .kpi-value { color: #b91c1c; }
 
 .bottom-grid{
   display:grid;
