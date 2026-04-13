@@ -982,7 +982,7 @@
       }catch(e){console.warn('kpi orders',e);}
 
       try{
-        const snap=await getDocs(collection(db,'spese'));
+        const snap=await getDocs(collection(db,'expenses'));
         snap.forEach(d=>{
           const data=d.data()||{};
           if(data.isDeleted) return;
@@ -1186,7 +1186,7 @@
       }catch(e){console.warn('agenda incassi',e);}
 
       try{
-        const snap=await getDocs(collection(db,'spese'));
+        const snap=await getDocs(collection(db,'expenses'));
         snap.forEach(d=>{
           const data=d.data()||{};
           if(data.isDeleted) return;

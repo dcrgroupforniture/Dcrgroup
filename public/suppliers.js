@@ -223,9 +223,12 @@ function renderMonthlyOrdersChart(){
     return d.toLocaleDateString('it-IT', { month: 'short', year: '2-digit' });
   });
   const chartColors = [
-    'rgba(59,130,246,0.75)','rgba(16,185,129,0.75)','rgba(245,158,11,0.75)',
-    'rgba(239,68,68,0.75)','rgba(139,92,246,0.75)','rgba(236,72,153,0.75)',
-    'rgba(20,184,166,0.75)','rgba(249,115,22,0.75)'
+    'rgba(59,130,246,0.80)','rgba(16,185,129,0.80)','rgba(245,158,11,0.85)',
+    'rgba(239,68,68,0.80)','rgba(139,92,246,0.80)','rgba(236,72,153,0.80)',
+    'rgba(20,184,166,0.80)','rgba(249,115,22,0.85)','rgba(99,102,241,0.80)',
+    'rgba(6,182,212,0.80)','rgba(132,204,22,0.85)','rgba(234,179,8,0.85)',
+    'rgba(14,165,233,0.80)','rgba(168,85,247,0.80)','rgba(239,68,68,0.65)',
+    'rgba(34,197,94,0.80)','rgba(251,146,60,0.85)','rgba(244,63,94,0.80)'
   ];
   const datasets = supplierIds
     .filter(id => ordersHistory[id].orders.length > 0)
@@ -315,7 +318,7 @@ async function syncAllInvoicesToSpese(){
       const note = [name, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
       const speseId = `supplier_${supplierId}_${inv.id}`;
       promises.push(
-        setDoc(doc(db,"spese",speseId),{
+        setDoc(doc(db,"expenses",speseId),{
           date,
           amount,
           note,

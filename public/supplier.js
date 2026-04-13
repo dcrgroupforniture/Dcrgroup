@@ -123,7 +123,7 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
   if(!date) return;
   const note = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
   try{
-    await setDoc(doc(db,"spese",speseId),{
+    await setDoc(doc(db,"expenses",speseId),{
       date,
       amount,
       note,
@@ -133,13 +133,13 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
       invoiceId: invId,
       syncedAt: new Date().toISOString()
     },{ merge: true });
-  }catch(e){ console.warn("Sync fattura→spese fallito:", e); }
+  }catch(e){ console.warn("Sync fattura→expenses fallito:", e); }
 }
 
 async function removeInvoiceFromSpese(invId){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
-  try{ await deleteDoc(doc(db,"spese",speseId)); }catch(e){ console.warn("Rimozione fattura da spese fallita:", e); }
+  try{ await deleteDoc(doc(db,"expenses",speseId)); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
 }
 
 const MOBILE_BREAKPOINT = 640;

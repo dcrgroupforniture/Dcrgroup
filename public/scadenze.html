@@ -97,7 +97,7 @@
     <details class="scad-chart-section" id="chartSection">
       <summary class="scad-chart-toggle">📊 Grafico mensile — ultimi 12 mesi</summary>
       <div class="scad-chart-body">
-        <canvas id="scadChart" height="260"></canvas>
+        <canvas id="scadChart" height="200"></canvas>
       </div>
     </details>
 
@@ -121,7 +121,7 @@
       <div class="scad-modal-body">
         <div class="scad-field">
           <label for="mDate">Data <span class="scad-required">*</span></label>
-          <input id="mDate" type="date" class="scad-input" required />
+          <input id="mDate" type="date" class="scad-input scad-input-date" required />
           <span class="scad-field-err" id="mDateErr"></span>
         </div>
         <div class="scad-field">
@@ -143,6 +143,12 @@
             <option value="affitto">Affitto</option>
             <option value="altro">Altro</option>
           </select>
+        </div>
+        <div class="scad-field">
+          <label class="scad-checkbox-label">
+            <input type="checkbox" id="mPagato" class="scad-checkbox" />
+            <span class="scad-checkbox-text">✅ Pagata</span>
+          </label>
         </div>
       </div>
       <div class="scad-modal-foot">

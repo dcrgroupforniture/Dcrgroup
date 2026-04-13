@@ -150,6 +150,60 @@
 .quote-actions .danger{background:#fff1f2;color:#b42318;border-color:rgba(239,68,68,.18);}
 @media (max-width: 900px){.quote-actions{grid-template-columns:repeat(3,minmax(0,1fr));}}
 @media (max-width: 560px){.quote-actions{grid-template-columns:1fr 1fr;gap:8px}.quote-actions button{min-height:46px;padding:12px;font-size:13px;border-radius:14px;}}
+
+/* ── Dark mode overrides for ordini-clienti ── */
+:root:not(.theme-light) .quote-card {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.12) !important;
+  color: #e2e8f0;
+}
+:root:not(.theme-light) .quote-table th {
+  background: #162032 !important;
+  color: #94a3b8 !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+:root:not(.theme-light) .quote-table td {
+  background: transparent !important;
+  border-color: rgba(255,255,255,.10) !important;
+  color: #e2e8f0 !important;
+}
+:root:not(.theme-light) .quote-table tr {
+  background: #1e293b !important;
+}
+:root:not(.theme-light) .quote-table input {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,.20) !important;
+}
+:root:not(.theme-light) .quote-table input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,.20) !important;
+}
+:root:not(.theme-light) .totals .box {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.12) !important;
+  color: #e2e8f0 !important;
+}
+:root:not(.theme-light) .quote-meta input,
+:root:not(.theme-light) .quote-meta select {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,.20) !important;
+}
+:root:not(.theme-light) .quote-actions .secondary {
+  background: rgba(37,99,235,.20) !important;
+  color: #93c5fd !important;
+  border-color: rgba(37,99,235,.35) !important;
+}
+:root:not(.theme-light) .quote-actions .danger {
+  background: rgba(239,68,68,.15) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239,68,68,.30) !important;
+}
+:root:not(.theme-light) .preview-section {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
 </style>
   <script type="module" src="/auth-guard.js"></script>
 </head>

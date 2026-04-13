@@ -255,6 +255,8 @@ details[open] .scad-chart-toggle::before { transform: rotate(90deg); }
 .scad-chart-body {
   padding: 8px 16px 16px;
   border-top: 1px solid var(--sz-border);
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 /* ── List ── */
@@ -576,3 +578,43 @@ details[open] .scad-chart-toggle::before { transform: rotate(90deg); }
 
 /* ── Utility ── */
 .hidden { display: none !important; }
+
+/* ── Date input fix (prevent overflow) ── */
+.scad-input-date {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Checkbox field ── */
+.scad-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.scad-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--sz-success);
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.scad-checkbox-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sz-text);
+  user-select: none;
+}
+
+/* ── Scadenze chart container (smaller, less wide) ── */
+.scad-chart-body {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 12px 8px 8px;
+}
+.scad-chart-body canvas {
+  max-height: 200px !important;
+}
