@@ -106,6 +106,42 @@ function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); r
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
 function invTotal(inv){ return Number(inv.total || inv.amount || 0); }
 
+// ── Spese sync ────────────────────────────────────────
+async function getSupplierName(){
+  if(!supplierId) return "Fornitore";
+  try{
+    const snap = await getDoc(doc(db,"suppliers",supplierId));
+    return snap.exists() ? (snap.data().name || "Fornitore") : "Fornitore";
+  }catch(){ return "Fornitore"; }
+}
+
+async function syncInvoiceToSpese(invId, inv, supplierName){
+  if(!supplierId || !invId) return;
+  const speseId = `supplier_${supplierId}_${invId}`;
+  const amount = Number(inv.total || inv.amount || 0);
+  const date = inv.date || "";
+  if(!date) return;
+  const note = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
+  try{
+    await setDoc(doc(db,"spese",speseId),{
+      date,
+      amount,
+      note,
+      category: inv.category || "fornitori",
+      source: "supplier_invoice",
+      supplierId,
+      invoiceId: invId,
+      syncedAt: new Date().toISOString()
+    },{ merge: true });
+  }catch(e){ console.warn("Sync fattura→spese fallito:", e); }
+}
+
+async function removeInvoiceFromSpese(invId){
+  if(!supplierId || !invId) return;
+  const speseId = `supplier_${supplierId}_${invId}`;
+  try{ await deleteDoc(doc(db,"spese",speseId)); }catch(e){ console.warn("Rimozione fattura da spese fallita:", e); }
+}
+
 const MOBILE_BREAKPOINT = 640;
 
 function getStatusInfo(inv){
@@ -364,6 +400,10 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     } catch(e){ console.warn("Foto non caricata:", e); }
   }
 
+  // Sync fattura → spese
+  const supplierName = await getSupplierName();
+  await syncInvoiceToSpese(invId, payload, supplierName);
+
   invoiceForm.classList.add("hidden");
   editingInvoiceId = null;
   await loadInvoices();
@@ -460,6 +500,7 @@ function renderInvoiceTable(){
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
       await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await removeInvoiceFromSpese(inv.id);
       await loadInvoices();
     });
 
@@ -476,6 +517,7 @@ function renderInvoiceTable(){
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
       await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await removeInvoiceFromSpese(inv.id);
       await loadInvoices();
     });
 
@@ -582,6 +624,12 @@ async function loadInvoices(){
 
   // update supplier total
   try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalYear }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
+
+  // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
+  try {
+    const supplierName = await getSupplierName();
+    await Promise.all(allInvoices.map(inv => syncInvoiceToSpese(inv.id, inv, supplierName)));
+  } catch(e){ console.warn("Sync fatture→spese fallito:", e); }
 
   renderInvoiceTable();
 }

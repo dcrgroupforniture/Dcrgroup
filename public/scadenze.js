@@ -2,6 +2,8 @@ import { firestoreService as fs } from "./services/firestoreService.js";
 import { listDeadlines, upsertDeadline, softDeleteDeadline } from "./services/deadlineService.js";
 import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { db } from "./firebase.js";
+import { doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // =========================================================
 // Utils
@@ -22,6 +24,32 @@ function toNum(v){
   if(cleaned.includes(',')) cleaned = cleaned.replace(/\./g,'').replace(',', '.');
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : 0;
+}
+
+// =========================================================
+// Spese sync per scadenze
+// =========================================================
+async function syncScadenzaToSpese(dayKey, amount, note){
+  if(!dayKey) return;
+  const speseId = `scad_${dayKey}`;
+  try{
+    if(amount > 0 || note){
+      await setDoc(doc(db,"spese",speseId),{
+        date: dayKey,
+        amount: amount || 0,
+        note: note || "",
+        category: "scadenze",
+        source: "scadenza",
+        syncedAt: new Date().toISOString()
+      },{ merge: true });
+    }
+  }catch(e){ console.warn("Sync scadenza→spese fallito:", e); }
+}
+
+async function removeScadenzaFromSpese(dayKey){
+  if(!dayKey) return;
+  const speseId = `scad_${dayKey}`;
+  try{ await deleteDoc(doc(db,"spese",speseId)); }catch(e){ console.warn("Rimozione scadenza da spese fallita:", e); }
 }
 
 // =========================================================
@@ -96,6 +124,10 @@ async function loadPayments(){
       note: String(x.note || x.descrizione || x.title || ""),
     }))
     .filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x.dateKey));
+
+  // Sincronizza tutte le scadenze esistenti → spese (idempotente, in background)
+  Promise.all(paymentsDocs.map(p => syncScadenzaToSpese(p.dateKey, p.amount, p.note)))
+    .catch(e => console.warn("Sync scadenze→spese (bulk):", e));
 }
 
 function sumForMonth(baseDate){
@@ -250,6 +282,8 @@ saveBtn?.addEventListener("click", async ()=>{
     updatedAt: fs.serverTimestamp()
   };
   await upsertDeadline(selectedKey, payload);
+  // Sincronizza scadenza → spese
+  await syncScadenzaToSpese(selectedKey, amount, note);
   try{
     await fs.add("scadenzeHistory", {
       action: "save",
@@ -277,6 +311,8 @@ deleteBtn?.addEventListener("click", async ()=>{
     }
   }catch(_e){}
   await softDeleteDeadline(selectedKey);
+  // Rimuovi scadenza da spese
+  await removeScadenzaFromSpese(selectedKey);
   closePopup();
   await boot();
 });

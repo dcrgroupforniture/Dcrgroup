@@ -125,19 +125,55 @@ async function waitForAuth(timeoutMs = 1500){
     :root.theme-light .page-content,
     :root.theme-light { /* already light by default */ }
 
+    /* Light mode override for pages that use incassi-dark class */
+    :root.theme-light body.incassi-dark,
+    :root.theme-light .incassi-dark { background: #f5f7fb !important; color: #1f2937 !important; }
+    :root.theme-light .incassi-dark .top-bar,
+    :root.theme-light .incassi-dark .incassi-topbar { background: #fff !important; border-bottom-color: rgba(15,23,42,.10) !important; }
+    :root.theme-light .incassi-dark .page-title { color: #1f2937 !important; }
+    :root.theme-light .incassi-dark .incassi-card { background: #fff !important; border-color: rgba(15,23,42,.10) !important; }
+    :root.theme-light .incassi-dark .incassi-kpi { background: rgba(0,0,0,.03) !important; border-color: rgba(15,23,42,.10) !important; }
+    :root.theme-light .incassi-dark .kpi-name,
+    :root.theme-light .incassi-dark .card-sub,
+    :root.theme-light .incassi-dark .card-title { color: #374151 !important; }
+    :root.theme-light .incassi-dark .incassi-btn { background: rgba(0,0,0,.06) !important; color: #1f2937 !important; border-color: rgba(15,23,42,.15) !important; }
+    :root.theme-light .incassi-dark input,
+    :root.theme-light .incassi-dark select,
+    :root.theme-light .incassi-dark textarea { background: #fff !important; color: #1f2937 !important; border-color: rgba(15,23,42,.20) !important; }
+    :root.theme-light .incassi-dark .scad-calendar-row,
+    :root.theme-light .incassi-dark .spese-calendar-row { background: #fff !important; border-bottom-color: rgba(15,23,42,.08) !important; color: #1f2937 !important; }
+    :root.theme-light .incassi-dark .modal-overlay,
+    :root.theme-light .incassi-dark .modal { background: #fff !important; color: #1f2937 !important; }
+
+    /* Dark mode – pages with body.page */
     :root:not(.theme-light) body.page{
       background: #0f172a;
       color: #e2e8f0;
     }
+    /* Dark mode – pages without body.page (e.g. agenda, ordini-clienti) */
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    :root:not(.theme-light) body.order-page {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
     :root:not(.theme-light) body.page .top-bar,
-    :root:not(.theme-light) body.page .topbar{
+    :root:not(.theme-light) body.page .topbar,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .top-bar,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .topbar{
       background: linear-gradient(180deg, #1e293b, #0f172a);
       border-bottom-color: rgba(255,255,255,.08);
     }
-    :root:not(.theme-light) body.page .page-title{ color: #e2e8f0; }
+    :root:not(.theme-light) body.page .page-title,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .page-title{ color: #e2e8f0; }
     :root:not(.theme-light) body.page .card,
     :root:not(.theme-light) body.page .kpi-card,
-    :root:not(.theme-light) body.page .chart-card{
+    :root:not(.theme-light) body.page .chart-card,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .card,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .kpi-card,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .chart-card{
       background: #1e293b;
       border-color: rgba(255,255,255,.10);
       color: #e2e8f0;
@@ -146,30 +182,47 @@ async function waitForAuth(timeoutMs = 1500){
     :root:not(.theme-light) body.page .k-sub,
     :root:not(.theme-light) body.page .stat-sub,
     :root:not(.theme-light) body.page .stat-status,
-    :root:not(.theme-light) body.page .chart-title { color: #94a3b8; }
+    :root:not(.theme-light) body.page .chart-title,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .k-label,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .k-sub { color: #94a3b8; }
     :root:not(.theme-light) body.page .client-row,
     :root:not(.theme-light) body.page .order-row,
     :root:not(.theme-light) body.page .supplier-row,
-    :root:not(.theme-light) body.page .invoice-row{
+    :root:not(.theme-light) body.page .invoice-row,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .client-row,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .order-row,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .supplier-row,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .invoice-row{
       background: #1e293b;
       border-bottom-color: rgba(255,255,255,.07);
       color: #e2e8f0;
     }
     :root:not(.theme-light) body.page input,
     :root:not(.theme-light) body.page select,
-    :root:not(.theme-light) body.page textarea{
+    :root:not(.theme-light) body.page textarea,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) input,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) select,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) textarea{
       background: #1e293b;
       border-color: rgba(255,255,255,.15);
       color: #e2e8f0;
     }
     :root:not(.theme-light) body.page .dashnav-panel,
-    :root:not(.theme-light) body.page .dashnav-item{ background:#1e293b; color:#e2e8f0; }
-    :root:not(.theme-light) body.page .dashnav-item-txt{ color:#e2e8f0; }
-    :root:not(.theme-light) body.page .dashnav-head{ border-bottom-color:rgba(255,255,255,.10); }
-    :root:not(.theme-light) body.page .dashnav-title{ color:#e2e8f0; }
-    :root:not(.theme-light) body.page .dashnav-close{ color:#e2e8f0; }
-    :root:not(.theme-light) body.page .dashnav-btn{ background:#1e293b; color:#e2e8f0; border-color:rgba(255,255,255,.12); }
-    :root:not(.theme-light) body.page .quick-nav{ background:#1e293b; color:#e2e8f0; border-color:rgba(255,255,255,.15); }
+    :root:not(.theme-light) body.page .dashnav-item,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-panel,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-item{ background:#1e293b; color:#e2e8f0; }
+    :root:not(.theme-light) body.page .dashnav-item-txt,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-item-txt{ color:#e2e8f0; }
+    :root:not(.theme-light) body.page .dashnav-head,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-head{ border-bottom-color:rgba(255,255,255,.10); }
+    :root:not(.theme-light) body.page .dashnav-title,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-title{ color:#e2e8f0; }
+    :root:not(.theme-light) body.page .dashnav-close,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-close{ color:#e2e8f0; }
+    :root:not(.theme-light) body.page .dashnav-btn,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .dashnav-btn{ background:#1e293b; color:#e2e8f0; border-color:rgba(255,255,255,.12); }
+    :root:not(.theme-light) body.page .quick-nav,
+    :root:not(.theme-light) body:not(.incassi-dark):not([class]) .quick-nav{ background:#1e293b; color:#e2e8f0; border-color:rgba(255,255,255,.15); }
 
     /* ── Theme toggle button ── */
     .theme-toggle-btn{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom) + var(--ai-bottom-extra,0px));left:18px;z-index:9999;
