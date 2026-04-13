@@ -62,7 +62,7 @@
     
     .summary-grid{
       display:grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 14px;
       margin-bottom: 18px;
     }
@@ -95,6 +95,9 @@
       font-size: 12px;
       opacity: .78;
       margin-top: 6px;
+    }
+    @media (max-width: 1000px){
+      .summary-grid{ grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 860px){
       .summary-grid{ grid-template-columns: repeat(2, 1fr); }
@@ -208,7 +211,7 @@
     /* Summary cards (home) */
     .summary{
       display:grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
       margin: 0 0 14px 0;
     }
@@ -240,6 +243,9 @@
       font-size: 11px;
       opacity: .78;
       margin-top: 6px;
+    }
+    @media (max-width: 1000px){
+      .summary{ grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 980px){
       .summary{ grid-template-columns: repeat(2, 1fr); }
@@ -293,6 +299,14 @@
           <div class="summary-value" id="homeScadenze">—</div>
         </div>
         <div class="summary-sub">Promemoria</div>
+      </a>
+
+      <a class="summary-card" href="statistiche.html" id="homeCardSaldo">
+        <div>
+          <div class="summary-title">Saldo Netto</div>
+          <div class="summary-value" id="homeSaldo">—</div>
+        </div>
+        <div class="summary-sub">Incassato − Spese (anno)</div>
       </a>
     </section>
 
@@ -364,6 +378,14 @@
         <div class="card-inner">
           <div class="icon">📅</div>
           <div class="label">Agenda</div>
+        </div>
+      </a>
+
+      <!-- STATISTICHE -->
+      <a class="card" href="statistiche.html">
+        <div class="card-inner">
+          <div class="icon">📊</div>
+          <div class="label">Statistiche</div>
         </div>
       </a>
 
