@@ -1,73 +1,369 @@
-/* Ordini (Appunti) - fix layout mobile (iPhone)
-   Obiettivo: pagina centrata, pulsanti visibili, niente overflow orizzontale.
-*/
+/* ============================================================
+   ORDINI APPUNTI v2 – Professional Note Manager
+   Dark mode default | Light mode via :root.theme-light
+   ============================================================ */
 
-/* evita scroll orizzontale su mobile */
-html, body{ max-width:100%; overflow-x:hidden; }
+:root {
+  --oa-bg:        #0f172a;
+  --oa-card:      #1e293b;
+  --oa-card2:     #263348;
+  --oa-brand:     #8b5cf6;
+  --oa-brand2:    #7c3aed;
+  --oa-text:      #e2e8f0;
+  --oa-muted:     #94a3b8;
+  --oa-border:    rgba(255,255,255,.10);
+  --oa-shadow:    0 4px 24px rgba(0,0,0,.40);
+  --oa-input-bg:  #0f172a;
+  --oa-success:   #10b981;
+  --oa-danger:    #ef4444;
+}
 
-/* barra bottoni stampa: va a capo */
-#notesPrintBar{ flex-wrap:wrap; }
+:root.theme-light {
+  --oa-bg:        #f8fafc;
+  --oa-card:      #ffffff;
+  --oa-card2:     #f1f5f9;
+  --oa-brand:     #7c3aed;
+  --oa-brand2:    #6d28d9;
+  --oa-text:      #0f172a;
+  --oa-muted:     #64748b;
+  --oa-border:    rgba(0,0,0,.10);
+  --oa-shadow:    0 4px 24px rgba(0,0,0,.08);
+  --oa-input-bg:  #ffffff;
+  --oa-success:   #16a34a;
+  --oa-danger:    #dc2626;
+}
 
-/* elementi storico note */
-.note-item{
-  border: 1px solid rgba(0,0,0,.10);
-  border-radius: 14px;
-  padding: 12px;
-  background: #fff;
+/* ── Base ── */
+body.oa-page {
+  background: var(--oa-bg);
+  color: var(--oa-text);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Top bar ── */
+.oa-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  align-items: center;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  background: var(--oa-card);
+  border-bottom: 1px solid var(--oa-border);
+  box-shadow: var(--oa-shadow);
+  min-height: 56px;
+  box-sizing: border-box;
 }
-.note-sel{ padding-top:2px; }
-.note-meta{
-  min-width: 160px;
-  font-weight: 800;
-  opacity: .75;
-  font-size: 12px;
+.oa-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--oa-card2);
+  color: var(--oa-text);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid var(--oa-border);
 }
-.note-body{
-  white-space: pre-wrap;
+.oa-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 18px;
   flex: 1;
 }
-.note-actions{
-  display:flex;
-  gap:8px;
-  flex-shrink:0;
+.oa-topbar-icon { font-size: 22px; }
+
+/* ── Main ── */
+.oa-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: calc(72px + env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* iPhone: tutto dentro la larghezza schermo */
-@media (max-width: 520px){
-  .note-item{ flex-wrap:wrap; }
-  .note-meta{ min-width:0; flex:1 1 100%; }
-  .note-body{ flex:1 1 100%; }
-  .note-actions{ width:100%; justify-content:flex-end; flex-wrap:wrap; }
-  .note-actions .btn{ width:auto; }
+/* ── KPI Strip ── */
+.oa-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.oa-kpi {
+  background: var(--oa-card);
+  border: 1px solid var(--oa-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--oa-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.oa-kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--oa-brand);
+  border-radius: 14px 14px 0 0;
+}
+.oa-kpi-val {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--oa-text);
+  line-height: 1.1;
+}
+.oa-kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--oa-muted);
+  margin-top: 4px;
 }
 
-
-.page{padding-top:calc(86px + env(safe-area-inset-top));}
-.container{padding-top:18px !important;}
-.topbar{position:fixed !important;top:0;left:0;right:0;z-index:1000;}
-@media (max-width:900px){.page{padding-top:calc(94px + env(safe-area-inset-top));}}
-
-body{padding-top:0 !important;}
-.topbar{min-height:72px;padding-top:calc(env(safe-area-inset-top) + 8px) !important;padding-bottom:12px !important;box-sizing:border-box;}
-.page{padding-top:calc(104px + env(safe-area-inset-top)) !important;}
-.container{padding-top:28px !important;}
-@media (max-width:900px){.page{padding-top:calc(116px + env(safe-area-inset-top)) !important;}}
-
-
-.topbar{min-height:84px !important;padding-top:calc(env(safe-area-inset-top) + 14px) !important;padding-bottom:14px !important;}
-.page{padding-top:calc(128px + env(safe-area-inset-top)) !important;}
-.container{padding-top:38px !important;}
-@media (max-width:900px){.page{padding-top:calc(138px + env(safe-area-inset-top)) !important;}}
-
-/* ── Dark mode – ordini-appunti.html ── */
-:root:not(.theme-light) .note-item {
-  background: #1e293b !important;
-  border-color: rgba(255,255,255,.10) !important;
-  color: #e2e8f0;
+/* ── Layout ── */
+.oa-layout {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 16px;
+  align-items: start;
 }
-:root:not(.theme-light) .note-item:hover { background: #1e3a5f !important; }
-:root:not(.theme-light) .note-meta { color: #94a3b8; }
-:root:not(.theme-light) .note-body { color: #e2e8f0; }
+@media (max-width: 900px) {
+  .oa-layout { grid-template-columns: 1fr; }
+  .oa-kpi-strip { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .oa-kpi-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Panel base ── */
+.oa-editor-panel,
+.oa-history-panel {
+  background: var(--oa-card);
+  border: 1px solid var(--oa-border);
+  border-radius: 18px;
+  box-shadow: var(--oa-shadow);
+  overflow: hidden;
+}
+.oa-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--oa-border);
+  background: var(--oa-card2);
+}
+.oa-panel-title {
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--oa-text);
+  letter-spacing: .2px;
+}
+.oa-status {
+  font-size: 12px;
+  color: var(--oa-muted);
+  font-weight: 600;
+}
+
+/* ── Textarea ── */
+.oa-textarea {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  background: var(--oa-input-bg);
+  color: var(--oa-text);
+  border: none;
+  border-bottom: 1px solid var(--oa-border);
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.6;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  outline: none;
+  transition: background .15s;
+}
+.oa-textarea:focus {
+  background: var(--oa-card2);
+}
+.oa-textarea::placeholder { color: var(--oa-muted); }
+
+.oa-editor-actions {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px;
+  align-items: center;
+}
+
+/* ── Buttons ── */
+.oa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-family: inherit;
+  transition: filter .15s, background .15s;
+  white-space: nowrap;
+}
+.oa-btn:hover { filter: brightness(1.1); }
+.oa-btn-primary {
+  background: var(--oa-brand);
+  color: #fff;
+  border-color: transparent;
+}
+.oa-btn-ghost {
+  background: var(--oa-card2);
+  color: var(--oa-muted);
+  border-color: var(--oa-border);
+}
+.oa-btn-outline {
+  background: transparent;
+  color: var(--oa-brand);
+  border-color: var(--oa-brand);
+}
+.oa-btn-danger {
+  background: var(--oa-danger);
+  color: #fff;
+  border-color: transparent;
+}
+.oa-btn-sm {
+  padding: 7px 12px;
+  font-size: 12px;
+  border-radius: 9px;
+}
+.oa-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ── Search ── */
+.oa-hist-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.oa-search {
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--oa-border);
+  background: var(--oa-input-bg);
+  color: var(--oa-text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  width: 160px;
+}
+.oa-search:focus { border-color: var(--oa-brand); }
+
+/* ── Notes list ── */
+.oa-notes-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 75vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.oa-loading {
+  padding: 24px;
+  text-align: center;
+  color: var(--oa-muted);
+  font-weight: 700;
+}
+.oa-empty {
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--oa-muted);
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* ── Note card ── */
+.oa-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--oa-border);
+  transition: background .12s;
+}
+.oa-note-card:last-child { border-bottom: none; }
+.oa-note-card:hover { background: rgba(139,92,246,.06); }
+.oa-note-card.selected { background: rgba(139,92,246,.10); }
+
+.oa-note-cb {
+  flex-shrink: 0;
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--oa-brand);
+  cursor: pointer;
+}
+.oa-note-body {
+  flex: 1;
+  min-width: 0;
+}
+.oa-note-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.oa-note-date {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--oa-brand);
+  letter-spacing: .2px;
+}
+.oa-note-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(139,92,246,.15);
+  color: var(--oa-brand);
+}
+.oa-note-text {
+  font-size: 14px;
+  color: var(--oa-text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.oa-note-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+@media (max-width: 520px) {
+  .oa-note-card { flex-wrap: wrap; }
+  .oa-note-actions { flex-direction: row; flex-wrap: wrap; width: 100%; margin-top: 6px; }
+  .oa-note-body { flex: 1 1 100%; }
+}
+
+/* ── Print ── */
+@media print {
+  .oa-topbar, .oa-kpi-strip, .oa-editor-panel, .oa-hist-actions { display: none !important; }
+  .oa-main { padding: 0; }
+  .oa-layout { grid-template-columns: 1fr; }
+  .oa-history-panel { box-shadow: none; border: none; }
+}

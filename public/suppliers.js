@@ -108,78 +108,84 @@ if(!term){
   render(filtered);
 }
 
-// ── Inline Supplier Detail Panel ──────────────────────────────
+// ── Inline Supplier Detail Panel (CRM style) ──────────────────
 async function openSupplierDetail(s) {
   const panel = document.getElementById('supplierDetailPanel');
   if (!panel) return;
 
   const initials = (s.name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
-  // Show loading state
   panel.classList.remove('hidden');
   panel.innerHTML = `<div class="sdp-loading">⏳ Caricamento scheda fornitore…</div>`;
 
-  // Fetch orders and invoices
-  let orders = [], invoices = [];
+  // Fetch invoices (storico ordini fornitore)
+  let invoices = [];
   try {
-    const [ordSnap, invSnap] = await Promise.all([
-      getDocs(collection(db, 'suppliers', s.id, 'orders')),
-      getDocs(collection(db, 'suppliers', s.id, 'invoices'))
-    ]);
-    orders = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    invoices = invSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
+    invoices = invSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => {
+        const da = a.date || a.invoiceDate || a.dateISO || '';
+        const db_ = b.date || b.invoiceDate || b.dateISO || '';
+        return db_.localeCompare(da);
+      });
   } catch(e) {
-    console.warn('Errore caricamento scheda fornitore:', e);
+    console.warn('Errore caricamento fatture fornitore:', e);
   }
 
   // KPIs
-  const totalOrders = orders.reduce((s, o) => s + Number(o.totale || o.total || o.importo || o.amount || 0), 0);
-  const totalInvoices = invoices.reduce((s, i) => s + Number(i.total || i.amount || 0), 0);
-  const grandTotalSupp = totalOrders + totalInvoices;
-  const unpaidInvoices = invoices.filter(i => (i.status || 'da-pagare') !== 'pagata').length;
+  const currentYear = new Date().getFullYear();
+  const totalAll = invoices.reduce((s, i) => s + Number(i.total || i.amount || 0), 0);
+  const totalYear = invoices.filter(i => {
+    const d = i.date || i.invoiceDate || i.dateISO || '';
+    return d.startsWith(String(currentYear));
+  }).reduce((s, i) => s + Number(i.total || i.amount || 0), 0);
+  const unpaidCount = invoices.filter(i => (i.status || 'da-pagare') !== 'pagata').length;
+  const overdueCount = invoices.filter(i => {
+    if ((i.status || '') === 'pagata') return false;
+    const due = i.dueDate || i.invoiceDueDate || '';
+    return due && due < new Date().toISOString().slice(0, 10);
+  }).length;
 
-  // Combined history (orders + invoices) sorted by date desc
-  const entries = [
-    ...orders.map(o => {
-      const dateVal = o.data?.toDate ? o.data.toDate() : (o.data ? new Date(o.data) : null);
-      return { type: 'order', dateVal, data: o };
-    }),
-    ...invoices.map(i => {
-      const dateVal = i.date ? new Date(i.date + 'T00:00:00') : null;
-      return { type: 'invoice', dateVal, data: i };
-    })
-  ].sort((a, b) => (b.dateVal?.getTime() || 0) - (a.dateVal?.getTime() || 0));
-
-  function fmtDate(d) {
-    if (!d) return '—';
+  function fmtDate(v) {
+    if (!v) return '—';
+    const d = v instanceof Date ? v : new Date(v + (v.length === 10 ? 'T00:00:00' : ''));
+    if (isNaN(d.getTime())) return v;
     return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   }
 
-  const historyRows = entries.slice(0, 20).map(e => {
-    const dateStr = fmtDate(e.dateVal);
-    if (e.type === 'order') {
-      const o = e.data;
-      const amount = Number(o.totale || o.total || o.importo || o.amount || 0);
-      const desc = (Array.isArray(o.righe) && o.righe.length) ? o.righe.map(r => r.prodotto || r.name || '').filter(Boolean).join(', ') : (o.descrizione || o.note || 'Ordine');
-      const paid = o.pagato === true;
-      return `<div class="sdp-hist-row">
-        <span class="sdp-hist-date">${dateStr}</span>
-        <span class="sdp-hist-desc" title="${desc}">${desc.length > 40 ? desc.slice(0,40)+'…' : desc}</span>
-        <span class="sdp-hist-amt">€ ${eur(amount)}</span>
-        <span class="sdp-hist-status ${paid ? 'paid' : 'unpaid'}">${paid ? '✅' : '⏳'}</span>
-      </div>`;
-    } else {
-      const i = e.data;
-      const amount = Number(i.total || i.amount || 0);
-      const desc = i.description || (i.invoiceNumber ? `Fattura #${i.invoiceNumber}` : 'Fattura');
-      const paid = (i.status || '') === 'pagata';
-      return `<div class="sdp-hist-row">
-        <span class="sdp-hist-date">${dateStr}</span>
-        <span class="sdp-hist-desc" title="${desc}">${desc.length > 40 ? desc.slice(0,40)+'…' : desc}</span>
-        <span class="sdp-hist-amt">€ ${eur(amount)}</span>
-        <span class="sdp-hist-status ${paid ? 'paid' : 'unpaid'}">${paid ? '✅' : '⏳'}</span>
-      </div>`;
-    }
+  const catLabel = { prodotti:'Prodotti', attrezzatura:'Attrezzatura', servizi:'Servizi', utenze:'Utenze', altro:'Altro' };
+
+  // Anagrafica fields
+  const anagraficaRows = [
+    ['🏢 Nome', s.name || '—'],
+    ['🪪 P.IVA / C.F.', s.vat || '—'],
+    ['📧 Email', s.email ? `<a href="mailto:${s.email}" style="color:#1f4fd8">${s.email}</a>` : '—'],
+    ['📞 Telefono', s.phone ? `<a href="tel:${s.phone}" style="color:#1f4fd8">${s.phone}</a>` : '—'],
+    ['📍 Comune', s.city || '—'],
+    ['🏷️ Categoria', catLabel[s.supplierCategory || s.category] || s.supplierCategory || s.category || '—'],
+  ].map(([label, val]) => `
+    <div class="sdp-ana-row">
+      <span class="sdp-ana-label">${label}</span>
+      <span class="sdp-ana-val">${val}</span>
+    </div>`).join('');
+
+  // Invoice rows
+  const invoiceRows = invoices.slice(0, 30).map(i => {
+    const amount = Number(i.total || i.amount || 0);
+    const desc = i.description || (i.invoiceNumber ? `Fattura #${i.invoiceNumber}` : 'Fattura');
+    const dateStr = fmtDate(i.date || i.invoiceDate || i.dateISO || '');
+    const dueStr = fmtDate(i.dueDate || i.invoiceDueDate || '');
+    const paid = (i.status || '') === 'pagata';
+    const overdue = !paid && (i.dueDate || i.invoiceDueDate || '') < new Date().toISOString().slice(0,10) && (i.dueDate || i.invoiceDueDate);
+    const statusClass = paid ? 'paid' : (overdue ? 'overdue' : 'unpaid');
+    const statusLabel = paid ? '✅ Pagata' : (overdue ? '🚨 Scaduta' : '⏳ Da pagare');
+    return `<div class="sdp-hist-row">
+      <span class="sdp-hist-date">${dateStr}</span>
+      <span class="sdp-hist-desc" title="${desc}">${desc.length > 35 ? desc.slice(0,35)+'…' : desc}</span>
+      <span class="sdp-hist-due">${dueStr}</span>
+      <span class="sdp-hist-amt">€ ${eur(amount)}</span>
+      <span class="sdp-hist-status ${statusClass}">${statusLabel}</span>
+    </div>`;
   }).join('');
 
   panel.innerHTML = `
@@ -187,52 +193,80 @@ async function openSupplierDetail(s) {
       <div class="sdp-avatar">${initials}</div>
       <div class="sdp-info">
         <div class="sdp-name">${(s.name || '—').toUpperCase()}</div>
-        <div class="sdp-meta">${[s.email, s.phone, s.city].filter(Boolean).join(' · ') || 'Nessun contatto'}</div>
+        <div class="sdp-meta">${[s.city, s.email].filter(Boolean).join(' · ') || 'Fornitore'}</div>
       </div>
       <div class="sdp-header-actions">
-        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary" title="Apri scheda completa">📋 Scheda completa</a>
+        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary">✏️ Gestisci</a>
         <button class="sdp-close" id="sdpClose" title="Chiudi">✕</button>
       </div>
     </div>
+
     <div class="sdp-stats">
       <div class="sdp-stat">
-        <div class="sdp-stat-val">€ ${eur(grandTotalSupp)}</div>
-        <div class="sdp-stat-label">Totale acquistato</div>
+        <div class="sdp-stat-val">€ ${eur(totalYear)}</div>
+        <div class="sdp-stat-label">Totale anno ${currentYear}</div>
       </div>
       <div class="sdp-stat">
-        <div class="sdp-stat-val">${orders.length + invoices.length}</div>
-        <div class="sdp-stat-label">Documenti totali</div>
+        <div class="sdp-stat-val">€ ${eur(totalAll)}</div>
+        <div class="sdp-stat-label">Totale storico</div>
       </div>
-      <div class="sdp-stat">
-        <div class="sdp-stat-val">${invoices.length}</div>
-        <div class="sdp-stat-label">Fatture</div>
-      </div>
-      <div class="sdp-stat ${unpaidInvoices > 0 ? 'sdp-stat-warn' : ''}">
-        <div class="sdp-stat-val">${unpaidInvoices}</div>
+      <div class="sdp-stat ${unpaidCount > 0 ? 'sdp-stat-warn' : ''}">
+        <div class="sdp-stat-val">${unpaidCount}</div>
         <div class="sdp-stat-label">Da pagare</div>
       </div>
-    </div>
-    <div class="sdp-section-title">📋 Storico ordini e fatture (ultimi 20)</div>
-    <div class="sdp-history">
-      <div class="sdp-hist-head">
-        <span>Data</span><span>Descrizione</span><span>Importo</span><span>Stato</span>
+      <div class="sdp-stat ${overdueCount > 0 ? 'sdp-stat-danger' : ''}">
+        <div class="sdp-stat-val">${overdueCount}</div>
+        <div class="sdp-stat-label">Scadute</div>
       </div>
-      ${historyRows || '<div class="sdp-no-data">Nessun documento trovato</div>'}
     </div>
-    <div class="sdp-actions">
-      <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary">📋 Scheda completa</a>
-      <a href="supplier.html" class="sdp-btn sdp-btn-secondary">➕ Nuovo fornitore</a>
+
+    <div class="sdp-tabs">
+      <button class="sdp-tab active" data-tab="anagrafica">🏢 Anagrafica</button>
+      <button class="sdp-tab" data-tab="storico">📋 Storico Fatture (${invoices.length})</button>
+    </div>
+
+    <div class="sdp-tab-body" id="sdpTabAnagrafica">
+      <div class="sdp-anagrafica">
+        ${anagraficaRows}
+      </div>
+      <div class="sdp-actions">
+        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary">✏️ Modifica anagrafica</a>
+        <a href="supplier.html" class="sdp-btn sdp-btn-secondary">➕ Nuovo fornitore</a>
+      </div>
+    </div>
+
+    <div class="sdp-tab-body hidden" id="sdpTabStorico">
+      <div class="sdp-history">
+        <div class="sdp-hist-head sdp-hist-head-5col">
+          <span>Data</span><span>Descrizione</span><span>Scadenza</span><span>Importo</span><span>Stato</span>
+        </div>
+        ${invoiceRows || '<div class="sdp-no-data">Nessuna fattura trovata per questo fornitore</div>'}
+      </div>
+      <div class="sdp-actions">
+        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary">➕ Aggiungi fattura</a>
+      </div>
     </div>
   `;
+
+  // Tab switching
+  panel.querySelectorAll('.sdp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      panel.querySelectorAll('.sdp-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const targetId = tab.dataset.tab === 'anagrafica' ? 'sdpTabAnagrafica' : 'sdpTabStorico';
+      panel.querySelectorAll('.sdp-tab-body').forEach(b => b.classList.add('hidden'));
+      panel.getElementById ? null : document.getElementById(targetId)?.classList.remove('hidden');
+      // Use querySelector since panel is the parent
+      panel.querySelector(`#${targetId}`)?.classList.remove('hidden');
+    });
+  });
 
   document.getElementById('sdpClose')?.addEventListener('click', () => {
     panel.classList.add('hidden');
     document.querySelectorAll('.supplier-row').forEach(r => r.classList.remove('supplier-row--selected'));
   });
 }
-  - usiamo addEventListener e stopPropagation
-  - e il CSS mette z-index/pointer-events corretti
-*/
+
 newSupplierBtn.addEventListener("click", (e) => {
   e.preventDefault();
   e.stopPropagation();

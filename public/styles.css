@@ -773,3 +773,94 @@ html,body{overflow-x:hidden;}
   border: 1px solid rgba(255,255,255,.12);
 }
 
+/* ── Global dark mode extra fixes ── */
+/* All text inside .card when dark */
+:root:not(.theme-light) .card h1,
+:root:not(.theme-light) .card h2,
+:root:not(.theme-light) .card h3 { color: #f1f5f9; }
+:root:not(.theme-light) .card p { color: #cbd5e1; }
+:root:not(.theme-light) .card small,
+:root:not(.theme-light) .card .text-muted,
+:root:not(.theme-light) .card .sub { color: #94a3b8; }
+
+/* Card title in dark */
+:root:not(.theme-light) .card-title { color: #f1f5f9 !important; }
+:root:not(.theme-light) .card-sub { color: #94a3b8 !important; }
+
+/* Generic section titles */
+:root:not(.theme-light) .section-title,
+:root:not(.theme-light) .panel-title { color: #f1f5f9 !important; }
+
+/* Hint text */
+:root:not(.theme-light) .hint { color: #94a3b8 !important; }
+
+/* History tables */
+:root:not(.theme-light) .hist-tbl th { background: #162032 !important; color: #94a3b8 !important; }
+:root:not(.theme-light) .hist-tbl td { color: #e2e8f0 !important; border-color: rgba(255,255,255,.08) !important; }
+:root:not(.theme-light) .hist-tbl tr:hover td { background: rgba(59,130,246,.08) !important; }
+
+/* filter-btn dark mode */
+:root:not(.theme-light) .filter-btn[data-type="promemoria"] { background: rgba(124,58,237,.20); color: #c4b5fd; border-color: rgba(124,58,237,.40); }
+:root:not(.theme-light) .filter-btn[data-type="ordine"] { background: rgba(30,64,175,.20); color: #93c5fd; border-color: rgba(30,64,175,.40); }
+:root:not(.theme-light) .filter-btn[data-type="incasso"] { background: rgba(22,163,74,.20); color: #86efac; border-color: rgba(22,163,74,.40); }
+:root:not(.theme-light) .filter-btn[data-type="scadenza"] { background: rgba(185,28,28,.20); color: #fca5a5; border-color: rgba(185,28,28,.40); }
+:root:not(.theme-light) .filter-btn[data-type="spesa"] { background: rgba(154,52,18,.20); color: #fdba74; border-color: rgba(154,52,18,.40); }
+
+/* scadenze page dark */
+:root:not(.theme-light) .type-chip.promemoria { background: rgba(124,58,237,.20); color: #c4b5fd; }
+:root:not(.theme-light) .type-chip.ordine { background: rgba(30,64,175,.20); color: #93c5fd; }
+:root:not(.theme-light) .type-chip.incasso { background: rgba(22,163,74,.20); color: #86efac; }
+:root:not(.theme-light) .type-chip.scadenza { background: rgba(185,28,28,.20); color: #fca5a5; }
+:root:not(.theme-light) .type-chip.spesa { background: rgba(154,52,18,.20); color: #fdba74; }
+
+/* Modal field dark */
+:root:not(.theme-light) .field label { color: #94a3b8 !important; }
+:root:not(.theme-light) .field input,
+:root:not(.theme-light) .field textarea,
+:root:not(.theme-light) .field select {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+:root:not(.theme-light) .modal-actions { background: #1e293b !important; border-top-color: rgba(255,255,255,.10) !important; }
+
+/* Btn secondary dark */
+:root:not(.theme-light) .btn-secondary {
+  background: rgba(255,255,255,.06) !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+:root:not(.theme-light) .btn-outline {
+  background: transparent !important;
+  color: #60a5fa !important;
+  border-color: rgba(96,165,250,.45) !important;
+}
+
+/* Agenda dark fixes */
+:root:not(.theme-light) #calendar { background: #1e293b !important; color: #e2e8f0 !important; }
+:root:not(.theme-light) .fc .fc-col-header-cell { background: #162032 !important; }
+:root:not(.theme-light) .fc .fc-col-header-cell-cushion { color: #93c5fd !important; }
+:root:not(.theme-light) .fc .fc-daygrid-day-number { color: #cbd5e1 !important; }
+:root:not(.theme-light) .fc .fc-day-today { background: rgba(59,130,246,.15) !important; }
+:root:not(.theme-light) .fc td, :root:not(.theme-light) .fc th { border-color: rgba(255,255,255,.08) !important; }
+:root:not(.theme-light) .fc .fc-scrollgrid { background: #1e293b !important; }
+:root:not(.theme-light) .fc .fc-daygrid-day { background: #1e293b; }
+:root:not(.theme-light) .fc .fc-day-sat, :root:not(.theme-light) .fc .fc-day-sun { background: #162032; }
+:root:not(.theme-light) .fc .fc-list { background: #1e293b; }
+:root:not(.theme-light) .fc .fc-list-day th { background: #162032 !important; }
+:root:not(.theme-light) .fc .fc-list-day-cushion { color: #93c5fd !important; }
+:root:not(.theme-light) .fc .fc-list-event td { border-color: rgba(255,255,255,.08) !important; color: #e2e8f0; }
+:root:not(.theme-light) .fc .fc-list-event:hover td { background: rgba(59,130,246,.10) !important; }
+:root:not(.theme-light) .fc .fc-list-event-title a { color: #e2e8f0 !important; }
+:root:not(.theme-light) .fc .fc-list-empty { color: #94a3b8 !important; }
+:root:not(.theme-light) .cal-hint { background: rgba(245,158,11,.12) !important; border-bottom-color: rgba(245,158,11,.25) !important; color: #fcd34d !important; }
+:root:not(.theme-light) .sidebar-item-title { color: #f1f5f9 !important; }
+
+/* Spese dark fixes */
+:root:not(.theme-light) .sp-month-header { background: #162032 !important; border-color: rgba(255,255,255,.08) !important; }
+:root:not(.theme-light) .sp-month-header-label { color: #e2e8f0 !important; }
+:root:not(.theme-light) .sp-month-total { color: #f59e0b !important; }
+:root:not(.theme-light) .sp-expense-row:hover { background: rgba(59,130,246,.06) !important; }
+:root:not(.theme-light) .sp-row-date { color: #60a5fa !important; }
+:root:not(.theme-light) .sp-row-note { color: #e2e8f0 !important; }
+:root:not(.theme-light) .sp-row-amount { color: #ef4444 !important; }
