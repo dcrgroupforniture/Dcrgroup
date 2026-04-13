@@ -15,6 +15,7 @@
 
   <!-- Chart.js (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <style>
     .page-content { max-width: 960px; }
@@ -252,7 +253,15 @@
 
     // ── Helpers ──
     const eur = (n) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(n) || 0);
+    const eurCompact = (n) => {
+      const v = Number(n) || 0;
+      if (Math.abs(v) >= 1000) return (v / 1000).toLocaleString("it-IT", { maximumFractionDigits: 1 }) + "k";
+      return v.toLocaleString("it-IT", { maximumFractionDigits: 0 });
+    };
     const MONTHS = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+
+    // Registra il plugin datalabels per le etichette sui grafici
+    Chart.register(ChartDataLabels);
 
     let currentYear = new Date().getFullYear();
     const availableYears = [];
@@ -263,6 +272,7 @@
       maintainAspectRatio: false,
       animation: { duration: 400 },
       plugins: {
+        datalabels: { display: false }, // disabilitato di default, attivato su singoli grafici
         legend: { position: "bottom", labels: { boxWidth: 14, padding: 12, font: { size: 12 } } },
         tooltip: { callbacks: { label: (c) => " " + eur(c.raw) } }
       },
@@ -296,7 +306,26 @@
       ]},
       options: {
         ...chartDefaults,
-        plugins: { ...chartDefaults.plugins, legend: { display: false } },
+        plugins: {
+          ...chartDefaults.plugins,
+          legend: { display: false },
+          datalabels: {
+            display: (ctx) => ctx.dataset.data[ctx.dataIndex] !== 0,
+            anchor: (ctx) => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'end' : 'start',
+            align: (ctx) => ctx.dataset.data[ctx.dataIndex] >= 0 ? 'top' : 'bottom',
+            formatter: (value) => eurCompact(value),
+            font: { size: 9, weight: '700' },
+            color: (ctx) => {
+              const bg = Array.isArray(ctx.dataset.backgroundColor)
+                ? ctx.dataset.backgroundColor[ctx.dataIndex]
+                : ctx.dataset.backgroundColor;
+              return bg || '#374151';
+            },
+            clamp: true,
+            clip: false,
+            padding: { top: 2, bottom: 2 }
+          }
+        },
         scales: {
           ...chartDefaults.scales,
           y: { ...chartDefaults.scales.y, beginAtZero: false }
@@ -312,10 +341,27 @@
       options: {
         ...chartDefaults,
         indexAxis: "y",
-        plugins: { ...chartDefaults.plugins, legend: { display: false } },
+        plugins: {
+          ...chartDefaults.plugins,
+          legend: { display: false },
+          datalabels: {
+            display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0,
+            anchor: 'end',
+            align: 'right',
+            formatter: (value) => eur(value),
+            font: { size: 10, weight: '700' },
+            color: 'rgba(31,79,216,.85)',
+            clamp: true,
+            clip: false,
+            padding: { left: 4 }
+          }
+        },
         scales: {
           x: { ...chartDefaults.scales.x, ticks: { callback: (v) => "€" + Number(v||0).toLocaleString("it-IT"), font: { size: 11 } } },
           y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        layout: {
+          padding: { right: 70 }
         }
       }
     });
@@ -348,10 +394,15 @@
       statusEl.textContent = "Caricamento dati " + year + "…";
 
       try {
-        const [{ incomes, orders }, expenses] = await Promise.all([
+        const [{ incomes, orders, clients: clientsRaw }, expenses] = await Promise.all([
           getNormalizedIncomesAndOrders(),
           listExpenses(),
         ]);
+
+        // Mappa clientId → nome per risolvere i clienti che hanno solo l'ID
+        const clientsById = new Map(
+          (clientsRaw || []).map(c => [String(c.id || '').trim(), String(c.name || c.nome || '').trim()])
+        );
 
         const prefix = String(year) + "-";
 
@@ -390,7 +441,11 @@
         const clientMap = new Map();
         for (const o of orders) {
           if (!String(o.createdAtISO || "").startsWith(prefix)) continue;
-          const name = String(o.clientName || o.clientId || "Sconosciuto").trim() || "Sconosciuto";
+          // Risolvi il nome: usa clientName se disponibile, altrimenti lookup per clientId
+          let name = String(o.clientName || "").trim();
+          if (!name && o.clientId) name = clientsById.get(String(o.clientId).trim()) || "";
+          // Se ancora vuoto o sembra un ID (nessuno spazio, > 15 chars), usa "Sconosciuto"
+          if (!name || (name.length > 18 && !name.includes(" "))) name = "Sconosciuto";
           clientMap.set(name, (clientMap.get(name) || 0) + Number(o.total || 0));
         }
         const topClienti = [...clientMap.entries()]

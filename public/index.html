@@ -119,8 +119,8 @@
       background:var(--card);
       border:1px solid var(--line);
       border-radius:var(--radius);
-      padding:16px 12px;
-      min-height:118px;
+      padding:14px 10px;
+      min-height:95px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -151,25 +151,15 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:10px;
+      gap:8px;
       z-index:1;
     }
-    .icon{
-      font-size:58px;
-      line-height:1;
-      filter:drop-shadow(0 10px 20px rgba(0,0,0,.35));
-    }
-    .label{
-      font-weight:800;
-      letter-spacing:.2px;
-      font-size:17px;
-    }
 
-    /* Card "wide" (Statistiche) */
+    /* Card "wide" (links) */
     .card.wide{
       grid-column:1 / -1;
-      min-height:78px;
-      padding:14px 14px;
+      min-height:62px;
+      padding:12px 14px;
       justify-content:flex-start;
     }
     .wide .card-inner{
@@ -180,8 +170,8 @@
       text-align:left;
       align-items:center;
     }
-    .wide .icon{font-size:38px}
-    .wide .label{font-size:18px}
+    .wide .icon{font-size:26px}
+    .wide .label{font-size:15px}
     .wide .hint{
       margin-left:auto;
       color:var(--muted);
@@ -190,23 +180,35 @@
       white-space:nowrap;
     }
 
+    /* Audit Log — link discreto */
+    .audit-link{
+      display:block;
+      text-align:center;
+      margin:8px auto 4px;
+      color:rgba(234,240,255,.40);
+      font-size:11px;
+      font-weight:700;
+      text-decoration:none;
+      letter-spacing:.3px;
+    }
+    .audit-link:hover{color:rgba(234,240,255,.75)}
+
     /* ✅ iPhone: tutto in una sola schermata (3 colonne + card più compatte) */
     @media (max-width:900px){
       .grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;}
     }
     @media (max-width:420px){
-      .brand{font-size:22px}
-      .hero{padding:12px 12px 8px}
-      .wrap{padding:8px 12px 12px}
-      .grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:8px}
-      .card{min-height:98px; padding:12px 8px; border-radius:16px}
-      .icon{font-size:40px}
-      .label{font-size:13px}
-
-      .card.wide{min-height:66px}
-      .wide .icon{font-size:26px}
-      .wide .label{font-size:14px}
-      .wide .hint{font-size:11px}
+      .brand{font-size:20px}
+      .hero{padding:8px 10px 6px}
+      .wrap{padding:6px 10px 8px}
+      .grid{grid-template-columns:repeat(3, minmax(0,1fr)); gap:7px; margin-top:6px}
+      .card{min-height:76px; padding:8px 5px; border-radius:14px}
+      .icon{font-size:30px}
+      .label{font-size:10px; letter-spacing:0}
+      .card.wide{min-height:50px; padding:10px 12px}
+      .wide .icon{font-size:20px}
+      .wide .label{font-size:12px}
+      .wide .hint{font-size:10px}
     }
   
     /* Summary cards (home) */
@@ -400,7 +402,7 @@
 
       <a class="card wide" href="https://dcr-ordini.web.app?preview=1" style="background:rgba(36,211,102,.15);border-color:rgba(36,211,102,.45);">
         <div class="card-inner">
-          <div class="icon" style="font-size:32px">🛒</div>
+          <div class="icon">🛒</div>
           <div class="label" style="color:#24d366">Apri portale ordini clienti DCR GROUP</div>
           <div class="hint">→</div>
         </div>
@@ -408,20 +410,14 @@
 
       <a class="card wide" href="admin-portale.html" style="background:rgba(31,79,216,.10);border-color:rgba(31,79,216,.35);">
         <div class="card-inner">
-          <div class="icon" style="font-size:26px">⚙️</div>
+          <div class="icon">⚙️</div>
           <div class="label" style="color:#1f4fd8">Admin Portale Clienti</div>
           <div class="hint">→</div>
         </div>
       </a>
 
-      <a class="card" href="audit-log.html" style="background:rgba(100,116,139,.08);border-color:rgba(100,116,139,.25);">
-        <div class="card-inner">
-          <div class="icon" style="font-size:26px">🕵️</div>
-          <div class="label" style="color:#475569">Audit Log</div>
-          <div class="hint">→</div>
-        </div>
-      </a>
 </div>
+    <a class="audit-link" href="audit-log.html">🕵️ Audit Log</a>
   </main>
   <!-- Navigazione: link diretti (compatibile iOS/Safari) -->
   <!-- Sidebar (fallback select) + bottone AI flottante -->
