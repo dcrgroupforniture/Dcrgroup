@@ -55,8 +55,9 @@
       item.appendChild(iconSpan);
       item.appendChild(txtDiv);
       item.addEventListener("click", ()=>{
-        const url=o.value;
-        if (url) window.location.href=url;
+        const url = o.value;
+        // Only allow relative URLs (no protocol injection)
+        if (url && /^[A-Za-z0-9._\-/?=#&%]+$/.test(url)) window.location.href = url;
       });
       grid.appendChild(item);
     });

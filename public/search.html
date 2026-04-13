@@ -352,10 +352,6 @@
       }
     }
 
-    function escapeHtml(s) {
-      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-
     function search(query, typeFilter) {
       if (!allData) return;
       const q = query.trim().toLowerCase();
