@@ -6,502 +6,575 @@
   <meta http-equiv="Expires" content="0">
   <base href="/">
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Spese</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#f0f4ff;--surface:#ffffff;--surface2:#f8faff;
+      --border:rgba(15,23,42,.10);--border2:rgba(15,23,42,.06);
+      --text:#0f172a;--muted:#64748b;
+      --brand:#1f4fd8;--brand2:#163da8;
+      --success:#16a34a;--danger:#dc2626;--warning:#d97706;
+      --radius:16px;--shadow:0 4px 24px rgba(15,23,42,.08);--shadow-sm:0 2px 10px rgba(15,23,42,.06);
+    }
+    :root:not(.theme-light){
+      --bg:#0b1220;--surface:#1e293b;--surface2:#162032;
+      --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.05);
+      --text:#e2e8f0;--muted:#94a3b8;
+    }
+    html,body{min-height:100%;overflow-x:hidden;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{background:var(--bg);color:var(--text);}
 
-  <!-- Stile base + stile Incassi per avere la stessa impostazione -->
-  <link rel="stylesheet" href="styles.css?v=15_20260225222215" />
-  <link rel="stylesheet" href="mobile.css?v=15_20260225222215" />
-  <link rel="stylesheet" href="incassi.css?v=15_20260225222215" />
-  <link rel="stylesheet" href="spese.css?v=15_20260225222215" />
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(60px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 14px 0;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+    .topbar-back{width:38px;height:38px;border-radius:10px;border:none;background:var(--brand);color:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+    .topbar-title{font-weight:900;font-size:17px;color:var(--text);flex:1;}
+    .topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto;}
+    .topbar-btn{height:36px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+    .topbar-btn.primary{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+    .page{padding-top:calc(68px + env(safe-area-inset-top));padding-bottom:calc(24px + env(safe-area-inset-bottom));padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));max-width:1300px;margin:0 auto;}
+
+    .month-nav{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;}
+    .month-nav-btn{width:32px;height:32px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+    .month-nav-btn:hover{background:var(--surface2);}
+    .month-label{font-weight:900;font-size:14px;color:var(--text);min-width:140px;text-align:center;}
+
+    .kpi-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px;margin-top:12px;}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .kpi-icon{font-size:22px;margin-bottom:6px;}
+    .kpi-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .kpi-value{font-size:22px;font-weight:900;margin-top:4px;color:var(--text);}
+    .kpi-card.danger .kpi-value{color:var(--danger);}
+    .kpi-card.warning .kpi-value{color:var(--warning);}
+
+    .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+    .search-input{flex:1;min-width:180px;max-width:280px;height:38px;padding:0 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;outline:none;}
+    .search-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,79,216,.12);}
+    .cat-filter{height:38px;padding:0 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;outline:none;cursor:pointer;}
+    .filter-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;}
+    .filter-tab{padding:5px 12px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+    .filter-tab.active{background:var(--brand);color:#fff;}
+
+    .content-grid{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start;}
+
+    .expense-list{display:flex;flex-direction:column;gap:8px;}
+    .expense-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .15s;position:relative;overflow:hidden;}
+    .expense-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--item-color,var(--brand));border-radius:4px 0 0 4px;}
+    .expense-item:hover{box-shadow:0 6px 20px rgba(0,0,0,.1);}
+    .expense-date-col{display:flex;flex-direction:column;align-items:center;min-width:50px;text-align:center;}
+    .expense-day{font-size:24px;font-weight:900;line-height:1;color:var(--brand);}
+    .expense-mon{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;}
+    .expense-body{flex:1;min-width:0;}
+    .expense-note{font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px;}
+    .expense-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
+    .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;}
+    .badge-cat{background:#eff6ff;color:#1e40af;}
+    .badge-source{background:#f3f4f6;color:#374151;}
+    :root:not(.theme-light) .badge-cat{background:rgba(59,130,246,.2);color:#93c5fd;}
+    :root:not(.theme-light) .badge-source{background:rgba(255,255,255,.08);color:#94a3b8;}
+    .expense-amount{font-size:18px;font-weight:900;color:var(--danger);white-space:nowrap;text-align:right;}
+    .expense-actions{display:flex;gap:6px;align-items:center;}
+    .action-btn{width:32px;height:32px;border-radius:8px;border:none;background:var(--surface2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .15s;}
+    .action-btn:hover{background:var(--brand);color:#fff;}
+    .action-btn.danger:hover{background:var(--danger);color:#fff;}
+    .empty-state{text-align:center;padding:48px 24px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);}
+    .empty-icon{font-size:40px;margin-bottom:12px;}
+    .empty-text{font-size:15px;font-weight:700;}
+    .empty-sub{font-size:13px;margin-top:6px;}
+
+    .sidebar{display:flex;flex-direction:column;gap:12px;}
+    .side-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);}
+    .side-card-title{font-weight:800;font-size:14px;color:var(--text);margin-bottom:12px;}
+    .side-stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px;}
+    .side-stat-row:last-child{border-bottom:none;}
+    .side-stat-label{color:var(--muted);font-weight:600;}
+    .side-stat-value{font-weight:900;color:var(--text);}
+    .side-stat-value.danger{color:var(--danger);}
+    .chart-wrap{position:relative;height:180px;margin-top:8px;}
+
+    .linked-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px;}
+    .linked-item:last-child{border-bottom:none;}
+    .linked-label{color:var(--text);font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px;}
+    .linked-date{color:var(--muted);font-size:11px;}
+    .linked-amount{font-weight:800;color:var(--danger);white-space:nowrap;}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9000;overflow-y:auto;overscroll-behavior:contain;}
+    .modal-overlay.hidden{display:none;}
+    .modal-box{width:100%;max-width:520px;background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.28);overflow:hidden;}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);}
+    .modal-head-title{font-weight:900;font-size:18px;color:var(--text);}
+    .modal-close{width:34px;height:34px;border-radius:8px;border:none;background:var(--surface2);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .modal-body{padding:18px;display:flex;flex-direction:column;gap:14px;}
+    .field-group{display:flex;flex-direction:column;gap:6px;}
+    .field-label{font-weight:700;font-size:13px;color:var(--text);}
+    .field-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-size:14px;outline:none;}
+    .field-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,79,216,.12);}
+    .field-input.error{border-color:var(--danger);box-shadow:0 0 0 3px rgba(220,38,38,.12);}
+    .field-error{color:var(--danger);font-size:12px;font-weight:700;display:none;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .modal-foot{display:flex;align-items:center;gap:10px;padding:14px 18px;border-top:1px solid var(--border);}
+    .modal-foot-left{flex:1;}
+    .btn{height:40px;padding:0 16px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;}
+    .btn-primary{background:var(--brand);color:#fff;}
+    .btn-primary:hover{background:var(--brand2);}
+    .btn-danger{background:var(--danger);color:#fff;}
+    .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+
+    @media (max-width:900px){.content-grid{grid-template-columns:1fr;}.kpi-strip{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    @media (max-width:600px){.kpi-strip{gap:8px;}.kpi-value{font-size:18px;}.toolbar{gap:6px;}.filter-tab{padding:5px 8px;}}
+    @media (max-width:480px){.topbar{height:calc(56px + env(safe-area-inset-top));}.month-label{min-width:110px;font-size:13px;}.field-row{grid-template-columns:1fr;}}
+    @media print{.topbar,.toolbar,.modal-overlay,.action-btn,.topbar-btn{display:none !important;}}
+  </style>
 </head>
-
-<body class="page incassi-dark">
-  <header class="top-bar incassi-topbar">
-    <button class="back-btn" id="backBtn">←</button>
-    <span class="page-title">Spese</span>
-    <a class="chip header-dashboard" href="index.html">Dashboard</a>
-  </header>
-
-  <main class="container incassi-wrap safe-main">
-    <div class="incassi-head">
-      <div>
-        <h1 class="incassi-h1">Dashboard Spese</h1>
-        <div class="incassi-sub">Totali e calendario mese. Tap su un giorno per aggiungere/modificare.</div>
-      </div>
-
-      <div class="spese-head-actions">
-        <button class="incassi-btn" id="prevBtn">◀</button>
-        <div class="incassi-btn" style="cursor:default; font-weight:900" id="monthTitle">—</div>
-        <button class="incassi-btn" id="nextBtn">▶</button>
-        <input type="search" id="speseSearch" placeholder="Cerca per nota…" autocomplete="off"
-               style="padding:8px 12px;border-radius:12px;border:1px solid var(--line);font-size:14px;min-width:160px;background:rgba(255,255,255,.8)">
-        <button class="incassi-btn" id="btnExportSpese" type="button" title="Esporta CSV">⬇ CSV</button>
-        <button class="incassi-btn primary" id="btnNewExpense">Nuova spesa</button>
-      </div>
+<body>
+<header class="topbar">
+  <button class="topbar-back" id="backBtn">←</button>
+  <span class="topbar-title">💸 Spese</span>
+  <div class="topbar-actions">
+    <div class="month-nav">
+      <button class="month-nav-btn" id="prevBtn">‹</button>
+      <span class="month-label" id="monthLabel">—</span>
+      <button class="month-nav-btn" id="nextBtn">›</button>
     </div>
+    <button class="topbar-btn primary" id="btnNewExpense">＋ Nuova spesa</button>
+  </div>
+</header>
 
-    <section class="incassi-grid">
-      <div class="incassi-col">
-        <div class="incassi-kpi-card">
-          <div class="incassi-kpi kpi-oggi" id="kpiSpeseMeseBox">
-            <div>
-              <div class="kpi-name">Totale mese</div>
-              <div class="kpi-val" id="monthTotal">—</div>
-            </div>
-            <div class="kpi-badge">MESE</div>
-          </div>
-
-          <div class="incassi-kpi kpi-mese" id="kpiSpeseAnnoBox">
-            <div>
-              <div class="kpi-name">Totale anno</div>
-              <div class="kpi-val" id="yearTotal">—</div>
-            </div>
-            <div class="kpi-badge">ANNO</div>
-          </div>
-        </div>
-
-        <div class="incassi-card">
-          <div class="incassi-card-head">
-            <div>
-              <div class="card-title">Calendario mese</div>
-              <div class="card-sub">Elenco giorni con importo. Clicca per modificare.</div>
-            </div>
-          </div>
-          <div class="incassi-card-body" id="days">
-            <div class="spese-empty">Caricamento…</div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="incassi-side">
-        <div class="incassi-card">
-          <div class="incassi-card-head">
-            <div>
-              <div class="card-title">📊 Riepilogo mese</div>
-              <div class="card-sub">Spese, Ordini Fornitori e Scadenze.</div>
-            </div>
-          </div>
-          <div class="incassi-card-body">
-            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px">
-              <div>
-                <div style="color:var(--muted);font-weight:800">Spese mese</div>
-                <div style="font-size:28px;font-weight:900" id="sideMonth">—</div>
-              </div>
-              <div>
-                <div style="color:var(--muted);font-weight:800">Anno</div>
-                <div style="font-size:18px;font-weight:900" id="sideYear">—</div>
-              </div>
-            </div>
-            <!-- Ordini Fornitori -->
-            <div style="background:rgba(59,130,246,.08);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(59,130,246,.18);">
-              <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:4px;">📦 Ordini Fornitori (mese)</div>
-              <div style="font-size:22px;font-weight:900;color:#1f4fd8;" id="sideOrdiniMese">—</div>
-              <a href="suppliers.html" style="font-size:11px;color:#1f4fd8;text-decoration:none;font-weight:700;">Vai ai fornitori →</a>
-            </div>
-            <!-- Scadenze -->
-            <div style="background:rgba(220,38,38,.07);border-radius:12px;padding:10px 12px;border:1px solid rgba(220,38,38,.18);">
-              <div style="font-size:12px;font-weight:800;color:#991b1b;margin-bottom:6px;">🔴 Scadenze in scadenza</div>
-              <div id="sideScadenzeList"><div style="color:#9ca3af;font-size:12px;font-style:italic;">Caricamento…</div></div>
-              <a href="scadenze.html" style="font-size:11px;color:#dc2626;text-decoration:none;font-weight:700;display:block;margin-top:6px;">Gestisci scadenze →</a>
-            </div>
-          </div>
-        </div>
-        <!-- Sync fornitore info -->
-        <div id="syncInfoPanel" style="display:none;background:rgba(16,185,129,.08);border-radius:12px;padding:10px 12px;border:1px solid rgba(16,185,129,.2);font-size:12px;color:#065f46;font-weight:700;margin-top:8px;">
-          ✅ Fatture fornitori sincronizzate
-        </div>
-      </aside>
-    </section>
-  </main>
-
-  <!-- Popup edit spesa -->
-  <div class="modal-overlay hidden" id="popup" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
-      <div class="modal-head">
-        <div class="modal-title" id="popupTitle">Spesa: <span id="popupDate">—</span></div>
-        <button class="modal-close" id="closeBtn">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="spese-modal-grid">
-          <div class="spese-field">
-            <label for="amount">Importo</label>
-            <input id="amount" type="text" inputmode="decimal" placeholder="0,00" />
-          </div>
-          <div class="spese-field">
-            <label for="note">Nota</label>
-            <textarea id="note" placeholder="Descrizione…"></textarea>
-          </div>
-        </div>
-
-        <div class="spese-modal-actions">
-          <button class="incassi-btn danger" id="deleteBtn">Elimina</button>
-          <button class="incassi-btn" id="closeBtn2" type="button">Chiudi</button>
-          <button class="incassi-btn primary" id="saveBtn">Salva</button>
-        </div>
-      </div>
+<div class="page">
+  <div class="kpi-strip">
+    <div class="kpi-card danger">
+      <div class="kpi-icon">📉</div>
+      <div class="kpi-label">Spese mese</div>
+      <div class="kpi-value" id="kpiMese">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">Spese anno</div>
+      <div class="kpi-value" id="kpiAnno">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">Fornitori mese</div>
+      <div class="kpi-value" id="kpiFornitori">—</div>
+    </div>
+    <div class="kpi-card warning">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-label">Scadenze 30gg</div>
+      <div class="kpi-value" id="kpiScadenze">—</div>
     </div>
   </div>
 
-  <script type="module">
-    import { db } from "./firebase.js";
-    import {
-      doc, setDoc, deleteDoc, getDocs, collection, query, orderBy, where
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <div class="toolbar">
+    <input type="search" class="search-input" id="searchInput" placeholder="🔍 Cerca spesa…">
+    <select class="cat-filter" id="catFilter">
+      <option value="">Tutte le categorie</option>
+      <option value="fornitori">📦 Fornitori</option>
+      <option value="scadenze">📅 Scadenze</option>
+      <option value="utenze">💡 Utenze</option>
+      <option value="affitto">🏠 Affitto</option>
+      <option value="stipendi">👥 Stipendi</option>
+      <option value="materiali">🛠 Materiali</option>
+      <option value="marketing">📢 Marketing</option>
+      <option value="altro">📌 Altro</option>
+    </select>
+    <div class="filter-tabs" id="sortTabs">
+      <button class="filter-tab active" data-sort="date-desc">📅 Recenti</button>
+      <button class="filter-tab" data-sort="amount-desc">💶 Importo ↓</button>
+      <button class="filter-tab" data-sort="amount-asc">💶 Importo ↑</button>
+    </div>
+    <button class="btn btn-ghost" id="btnExportSpese" style="height:38px;font-size:12px;">⬇ CSV</button>
+  </div>
 
-    const COLLECTION = "spese";
+  <div class="content-grid">
+    <div>
+      <div class="expense-list" id="expenseList">
+        <div class="empty-state"><div class="empty-icon">⌛</div><div class="empty-text">Caricamento spese…</div></div>
+      </div>
+    </div>
+    <aside class="sidebar">
+      <div class="side-card">
+        <div class="side-card-title">📊 Riepilogo mese</div>
+        <div class="side-stat-row"><span class="side-stat-label">Totale spese</span><span class="side-stat-value danger" id="sideTotale">—</span></div>
+        <div class="side-stat-row"><span class="side-stat-label">Fornitori</span><span class="side-stat-value" id="sideFornitoriAmt">—</span></div>
+        <div class="side-stat-row"><span class="side-stat-label">Scadenze pagate</span><span class="side-stat-value" id="sideScadenzeAmt">—</span></div>
+        <div class="side-stat-row"><span class="side-stat-label">Spese manuali</span><span class="side-stat-value" id="sideManuali">—</span></div>
+        <div class="side-stat-row"><span class="side-stat-label">Voci (n.)</span><span class="side-stat-value" id="sideCount">0</span></div>
+      </div>
+      <div class="side-card">
+        <div class="side-card-title">📈 Per categoria (anno)</div>
+        <div class="chart-wrap"><canvas id="chartCat"></canvas></div>
+      </div>
+      <div class="side-card">
+        <div class="side-card-title">🔴 Scadenze prossime (30gg)</div>
+        <div id="scadenzeList"><span style="color:var(--muted);font-size:13px;font-style:italic">Caricamento…</span></div>
+      </div>
+    </aside>
+  </div>
+</div>
 
-    // Utils
-    const pad2 = (n) => String(n).padStart(2, "0");
-    const isoKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-    const ymKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
-    const itMoney = (n) => new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR" }).format(Number(n)||0);
+<!-- Modal -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title" id="modalTitle">Nuova spesa</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label" for="mDate">📅 Data *</label>
+          <input type="date" class="field-input" id="mDate" required>
+          <span class="field-error" id="errDate">Data non valida</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="mAmount">💶 Importo (€) *</label>
+          <input type="text" class="field-input" id="mAmount" placeholder="0,00" inputmode="decimal">
+          <span class="field-error" id="errAmount">Importo non valido</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="mNote">📝 Descrizione *</label>
+        <input type="text" class="field-input" id="mNote" placeholder="Es. Affitto ufficio, bolletta luce…">
+        <span class="field-error" id="errNote">Inserisci una descrizione</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="mCategory">📂 Categoria</label>
+        <select class="field-input" id="mCategory">
+          <option value="altro">📌 Altro</option>
+          <option value="fornitori">📦 Fornitori</option>
+          <option value="utenze">💡 Utenze</option>
+          <option value="affitto">🏠 Affitto</option>
+          <option value="stipendi">👥 Stipendi</option>
+          <option value="materiali">🛠 Materiali</option>
+          <option value="marketing">📢 Marketing</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="modal-foot-left">
+        <button class="btn btn-danger" id="btnDelete" style="display:none">🗑 Elimina</button>
+      </div>
+      <button class="btn btn-ghost" id="btnClose2">Annulla</button>
+      <button class="btn btn-primary" id="btnSave">💾 Salva</button>
+    </div>
+  </div>
+</div>
 
-    function toNum(v){
-      if(typeof v === 'number') return Number.isFinite(v) ? v : 0;
-      const s = String(v ?? '').trim();
-      if(!s) return 0;
-      let cleaned = s.replace(/[^0-9,.-]/g,'');
-      if(cleaned.includes(',')) cleaned = cleaned.replace(/\./g,'').replace(',', '.');
-      const n = Number(cleaned);
-      return Number.isFinite(n) ? n : 0;
-    }
+<script type="module">
+import { db } from "./firebase.js";
+import { doc, setDoc, deleteDoc, getDocs, collection, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { auth } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    function monthTitleUpper(date){
-      return date.toLocaleString("it-IT",{month:"long",year:"numeric"}).toUpperCase();
-    }
+const eur = (n) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(n)||0);
+const pad2 = (n) => String(n).padStart(2, "0");
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+const isoKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const ymKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+function toNum(v) {
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  const s = String(v ?? "").trim().replace(/€/g, "");
+  if (!s) return 0;
+  let c = s.replace(/[^0-9,.-]/g, "");
+  if (c.includes(",")) c = c.replace(/\./g, "").replace(",", ".");
+  const n = Number(c); return Number.isFinite(n) ? n : 0;
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
-    function formatDDMMYYYY(y,m,d){
-      return `${pad2(d)}/${pad2(m+1)}/${y}`;
-    }
+const CAT_LABELS = {
+  fornitori:"📦 Fornitori", scadenze:"📅 Scadenze", utenze:"💡 Utenze",
+  affitto:"🏠 Affitto", stipendi:"👥 Stipendi", materiali:"🛠 Materiali",
+  marketing:"📢 Marketing", altro:"📌 Altro", supplier_invoice:"📦 Fornitore",
+};
+const CAT_COLORS = {
+  fornitori:"#1f4fd8", supplier_invoice:"#1f4fd8", scadenze:"#dc2626", utenze:"#d97706",
+  affitto:"#7c3aed", stipendi:"#0891b2", materiali:"#16a34a", marketing:"#db2777", altro:"#64748b",
+};
 
-    // --- AUTO CALCOLO IMPORTO DA NOTE (come in Incassi) ---
-    function parseAmountFromLine(line){
-      if(!line) return 0;
-      const cleaned = String(line).replace(/€/g,'').trim();
-      const matches = cleaned.match(/-?\d+(?:[\.,]\d+)?/g);
-      if(!matches || matches.length===0) return 0;
-      const last = matches[matches.length-1].replace(',', '.');
-      const n = Number(last);
-      return Number.isFinite(n) ? n : 0;
-    }
-    function sumAmountsFromNotes(text){
-      return String(text || '')
-        .split(/\r?\n/)
-        .map(l => parseAmountFromLine(l))
-        .reduce((a,b)=>a+b,0);
-    }
-    function formatForInput(n){
-      const s = (Math.round(n * 100) / 100).toFixed(2);
-      return s.endsWith('.00') ? s.slice(0,-3) : s.replace(/0$/,'').replace(/\.$/,'');
-    }
+let allDocs = [];
+let cursor = new Date(); cursor.setDate(1);
+let activeSearch = "";
+let activeCat = "";
+let activeSort = "date-desc";
+let editingId = null;
+let catChart = null;
 
-    // DOM
-    const backBtn = document.getElementById("backBtn");
-    const quickNav = document.getElementById("quickNav");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const monthTitleEl = document.getElementById("monthTitle");
-    const btnNew = document.getElementById("btnNewExpense");
+const $ = (id) => document.getElementById(id);
 
-    const monthTotalEl = document.getElementById("monthTotal");
-    const yearTotalEl = document.getElementById("yearTotal");
-    const sideMonthEl = document.getElementById("sideMonth");
-    const sideYearEl = document.getElementById("sideYear");
-    const daysEl = document.getElementById("days");
-
-    const popup = document.getElementById("popup");
-    const popupDate = document.getElementById("popupDate");
-    const noteEl = document.getElementById("note");
-    const amountEl = document.getElementById("amount");
-    const closeBtn = document.getElementById("closeBtn");
-    const closeBtn2 = document.getElementById("closeBtn2");
-    const saveBtn = document.getElementById("saveBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
-
-    let cursor = new Date();
-    cursor.setDate(1);
-    let selectedKey = null;
-    let docs = []; // {id,dateKey,amount,note}
-
-    // Events nav
-    backBtn?.addEventListener("click", ()=> location.href = "index.html");
-    quickNav?.addEventListener("change", (e)=>{ const v=e.target.value; if(v) location.href=v; });
-    prevBtn?.addEventListener("click", ()=>{ cursor.setMonth(cursor.getMonth()-1); render(); loadOrdiniFornitoriMese().catch(()=>{}); });
-    nextBtn?.addEventListener("click", ()=>{ cursor.setMonth(cursor.getMonth()+1); render(); loadOrdiniFornitoriMese().catch(()=>{}); });
-
-    btnNew?.addEventListener("click", ()=>{
-      const d = new Date(cursor);
-      d.setDate(Math.min(new Date().getDate(), new Date(d.getFullYear(), d.getMonth()+1, 0).getDate()));
-      openPopup(isoKey(d));
+async function loadAll() {
+  const snap = await getDocs(collection(db, "spese"));
+  allDocs = [];
+  snap.forEach(s => {
+    const x = s.data() || {};
+    const dateKey = String(x.date || x.data || s.id || "").slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+    allDocs.push({
+      id: s.id, dateKey,
+      amount: toNum(x.amount ?? x.importo ?? 0),
+      note: String(x.note || x.descrizione || ""),
+      category: String(x.category || x.categoria || "altro"),
+      source: String(x.source || ""),
     });
+  });
+}
 
-    closeBtn?.addEventListener("click", closePopup);
-    closeBtn2?.addEventListener("click", closePopup);
-    popup?.addEventListener("click", (e)=>{ if(e.target === popup) closePopup(); });
+function getMonthDocs() { const ym = ymKey(cursor); return allDocs.filter(x => x.dateKey.startsWith(ym)); }
+function getYearDocs() { const y = String(cursor.getFullYear()); return allDocs.filter(x => x.dateKey.startsWith(y)); }
 
-    noteEl?.addEventListener('input', () => {
-      const total = sumAmountsFromNotes(noteEl.value);
-      if(total > 0){
-        amountEl.value = formatForInput(total);
-      }
+function render() {
+  const monthDocs = getMonthDocs();
+  const yearDocs = getYearDocs();
+  const ym = ymKey(cursor);
+
+  $("monthLabel").textContent = cursor.toLocaleDateString("it-IT", { month: "long", year: "numeric" }).toUpperCase();
+
+  const total = monthDocs.reduce((s,x)=>s+x.amount,0);
+  const fornitori = monthDocs.filter(x=>x.category==="fornitori"||x.source==="supplier_invoice"||x.category==="supplier_invoice").reduce((s,x)=>s+x.amount,0);
+  const scadenze = monthDocs.filter(x=>x.category==="scadenze"||x.source==="scadenza").reduce((s,x)=>s+x.amount,0);
+  const manuali = total - fornitori - scadenze;
+
+  $("kpiMese").textContent = eur(total);
+  $("kpiAnno").textContent = eur(yearDocs.reduce((s,x)=>s+x.amount,0));
+  $("sideTotale").textContent = eur(total);
+  $("sideFornitoriAmt").textContent = eur(fornitori);
+  $("sideScadenzeAmt").textContent = eur(scadenze);
+  $("sideManuali").textContent = eur(Math.max(0,manuali));
+  $("sideCount").textContent = monthDocs.length;
+
+  // Filter + sort
+  let items = monthDocs.slice();
+  if (activeCat) {
+    items = items.filter(x => x.category === activeCat || (activeCat === "fornitori" && (x.source === "supplier_invoice" || x.category === "supplier_invoice")));
+  }
+  if (activeSearch) {
+    const s = activeSearch.toLowerCase();
+    items = items.filter(x => (x.note + " " + x.category).toLowerCase().includes(s));
+  }
+  if (activeSort === "date-desc") items.sort((a,b)=>b.dateKey.localeCompare(a.dateKey));
+  else if (activeSort === "amount-desc") items.sort((a,b)=>b.amount-a.amount);
+  else if (activeSort === "amount-asc") items.sort((a,b)=>a.amount-b.amount);
+
+  const listEl = $("expenseList");
+  if (!items.length) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nessuna spesa trovata</div><div class="empty-sub">Clicca "＋ Nuova spesa" per aggiungere</div></div>`;
+  } else {
+    const catDisplay = (x) => {
+      const cat = x.category || "altro";
+      const src = x.source;
+      if (src === "supplier_invoice" || cat === "supplier_invoice" || cat === "fornitori") return "📦 Fornitore";
+      if (src === "scadenza" || cat === "scadenze") return "📅 Scadenza";
+      return CAT_LABELS[cat] || cat;
+    };
+    listEl.innerHTML = items.map(x => {
+      const [yy,mm,dd] = x.dateKey.split("-");
+      const mon = new Date(x.dateKey+"T00:00:00").toLocaleDateString("it-IT",{month:"short"}).toUpperCase();
+      const color = CAT_COLORS[x.category] || CAT_COLORS[x.source] || "#64748b";
+      const isReadonly = x.source === "supplier_invoice";
+      return `<div class="expense-item" data-id="${esc(x.id)}" style="--item-color:${color}" role="button" tabindex="0">
+        <div class="expense-date-col"><div class="expense-day">${dd}</div><div class="expense-mon">${mon}</div></div>
+        <div class="expense-body">
+          <div class="expense-note">${esc(x.note||"—")}</div>
+          <div class="expense-meta"><span class="badge badge-cat">${catDisplay(x)}</span>${isReadonly?'<span class="badge badge-source">sync</span>':''}</div>
+        </div>
+        <div class="expense-amount">${eur(x.amount)}</div>
+        <div class="expense-actions">
+          ${!isReadonly?`<button class="action-btn" data-action="edit" data-id="${esc(x.id)}" title="Modifica">✏️</button>`:''}
+          ${!isReadonly?`<button class="action-btn danger" data-action="delete" data-id="${esc(x.id)}" title="Elimina">🗑</button>`:''}
+        </div>
+      </div>`;
+    }).join("");
+
+    listEl.querySelectorAll(".expense-item").forEach(el => {
+      el.addEventListener("click", (e) => { if(e.target.closest("[data-action]")) return; openModal(el.dataset.id); });
+      el.addEventListener("keydown", (e) => { if(e.key==="Enter") openModal(el.dataset.id); });
     });
+    listEl.querySelectorAll("[data-action]").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if(btn.dataset.action==="edit") openModal(btn.dataset.id);
+        else if(btn.dataset.action==="delete") await doDelete(btn.dataset.id);
+      });
+    });
+  }
 
-    saveBtn?.addEventListener("click", save);
-    deleteBtn?.addEventListener("click", remove);
-
-    async function loadAll(){
-      const snap = await getDocs(collection(db, COLLECTION));
-      docs = [];
-      snap.forEach(s => {
-        const x = s.data() || {};
-        const dateKey = String(x.date || x.data || x.giorno || s.id || '').slice(0,10);
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
-        docs.push({
-          id: s.id,
-          dateKey,
-          amount: toNum(x.amount ?? x.importo ?? x.totale ?? x.value ?? 0),
-          note: String(x.note || x.descrizione || "")
-        });
+  // Chart
+  const catTotals = {};
+  yearDocs.forEach(x => { const k = x.category||"altro"; catTotals[k] = (catTotals[k]||0)+x.amount; });
+  const cats = Object.keys(catTotals).filter(k=>catTotals[k]>0).sort((a,b)=>catTotals[b]-catTotals[a]).slice(0,6);
+  if (cats.length) {
+    const colors = ["#1f4fd8","#dc2626","#d97706","#7c3aed","#16a34a","#64748b"];
+    if (catChart) { try{catChart.destroy();}catch(_){} }
+    const canvas = $("chartCat");
+    if (canvas && window.Chart) {
+      catChart = new Chart(canvas.getContext("2d"), {
+        type: "doughnut",
+        data: { labels: cats.map(k=>CAT_LABELS[k]||k), datasets:[{data:cats.map(k=>catTotals[k]),backgroundColor:colors,borderWidth:2,borderColor:"rgba(255,255,255,.5)"}] },
+        options: {responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:"bottom",labels:{font:{size:10,weight:"700"},boxWidth:12}},tooltip:{callbacks:{label:(c)=>` ${c.label}: ${eur(c.parsed)}`}}}}
       });
     }
+  }
+}
 
-    function sumForMonth(baseDate){
-      const key = ymKey(baseDate);
-      return docs.filter(x => String(x.dateKey||"").startsWith(key))
-        .reduce((s,x)=> s + (Number(x.amount)||0), 0);
-    }
+// ── Fornitori KPI async ───────────────────────────────────────────────────────
+async function loadFornitoriKPI() {
+  const ym = ymKey(cursor);
+  let total = 0;
+  try {
+    const suppSnap = await getDocs(collection(db,"suppliers"));
+    await Promise.all(suppSnap.docs.map(async suppDoc => {
+      const invSnap = await getDocs(collection(db,"suppliers",suppDoc.id,"invoices"));
+      invSnap.forEach(d => {
+        const data = d.data()||{};
+        const date = String(data.dateISO||data.invoiceDate||data.date||"");
+        if(!date.startsWith(ym)) return;
+        total += Number(data.totalWithVat||data.total||data.importo||data.amount||0);
+      });
+    }));
+  } catch(e) { console.warn("loadFornitoriKPI",e); }
+  $("kpiFornitori").textContent = eur(total);
+}
 
-    function sumForYear(year){
-      const key = `${year}-`;
-      return docs.filter(x => String(x.dateKey||"").startsWith(key))
-        .reduce((s,x)=> s + (Number(x.amount)||0), 0);
-    }
-
-    function sumByDayForMonth(baseDate){
-      const key = ymKey(baseDate);
-      const sums = {};
-      for(const x of docs){
-        const dk = String(x.dateKey||"");
-        if(!dk.startsWith(key)) continue;
-        sums[dk] = (sums[dk]||0) + (Number(x.amount)||0);
-      }
-      return sums;
-    }
-
-    function openPopup(dayKey){
-      selectedKey = dayKey;
-      popupDate.textContent = dayKey;
-
-      const dayItems = docs.filter(x => x.dateKey === dayKey);
-      const sumDay = dayItems.reduce((s,x)=> s + (Number(x.amount)||0), 0);
-
-      const byId = dayItems.find(x => x.id === dayKey);
-      noteEl.value = byId ? (byId.note || "") : "";
-      amountEl.value = byId ? String(toNum(byId.amount)) : "";
-      amountEl.placeholder = sumDay ? String(sumDay.toFixed(2)) : "0.00";
-
-      popup.classList.remove("hidden");
-      popup.setAttribute("aria-hidden", "false");
-    }
-
-    function closePopup(){
-      popup.classList.add("hidden");
-      popup.setAttribute("aria-hidden", "true");
-      selectedKey = null;
-    }
-
-    async function save(){
-      if(!selectedKey) return;
-      const note = String(noteEl.value || "").trim();
-      const amount = toNum(amountEl.value);
-      await setDoc(doc(db, COLLECTION, selectedKey), {
-        date: selectedKey,
-        note,
-        amount
-      }, { merge: true });
-      closePopup();
-      await boot();
-    }
-
-    async function remove(){
-      if(!selectedKey) return;
-      if(!confirm("Eliminare il dato?")) return;
-      await deleteDoc(doc(db, COLLECTION, selectedKey));
-      closePopup();
-      await boot();
-    }
-
-    const speseSearchEl = document.getElementById("speseSearch");
-    speseSearchEl?.addEventListener("input", render);
-
-    function render(){
-      const y = cursor.getFullYear();
-      const m = cursor.getMonth();
-      const start = new Date(y, m, 1);
-      const lastDay = new Date(y, m+1, 0).getDate();
-      const searchTerm = (speseSearchEl?.value || "").toLowerCase().trim();
-
-      monthTitleEl.textContent = monthTitleUpper(start);
-
-      const monthSum = sumForMonth(start);
-      const yearSum = sumForYear(y);
-
-      monthTotalEl.textContent = itMoney(monthSum);
-      yearTotalEl.textContent = itMoney(yearSum);
-      sideMonthEl.textContent = itMoney(monthSum);
-      sideYearEl.textContent = itMoney(yearSum);
-
-      const sums = sumByDayForMonth(start);
-      daysEl.innerHTML = "";
-      let visibleCount = 0;
-
-      for(let day=1; day<=lastDay; day++){
-        const d = new Date(y, m, day);
-        const k = isoKey(d);
-        const val = sums[k] || 0;
-        const notePreview = (docs.find(x => x.dateKey === k)?.note || "").trim();
-
-        if(searchTerm && !notePreview.toLowerCase().includes(searchTerm)) continue;
-
-        const row = document.createElement("div");
-        row.className = "spese-calendar-row";
-        row.innerHTML = `
-          <div>
-            <div class="spese-date">${formatDDMMYYYY(y,m,day)}</div>
-            <div class="spese-note">${notePreview ? notePreview.replace(/</g,'&lt;').replace(/>/g,'&gt;') : "—"}</div>
-          </div>
-          <div class="spese-amt">${itMoney(val)}</div>
-        `;
-        row.addEventListener("click", ()=> openPopup(k));
-        daysEl.appendChild(row);
-        visibleCount++;
-      }
-      if(searchTerm && visibleCount === 0){
-        daysEl.innerHTML = `<div class="spese-empty">Nessun risultato per "<strong>${searchTerm.replace(/</g,'&lt;')}</strong>"</div>`;
-      }
-    }
-
-    async function boot(){
-      await loadAll();
-      render();
-      // Load connected data in background
-      loadOrdiniFornitoriMese().catch(()=>{});
-      loadScadenzeProssime().catch(()=>{});
-      syncSupplierInvoicesToSpese().catch(()=>{});
-    }
-
-    // ── Sync fatture fornitori → spese ──────────────────────────────────────
-    async function syncSupplierInvoicesToSpese(){
-      try{
-        const suppSnap = await getDocs(collection(db,'suppliers'));
-        const promises = [];
-        for(const suppDoc of suppSnap.docs){
-          const name = String(suppDoc.data().name||'Fornitore');
-          const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
-          invSnap.forEach(invDoc=>{
-            const inv = invDoc.data()||{};
-            const date = inv.dateISO || inv.invoiceDate || inv.date || '';
-            if(!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-            const amount = Number(inv.totalWithVat||inv.total||inv.importo||inv.amount||0);
-            if(!amount) return;
-            const note = [name, inv.description||inv.invoiceNumber||''].filter(Boolean).join(' – ');
-            const speseId = `supplier_${suppDoc.id}_${invDoc.id}`;
-            promises.push(
-              setDoc(doc(db,'spese',speseId),{
-                date, amount, note,
-                category: inv.category||'fornitori',
-                source: 'supplier_invoice',
-                supplierId: suppDoc.id,
-                invoiceId: invDoc.id,
-                syncedAt: new Date().toISOString()
-              },{ merge:true }).catch(()=>{})
-            );
-          });
-        }
-        await Promise.all(promises);
-        if(promises.length > 0){
-          const syncInfo = document.getElementById('syncInfoPanel');
-          if(syncInfo) syncInfo.style.display='block';
-          // Reload to show newly synced data
-          await loadAll(); render();
-        }
-      }catch(e){ console.warn('syncSupplierInvoicesToSpese',e); }
-    }
-
-    // ── Ordini Fornitori mese ────────────────────────────────────────────────
-    async function loadOrdiniFornitoriMese(){
-      const y = cursor.getFullYear();
-      const m = cursor.getMonth();
-      const ym = `${y}-${pad2(m+1)}`;
-      let total = 0;
-      try{
-        const suppSnap = await getDocs(collection(db,'suppliers'));
-        for(const suppDoc of suppSnap.docs){
-          const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
-          invSnap.forEach(d=>{
-            const data = d.data()||{};
-            const date = String(data.dateISO||data.invoiceDate||data.date||'');
-            if(!date.startsWith(ym)) return;
-            total += Number(data.totalWithVat||data.total||data.importo||data.amount||0);
-          });
-        }
-      }catch(e){ console.warn('loadOrdiniFornitoriMese',e); }
-      const el = document.getElementById('sideOrdiniMese');
-      if(el) el.textContent = itMoney(total);
-    }
-
-    // ── Scadenze prossime ────────────────────────────────────────────────────
-    async function loadScadenzeProssime(){
-      const today = isoKey(new Date());
-      const in30 = isoKey(new Date(Date.now()+30*24*60*60*1000));
-      const el = document.getElementById('sideScadenzeList');
-      if(!el) return;
-      try{
-        const snap = await getDocs(collection(db,'scadenze'));
-        const items = [];
-        snap.forEach(d=>{
-          const data = d.data()||{};
-          if(data.isDeleted) return;
-          const dateKey = String(data.dateISO||d.id||'').slice(0,10);
-          if(!dateKey || dateKey < today || dateKey > in30) return;
-          items.push({
-            date: dateKey,
-            note: String(data.note||data.description||'Scadenza').slice(0,40),
-            amount: Number(data.amount||data.importo||0)
-          });
-        });
-        items.sort((a,b)=>a.date.localeCompare(b.date));
-        if(!items.length){
-          el.innerHTML='<div style="color:#9ca3af;font-size:12px;font-style:italic;">Nessuna scadenza nei prossimi 30 giorni</div>';
-          return;
-        }
-        el.innerHTML = items.slice(0,5).map(item=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(220,38,38,.12);font-size:12px;">
-            <span style="color:#991b1b;font-weight:700;">${item.date}</span>
-            <span style="color:#374151;flex:1;margin:0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.note}</span>
-            <span style="font-weight:800;color:#dc2626;">${item.amount?itMoney(item.amount):''}</span>
-          </div>`).join('');
-      }catch(e){
-        console.warn('loadScadenzeProssime',e);
-        if(el) el.innerHTML='<div style="color:#9ca3af;font-size:12px;">—</div>';
-      }
-    }
-
-    boot();
-  </script>
-  <script type="module">
-    import { exportSpese } from './services/exportService.js';
-    import { listExpenses } from './services/expenseService.js';
-    document.getElementById('btnExportSpese')?.addEventListener('click', async () => {
-      try {
-        const expenses = await listExpenses();
-        exportSpese(expenses);
-      } catch (e) { alert('Errore export: ' + e.message); }
+// ── Scadenze KPI & list ───────────────────────────────────────────────────────
+async function loadScadenze() {
+  const today = todayISO();
+  const in30 = isoKey(new Date(Date.now()+30*24*60*60*1000));
+  const el = $("scadenzeList");
+  let kpiTotal = 0;
+  try {
+    const snap = await getDocs(collection(db,"scadenze"));
+    const items = [];
+    snap.forEach(d => {
+      const data = d.data()||{};
+      if(data.isDeleted) return;
+      const dateKey = String(data.dateISO||d.id||"").slice(0,10);
+      const isPaid = data.status==="pagata"||data.isPaid;
+      if(!dateKey||isPaid) return;
+      const amount = Number(data.amount||data.importo||0);
+      if(dateKey>=today && dateKey<=in30) { kpiTotal+=amount; items.push({date:dateKey,note:String(data.note||"Scadenza").slice(0,40),amount}); }
     });
-  </script>
+    $("kpiScadenze").textContent = items.length + (items.length===1?" voce":" voci");
+    items.sort((a,b)=>a.date.localeCompare(b.date));
+    if (!el) return;
+    if (!items.length) { el.innerHTML=`<span style="color:var(--muted);font-size:13px;font-style:italic">✅ Nessuna scadenza urgente</span>`; return; }
+    el.innerHTML = items.slice(0,6).map(item=>{
+      const dLeft = Math.round((new Date(item.date+"T00:00:00")-new Date(today+"T00:00:00"))/86400000);
+      const color = dLeft===0?"var(--danger)":dLeft<=7?"var(--warning)":"var(--muted)";
+      return `<div class="linked-item"><span class="linked-label" style="color:${color}">${esc(item.note)}</span><span class="linked-date">${dLeft===0?"Oggi":dLeft+"gg"}</span><span class="linked-amount">${item.amount?eur(item.amount):""}</span></div>`;
+    }).join("");
+  } catch(e) { console.warn("loadScadenze",e); if(el) el.innerHTML="—"; }
+}
 
-  <script type="module" src="/nav.js?v=15_20260225222215"></script>
-  <script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+// ── Sync supplier invoices ────────────────────────────────────────────────────
+async function syncSupplierInvoicesToSpese() {
+  try {
+    const suppSnap = await getDocs(collection(db,"suppliers"));
+    const promises = [];
+    for(const suppDoc of suppSnap.docs){
+      const name = String(suppDoc.data().name||"Fornitore");
+      const invSnap = await getDocs(collection(db,"suppliers",suppDoc.id,"invoices"));
+      invSnap.forEach(invDoc=>{
+        const inv = invDoc.data()||{};
+        const date = inv.dateISO||inv.invoiceDate||inv.date||"";
+        if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+        const amount = Number(inv.totalWithVat||inv.total||inv.importo||inv.amount||0);
+        if(!amount) return;
+        const note = [name, inv.description||inv.invoiceNumber||""].filter(Boolean).join(" – ");
+        promises.push(setDoc(doc(db,"spese",`supplier_${suppDoc.id}_${invDoc.id}`),{
+          date,amount,note,category:"fornitori",source:"supplier_invoice",supplierId:suppDoc.id,invoiceId:invDoc.id,syncedAt:new Date().toISOString()
+        },{merge:true}).catch(()=>{}));
+      });
+    }
+    await Promise.all(promises);
+    if(promises.length) { await loadAll(); render(); }
+  } catch(e) { console.warn("syncSupplierInvoicesToSpese",e); }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  editingId = id||null;
+  clearErrors();
+  const item = id ? allDocs.find(x=>x.id===id) : null;
+  $("modalTitle").textContent = item ? "Modifica spesa" : "Nuova spesa";
+  $("mDate").value = item ? item.dateKey : todayISO();
+  $("mAmount").value = item && item.amount ? String(item.amount) : "";
+  $("mNote").value = item ? item.note : "";
+  $("mCategory").value = item ? (item.category||"altro") : "altro";
+  $("btnDelete").style.display = item ? "inline-flex" : "none";
+  $("modalOverlay").classList.remove("hidden");
+  document.documentElement.style.overflow="hidden";
+  setTimeout(()=>$("mNote").focus(),50);
+}
+function closeModal(){$("modalOverlay").classList.add("hidden");document.documentElement.style.overflow="";editingId=null;}
+function clearErrors(){
+  ["mDate","mAmount","mNote"].forEach(id=>{document.getElementById(id)?.classList.remove("error");});
+  ["errDate","errAmount","errNote"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
+}
+function showErr(inId,errId){document.getElementById(inId)?.classList.add("error");const el=document.getElementById(errId);if(el)el.style.display="block";}
+
+async function doSave() {
+  clearErrors();
+  let hasErr = false;
+  const dateVal = $("mDate").value;
+  if(!dateVal||!/^\d{4}-\d{2}-\d{2}$/.test(dateVal)){showErr("mDate","errDate");hasErr=true;}
+  const note = ($("mNote").value||"").trim();
+  if(!note){showErr("mNote","errNote");hasErr=true;}
+  const amount = toNum($("mAmount").value);
+  if($("mAmount").value.trim()&&amount<0){showErr("mAmount","errAmount");hasErr=true;}
+  if(hasErr) return;
+  const id = editingId || dateVal;
+  const btnSave = $("btnSave");
+  btnSave.disabled=true; btnSave.textContent="Salvataggio…";
+  try {
+    await setDoc(doc(db,"spese",id),{date:dateVal,amount,note,category:$("mCategory").value||"altro",updatedAt:new Date().toISOString()},{merge:true});
+    closeModal(); await loadAll(); render();
+  } catch(e) { alert("Errore: "+(e.message||e)); }
+  finally { btnSave.disabled=false; btnSave.textContent="�� Salva"; }
+}
+
+async function doDelete(id) {
+  if(!id||!confirm("Eliminare questa spesa?")) return;
+  try { await deleteDoc(doc(db,"spese",id)); await loadAll(); render(); closeModal(); }
+  catch(e) { alert("Errore: "+(e.message||e)); }
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────────
+$("backBtn")?.addEventListener("click",()=>{window.location.href="index.html";});
+$("prevBtn")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()-1);render();loadFornitoriKPI();loadScadenze();});
+$("nextBtn")?.addEventListener("click",()=>{cursor.setMonth(cursor.getMonth()+1);render();loadFornitoriKPI();loadScadenze();});
+$("btnNewExpense")?.addEventListener("click",()=>openModal(null));
+$("modalClose")?.addEventListener("click",closeModal);
+$("btnClose2")?.addEventListener("click",closeModal);
+$("modalOverlay")?.addEventListener("click",(e)=>{if(e.target===$("modalOverlay"))closeModal();});
+document.addEventListener("keydown",(e)=>{if(e.key==="Escape")closeModal();});
+$("btnSave")?.addEventListener("click",doSave);
+$("btnDelete")?.addEventListener("click",()=>{if(editingId)doDelete(editingId);});
+$("searchInput")?.addEventListener("input",(e)=>{activeSearch=e.target.value;render();});
+$("catFilter")?.addEventListener("change",(e)=>{activeCat=e.target.value;render();});
+$("sortTabs")?.querySelectorAll(".filter-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    $("sortTabs").querySelectorAll(".filter-tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active"); activeSort=tab.dataset.sort; render();
+  });
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+new Promise(resolve=>{const unsub=onAuthStateChanged(auth,u=>{unsub();resolve(u);});}).then(async()=>{
+  try { await loadAll(); render(); loadFornitoriKPI(); loadScadenze(); syncSupplierInvoicesToSpese(); }
+  catch(e) { console.error(e); $("expenseList").innerHTML=`<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Errore: ${esc(e.message||e)}</div></div>`; }
+});
+</script>
+<script type="module">
+  import { exportSpese } from './services/exportService.js';
+  import { listExpenses } from './services/expenseService.js';
+  document.getElementById('btnExportSpese')?.addEventListener('click', async () => {
+    try { const expenses = await listExpenses(); exportSpese(expenses); }
+    catch (e) { alert('Errore export: ' + e.message); }
+  });
+</script>
+<script type="module" src="/nav.js?v=15_20260225222215"></script>
+<script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
 </body>
 </html>
