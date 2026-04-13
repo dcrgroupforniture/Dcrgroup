@@ -367,3 +367,42 @@
   border-color: rgba(255,255,255,.18) !important;
 }
 :root:not(.theme-light) .supplier-form-card input::placeholder { color: #64748b; }
+
+/* Supplier form card & stats dark */
+:root:not(.theme-light) .supplier-form-card {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.10) !important;
+  color: #e2e8f0;
+}
+:root:not(.theme-light) .form-group label { color: #94a3b8 !important; }
+:root:not(.theme-light) .form-group input,
+:root:not(.theme-light) .form-group select,
+:root:not(.theme-light) .form-group textarea {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+:root:not(.theme-light) .inv-stat-card {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+:root:not(.theme-light) .inv-stat-val { color: #f1f5f9 !important; }
+:root:not(.theme-light) .inv-stat-val.green { color: #86efac !important; }
+:root:not(.theme-light) .inv-stat-val.orange { color: #fdba74 !important; }
+:root:not(.theme-light) .inv-stat-val.red { color: #fca5a5 !important; }
+:root:not(.theme-light) .inv-stat-label { color: #64748b !important; }
+:root:not(.theme-light) .sup-section-title { color: #f1f5f9 !important; }
+:root:not(.theme-light) .sup-toggle-btn {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+:root:not(.theme-light) .sup-toggle-btn:hover { background: #263348 !important; }
+:root:not(.theme-light) .inv-filter-bar select,
+:root:not(.theme-light) .inv-filter-bar input { background: #0f172a !important; color: #f1f5f9 !important; border-color: rgba(255,255,255,.18) !important; }
+:root:not(.theme-light) .readonly-field { background: #162032 !important; color: #94a3b8 !important; }
+:root:not(.theme-light) .scad-row { border-bottom-color: rgba(255,255,255,.06) !important; }
+:root:not(.theme-light) .scad-supplier { color: #f1f5f9 !important; }
+:root:not(.theme-light) .scad-amt { color: #e2e8f0 !important; }
+:root:not(.theme-light) .scad-head { background: rgba(245,158,11,.12) !important; border-color: rgba(245,158,11,.25) !important; color: #fcd34d !important; }
+

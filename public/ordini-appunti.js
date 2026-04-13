@@ -186,8 +186,8 @@ function renderNote(item) {
       <div class="oa-note-text">${esc(text)}</div>
     </div>
     <div class="oa-note-actions">
-      <button class="oa-btn oa-btn-sm oa-btn-outline btn-print" title="Stampa questa nota">🖨</button>
-      <button class="oa-btn oa-btn-sm" style="background:var(--oa-card2);color:var(--oa-text);border:1px solid var(--oa-border);" class="btn-edit" title="Modifica">✏️</button>
+      <button class="oa-btn oa-btn-sm btn-print oa-btn-outline" title="Stampa questa nota">🖨</button>
+      <button class="oa-btn oa-btn-sm btn-edit" style="background:var(--oa-card2);color:var(--oa-text);border:1px solid var(--oa-border);" title="Modifica">✏️</button>
       <button class="oa-btn oa-btn-sm oa-btn-danger btn-del" title="Elimina">🗑</button>
     </div>`;
 
@@ -200,7 +200,7 @@ function renderNote(item) {
   });
 
   // Edit
-  card.querySelector('.btn-edit, [title="Modifica"]')?.addEventListener('click', async () => {
+  card.querySelector('.btn-edit')?.addEventListener('click', async () => {
     const newText = await openEditModal(text);
     if (newText === null) return;
     try {
