@@ -4,6 +4,8 @@ import {
   getDocs,
   doc,
   addDoc,
+  setDoc,
+  deleteDoc,
   query,
   orderBy,
   serverTimestamp,
@@ -190,11 +192,11 @@ function renderMonthlyOrdersChart(){
   supplierIds.forEach(supplierId => {
     const { orders } = ordersHistory[supplierId];
     orders.forEach(o => {
-      const dateStr = o.dateISO || o.invoiceDate || null;
+      const dateStr = o.dateISO || o.invoiceDate || o.date || null;
       if(!dateStr) return;
       const monthKey = String(dateStr).slice(0, 7); // YYYY-MM
       if(!monthTotals[monthKey]) monthTotals[monthKey] = {};
-      monthTotals[monthKey][supplierId] = (monthTotals[monthKey][supplierId] || 0) + Number(o.totalWithVat || o.total || o.importo || 0);
+      monthTotals[monthKey][supplierId] = (monthTotals[monthKey][supplierId] || 0) + Number(o.totalWithVat || o.total || o.importo || o.amount || 0);
     });
   });
   const months = Object.keys(monthTotals).sort();
@@ -247,6 +249,36 @@ function eurFmt(n){
   return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(n)||0);
 }
 
+// ── Sync tutte le fatture di tutti i fornitori → spese ──────────────────
+async function syncAllInvoicesToSpese(){
+  // Usa i dati già caricati in ordersHistory
+  const entries = Object.entries(ordersHistory);
+  const promises = [];
+  for(const [supplierId, { name, orders }] of entries){
+    for(const inv of orders){
+      if(!inv.id) continue;
+      const date = inv.dateISO || inv.invoiceDate || inv.date || "";
+      if(!date) continue;
+      const amount = Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0);
+      const note = [name, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
+      const speseId = `supplier_${supplierId}_${inv.id}`;
+      promises.push(
+        setDoc(doc(db,"spese",speseId),{
+          date,
+          amount,
+          note,
+          category: inv.category || "fornitori",
+          source: "supplier_invoice",
+          supplierId,
+          invoiceId: inv.id,
+          syncedAt: new Date().toISOString()
+        },{ merge: true }).catch(e => console.warn(`Sync inv ${inv.id}:`, e))
+      );
+    }
+  }
+  await Promise.all(promises);
+}
+
 async function loadOrdersHistory(){
   const list = document.getElementById('ordersHistoryList');
   if(!list) return;
@@ -255,12 +287,21 @@ async function loadOrdersHistory(){
     ordersHistory = {};
     await Promise.all(snap.docs.map(async suppDoc => {
       const name = String(suppDoc.data().name||'Senza nome');
-      const ordersSnap = await getDocs(query(collection(db,'suppliers',suppDoc.id,'invoices'), orderBy('dateISO','desc')));
-      const orders = ordersSnap.docs.map(d=>({id:d.id,...d.data()}));
+      // Non usare orderBy('dateISO') perché le fatture da supplier.js usano il campo 'date'
+      const ordersSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+      const orders = ordersSnap.docs
+        .map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>{
+          const da = a.dateISO || a.invoiceDate || a.date || '';
+          const db_ = b.dateISO || b.invoiceDate || b.date || '';
+          return db_.localeCompare(da);
+        });
       ordersHistory[suppDoc.id] = { name, orders };
     }));
     renderOrdersHistory();
     populateSupplierSelect();
+    // Sincronizza tutte le fatture di tutti i fornitori → spese (idempotente, in background)
+    syncAllInvoicesToSpese().catch(e => console.warn("Sync globale fatture→spese:", e));
   }catch(e){
     console.warn('loadOrdersHistory',e);
     if(list) list.innerHTML='<div style="color:#dc2626;padding:8px">Errore caricamento storico ordini.</div>';
@@ -279,8 +320,8 @@ function renderOrdersHistory(){
   list.innerHTML = entries.map(([supplierId,{name,orders}])=>{
     const total = orders.reduce((s,o)=>s+Number(o.totalWithVat||o.total||o.importo||0),0);
     const rows = orders.slice(0,5).map(o=>{
-      const date = o.dateISO||o.invoiceDate||'—';
-      const amount = Number(o.totalWithVat||o.total||o.importo||0);
+      const date = o.dateISO||o.invoiceDate||o.date||'—';
+      const amount = Number(o.totalWithVat||o.total||o.importo||o.amount||0);
       const desc = String(o.description||o.desc||o.note||'—').slice(0,40);
       const photoBtn = o.photoUrl ? `<a href="${o.photoUrl}" target="_blank" style="font-size:11px;color:#1f4fd8;text-decoration:none;font-weight:700;">📷 Foto</a>` : '';
       return `<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;">

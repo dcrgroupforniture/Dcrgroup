@@ -26,6 +26,47 @@
       --col-spesa:#ea580c;
       --col-promemoria:#7c3aed;
     }
+    /* ── Dark mode variable overrides (agenda) ── */
+    :root:not(.theme-light){
+      --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+      --line:rgba(255,255,255,.10); --text-dark:#e2e8f0;
+    }
+    :root:not(.theme-light) body { background:var(--bg); color:var(--text); }
+    :root:not(.theme-light) .top-bar { background:#1e293b; border-bottom-color:rgba(255,255,255,.08); }
+    :root:not(.theme-light) .page-title { color:#e2e8f0; }
+    :root:not(.theme-light) .kpi-card { background:var(--card); border-color:var(--line); }
+    :root:not(.theme-light) .kpi-label { color:var(--muted); }
+    :root:not(.theme-light) .kpi-value { color:var(--text); }
+    :root:not(.theme-light) .filter-btn[data-type="promemoria"]{ background:rgba(124,58,237,.2); }
+    :root:not(.theme-light) .filter-btn[data-type="ordine"]{ background:rgba(31,79,216,.2); }
+    :root:not(.theme-light) .filter-btn[data-type="incasso"]{ background:rgba(22,163,74,.2); }
+    :root:not(.theme-light) .filter-btn[data-type="scadenza"]{ background:rgba(220,38,38,.2); }
+    :root:not(.theme-light) .filter-btn[data-type="spesa"]{ background:rgba(234,88,12,.2); }
+    :root:not(.theme-light) .sidebar-item-title{ color:#e2e8f0; }
+    :root:not(.theme-light) .hist-search,.modal { background:var(--card); color:var(--text); border-color:var(--line); }
+    :root:not(.theme-light) .hist-tbl th { background:#1e293b; color:#94a3b8; border-color:var(--line); }
+    :root:not(.theme-light) .hist-tbl td { border-color:var(--line); color:var(--text); }
+    :root:not(.theme-light) .hist-tbl tr:hover td { background:rgba(255,255,255,.04); }
+    :root:not(.theme-light) .modal-head { background:#1e293b; border-bottom-color:var(--line); }
+    :root:not(.theme-light) .modal-title,.modal-close { color:#e2e8f0; }
+    :root:not(.theme-light) .modal-actions { background:#1e293b; border-top-color:var(--line); }
+    :root:not(.theme-light) .modal-body input,
+    :root:not(.theme-light) .modal-body textarea,
+    :root:not(.theme-light) .modal-body select { background:#0f172a; color:#e2e8f0; border-color:var(--line); }
+    :root:not(.theme-light) .modal-detail { background:rgba(255,255,255,.06); color:#94a3b8; }
+    :root:not(.theme-light) #calendar { background:#1e293b; }
+    :root:not(.theme-light) .fc .fc-toolbar.fc-header-toolbar { background:#1e293b; border-bottom-color:rgba(255,255,255,.10); }
+    :root:not(.theme-light) .fc .fc-toolbar-title { color:#e2e8f0 !important; }
+    :root:not(.theme-light) .fc .fc-button-primary { background:#2d3f55 !important; color:#e2e8f0 !important; border-color:rgba(255,255,255,.15) !important; }
+    :root:not(.theme-light) .fc .fc-button-primary:not(:disabled).fc-button-active { background:#1f4fd8 !important; }
+    :root:not(.theme-light) .fc .fc-col-header-cell { background:#1a2d42; }
+    :root:not(.theme-light) .fc .fc-col-header-cell-cushion { color:#94a3b8 !important; }
+    :root:not(.theme-light) .fc .fc-daygrid-day { background:#1e293b; }
+    :root:not(.theme-light) .fc .fc-day-today { background:#1e3a5f !important; }
+    :root:not(.theme-light) .fc .fc-daygrid-day-number { color:#94a3b8; }
+    :root:not(.theme-light) .fc .fc-day-today .fc-daygrid-day-number { background:#1f4fd8 !important; color:#fff !important; }
+    :root:not(.theme-light) .fc td,.fc th { border-color:rgba(255,255,255,.08) !important; }
+    :root:not(.theme-light) .fc .fc-scrollgrid { border-color:rgba(255,255,255,.08) !important; }
     *{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
     body{margin:0;background:var(--bg);color:var(--text)}
 
@@ -425,10 +466,35 @@
       .card{padding:10px}
       .hist-tbl{font-size:11px}
       .hist-tbl th,.hist-tbl td{padding:6px 8px}
+      /* Calendario non deborda dai margini */
+      .calendar-col,.cal-card,#calendar{max-width:100%;overflow:hidden}
+      .fc .fc-view-harness{max-width:100%;overflow-x:hidden}
+      .fc .fc-col-header-cell-cushion{padding:3px 2px !important;font-size:10px !important;letter-spacing:0}
+    }
+    /* iPhone piccolo (SE, 375px) */
+    @media (max-width:390px){
+      .fc .fc-toolbar-title{font-size:12px !important}
+      .fc .fc-button-primary{padding:4px 6px !important;font-size:10px !important}
+      .fc .fc-daygrid-day{min-height:38px !important}
+      .fc .fc-daygrid-day-number{font-size:10px !important;width:18px;height:18px;margin:2px 2px 0}
+      .fc .fc-event-main{padding:1px 3px !important}
+      .kpi-card{min-width:calc(50% - 4px);flex:0 0 calc(50% - 4px);padding:8px 10px}
+      .kpi-value{font-size:14px}
+      .page-content{padding:6px 6px 12px}
     }
     @media (max-width:560px){
       .top-bar{height:calc(58px + env(safe-area-inset-top))}
     }
+
+    /* ─── Storico eventi collapsibile ─── */
+    .hist-section-body{ overflow: hidden; transition: max-height .3s ease; }
+    .hist-section-body.collapsed{ display: none; }
+    .hist-toggle-btn{
+      background: transparent; border: 1px solid var(--line); border-radius: 8px;
+      padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+      color: var(--muted); transition: all .15s;
+    }
+    .hist-toggle-btn:hover{ background: var(--line); }
 
     /* ─── Print ─── */
     @media print{
@@ -539,9 +605,12 @@
 
     <!-- Historical section (spans full width) -->
     <section class="card hist-section">
-      <div class="hist-head">
+      <div class="hist-head" id="histToggleHead" style="cursor:pointer;user-select:none">
         <span class="hist-head-title">📋 Storico eventi</span>
-        <div class="hist-controls">
+        <button class="hist-toggle-btn" id="histToggleBtn" type="button">▼ Mostra</button>
+      </div>
+      <div class="hist-section-body collapsed" id="histSectionBody">
+        <div class="hist-controls" style="padding-bottom:10px">
           <input id="histSearch" class="hist-search" type="text" placeholder="Cerca…" autocomplete="off">
           <select id="histTypeFilter" class="hist-filter-type">
             <option value="">Tutti i tipi</option>
@@ -554,19 +623,19 @@
           <button class="btn btn-secondary btn-sm" id="btnExport" type="button">⬇ CSV</button>
           <button class="btn btn-secondary btn-sm" id="btnPrint" type="button">🖨 Stampa</button>
         </div>
-      </div>
-      <div style="overflow:auto">
-        <table class="hist-tbl">
-          <thead>
-            <tr>
-              <th class="sortable" data-col="date">Data ↕</th>
-              <th class="sortable" data-col="type">Tipo ↕</th>
-              <th class="sortable" data-col="title">Titolo ↕</th>
-              <th class="sortable" data-col="amount" style="text-align:right">Importo ↕</th>
-            </tr>
-          </thead>
-          <tbody id="histBody"><tr><td colspan="4" class="hist-empty">Caricamento…</td></tr></tbody>
-        </table>
+        <div style="overflow:auto">
+          <table class="hist-tbl">
+            <thead>
+              <tr>
+                <th class="sortable" data-col="date">Data ↕</th>
+                <th class="sortable" data-col="type">Tipo ↕</th>
+                <th class="sortable" data-col="title">Titolo ↕</th>
+                <th class="sortable" data-col="amount" style="text-align:right">Importo ↕</th>
+              </tr>
+            </thead>
+            <tbody id="histBody"><tr><td colspan="4" class="hist-empty">Caricamento…</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1287,6 +1356,24 @@
 
     // ─── Print ───
     document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+
+    // ─── Storico eventi toggle ───
+    (function(){
+      const head = document.getElementById('histToggleHead');
+      const body = document.getElementById('histSectionBody');
+      const btn  = document.getElementById('histToggleBtn');
+      if(!head || !body || !btn) return;
+      function toggleHist(){
+        const collapsed = body.classList.toggle('collapsed');
+        btn.textContent = collapsed ? '▼ Mostra' : '▲ Nascondi';
+      }
+      head.addEventListener('click', (e) => {
+        // Don't trigger toggle when clicking inner buttons (export, print)
+        if(e.target.tagName === 'BUTTON' && e.target !== btn) return;
+        if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        toggleHist();
+      });
+    })();
 
     // ─── Init ───
     loadClientMaps().finally(()=>{
