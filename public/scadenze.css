@@ -14,6 +14,7 @@
 .scad-empty{padding:14px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
 
 /* Modal (riuso stile incassi modal) */
+.scad-modal-grid{display:grid;grid-template-columns: 1fr; gap:10px}
 .scad-field-error{display:none;color:#ef4444;font-size:11px;font-weight:700;margin-top:4px}
 .scad-field input.field-error,.scad-field textarea.field-error{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.12)!important}
 .scad-field input.field-ok{border-color:#16a34a!important}
