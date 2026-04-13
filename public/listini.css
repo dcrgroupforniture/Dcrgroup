@@ -304,9 +304,9 @@ body.listini-page{
   color: #e2e8f0;
 }
 :root:not(.theme-light) .search-result:hover { background: #1e3a5f; }
-:root:not(.theme-light) .search-result-name { color: #f1f5f9; }
-:root:not(.theme-light) .search-result-meta { color: #94a3b8; }
-:root:not(.theme-light) .search-result-price { color: #93c5fd; }
+:root:not(.theme-light) .search-product { color: #f1f5f9; }
+:root:not(.theme-light) .search-meta { color: #94a3b8; }
+:root:not(.theme-light) .search-price { color: #93c5fd; }
 :root:not(.theme-light) .clients-modal { background: rgba(0,0,0,.65); }
 :root:not(.theme-light) .clients-modal-card {
   background: #1e293b;
@@ -358,9 +358,8 @@ body.listini-page{
 }
 :root:not(.theme-light) .price-card { background: #1e293b; border-color: rgba(255,255,255,.10); color: #e2e8f0; }
 :root:not(.theme-light) .price-card:hover { background: #1e3a5f; }
-:root:not(.theme-light) .price-name { color: #f1f5f9; }
-:root:not(.theme-light) .price-meta { color: #94a3b8; }
-:root:not(.theme-light) .price-value { color: #93c5fd; }
+:root:not(.theme-light) .price-card-title { color: #f1f5f9; }
+:root:not(.theme-light) .price-card-sub { color: #94a3b8; }
 :root:not(.theme-light) .list-card { background: #1e293b; border-color: rgba(255,255,255,.10); color: #e2e8f0; }
 :root:not(.theme-light) .list-card-brand { color: #94a3b8; }
 :root:not(.theme-light) .list-card-count { color: #6ee7b7; }
