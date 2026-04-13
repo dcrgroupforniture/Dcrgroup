@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backup & Ripristino – DCR Group</title>
+  <link rel="stylesheet" href="styles.css?v=15_20260225222215" />
+  <link rel="stylesheet" href="mobile.css?v=15_20260225222215" />
+  <script type="module" src="/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8;
+      --brand: #3b82f6; --brand2: #2563eb; --border: rgba(255,255,255,.10);
+      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+      --radius: 16px;
+    }
+    :root.theme-light {
+      --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+      --border: rgba(0,0,0,.10);
+    }
+    * { box-sizing: border-box; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .bk-topbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: calc(60px + env(safe-area-inset-top));
+      padding-top: env(safe-area-inset-top);
+      background: var(--card); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      padding-left: 16px; padding-right: 16px; z-index: 100;
+    }
+    .bk-topbar .back-btn {
+      background: var(--brand); color: #fff; border: none;
+      border-radius: 12px; padding: 10px 14px; font-size: 18px; cursor: pointer;
+    }
+    .bk-topbar .page-title { font-weight: 900; font-size: 17px; color: var(--text); }
+
+    .bk-main {
+      max-width: 680px; margin: 0 auto;
+      padding: calc(80px + env(safe-area-inset-top)) 16px 40px;
+    }
+
+    .bk-hero {
+      text-align: center; padding: 28px 20px 20px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+      border-radius: var(--radius); margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.30);
+    }
+    .bk-hero-icon { font-size: 48px; margin-bottom: 10px; }
+    .bk-hero-title { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+    .bk-hero-sub { font-size: 13px; color: rgba(255,255,255,.70); line-height: 1.5; }
+
+    .bk-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.12);
+    }
+    .bk-card-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .bk-card-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .bk-card-icon.blue { background: rgba(59,130,246,.18); }
+    .bk-card-icon.green { background: rgba(16,185,129,.18); }
+    .bk-card-icon.orange { background: rgba(245,158,11,.18); }
+    .bk-card-title { font-weight: 900; font-size: 16px; }
+    .bk-card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .bk-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px 18px; border-radius: 14px;
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      border: none; transition: all .15s; margin-bottom: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bk-btn:last-child { margin-bottom: 0; }
+    .bk-btn.primary { background: var(--brand); color: #fff; }
+    .bk-btn.primary:hover { background: var(--brand2); }
+    .bk-btn.success { background: var(--success); color: #fff; }
+    .bk-btn.success:hover { background: #059669; }
+    .bk-btn.danger { background: var(--danger); color: #fff; }
+    .bk-btn.danger:hover { background: #dc2626; }
+    .bk-btn.ghost { background: var(--border); color: var(--text); border: 1px solid var(--border); }
+    .bk-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .bk-collections {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;
+    }
+    .bk-col-tag {
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 12px; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; color: var(--text);
+    }
+    .bk-col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    .bk-status {
+      background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25);
+      border-radius: 10px; padding: 12px 14px; font-size: 13px; font-weight: 700;
+      color: #34d399; margin-top: 12px; display: none; white-space: pre-line;
+    }
+    .bk-status.error { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25); color: #fca5a5; }
+    .bk-status.warn { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.25); color: #fcd34d; }
+    .bk-status.show { display: block; }
+
+    .bk-progress {
+      margin-top: 14px; display: none;
+    }
+    .bk-progress.show { display: block; }
+    .bk-progress-bar-wrap {
+      background: rgba(255,255,255,.08); border-radius: 999px; height: 8px; overflow: hidden;
+    }
+    .bk-progress-bar {
+      height: 100%; background: var(--brand); border-radius: 999px;
+      transition: width .3s; width: 0%;
+    }
+    .bk-progress-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .bk-warning {
+      background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.25);
+      border-radius: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.6;
+      color: #fcd34d; margin-bottom: 14px;
+    }
+    .bk-warning strong { color: #fbbf24; }
+  </style>
+</head>
+<body>
+
+<header class="bk-topbar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div>
+    <div class="page-title">💾 Backup &amp; Ripristino</div>
+  </div>
+</header>
+
+<main class="bk-main">
+
+  <div class="bk-hero">
+    <div class="bk-hero-icon">🗄️</div>
+    <div class="bk-hero-title">Gestione Backup</div>
+    <div class="bk-hero-sub">
+      Esporta tutti i dati del gestionale in formato JSON.<br>
+      Ripristina da un file di backup precedente.
+    </div>
+  </div>
+
+  <!-- Collezioni incluse nel backup -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-icon blue">📋</div>
+      <div>
+        <div class="bk-card-title">Dati inclusi nel backup</div>
+        <div class="bk-card-sub">Tutte le collezioni del gestionale</div>
+      </div>
+    </div>
+    <div class="bk-collections">
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#3b82f6"></div>Clienti</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#10b981"></div>Ordini</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#f59e0b"></div>Incassi</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#ef4444"></div>Scadenze</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#8b5cf6"></div>Spese</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#ec4899"></div>Fornitori</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#06b6d4"></div>Fatture Fornitori</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#14b8a6"></div>Preventivi</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#f97316"></div>Agenda</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#84cc16"></div>Listini</div>
+    </div>
+  </div>
+
+  <!-- Esporta -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-icon blue">⬇️</div>
+      <div>
+        <div class="bk-card-title">Esporta backup completo</div>
+        <div class="bk-card-sub">Scarica tutti i dati in un file JSON</div>
+      </div>
+    </div>
+    <button class="bk-btn primary" id="btnExport">⬇️ Esporta backup JSON</button>
+    <div class="bk-progress" id="exportProgress">
+      <div class="bk-progress-bar-wrap"><div class="bk-progress-bar" id="exportBar"></div></div>
+      <div class="bk-progress-label" id="exportLabel">Esportazione in corso…</div>
+    </div>
+    <div class="bk-status" id="exportStatus"></div>
+  </div>
+
+  <!-- Ripristina -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-icon orange">⬆️</div>
+      <div>
+        <div class="bk-card-title">Ripristina da backup</div>
+        <div class="bk-card-sub">Carica un file JSON precedentemente esportato</div>
+      </div>
+    </div>
+    <div class="bk-warning">
+      <strong>⚠️ Attenzione:</strong> Il ripristino sovrascrive i dati attuali con quelli presenti nel file di backup.
+      Questa operazione non è reversibile. Assicurati di avere un backup aggiornato prima di procedere.
+    </div>
+    <button class="bk-btn danger" id="btnRestore">⬆️ Ripristina da file JSON</button>
+    <div class="bk-progress" id="restoreProgress">
+      <div class="bk-progress-bar-wrap"><div class="bk-progress-bar" id="restoreBar"></div></div>
+      <div class="bk-progress-label" id="restoreLabel">Ripristino in corso…</div>
+    </div>
+    <div class="bk-status" id="restoreStatus"></div>
+  </div>
+
+</main>
+
+<script type="module" src="/nav.js?v=15_20260225222215"></script>
+<script src="scripts/dashboard-menu.js?v=15_20260225222215"></script>
+
+<script type="module">
+import { db } from './firebase.js';
+import {
+  collection, getDocs, doc, setDoc, deleteDoc, writeBatch,
+  getDoc, collectionGroup
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// Collections to back up (top-level only; supplier invoices handled separately)
+const TOP_COLLECTIONS = [
+  'clients', 'orders', 'incassi', 'scadenze', 'expenses',
+  'suppliers', 'priceRequests', 'agendaEvents', 'listini',
+  'payments', 'auditLog'
+];
+
+function showStatus(elId, msg, type = 'ok') {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'bk-status show' + (type === 'error' ? ' error' : type === 'warn' ? ' warn' : '');
+}
+
+function setProgress(barId, labelId, pct, label) {
+  const bar = document.getElementById(barId);
+  const lbl = document.getElementById(labelId);
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = label;
+}
+
+// ─── EXPORT ────────────────────────────────────────────────────────────────
+document.getElementById('btnExport').addEventListener('click', async () => {
+  const btn = document.getElementById('btnExport');
+  btn.disabled = true;
+  const progress = document.getElementById('exportProgress');
+  progress.classList.add('show');
+  document.getElementById('exportStatus').classList.remove('show');
+
+  const backup = { version: 'backup_v2', exportedAt: new Date().toISOString(), collections: {} };
+  const total = TOP_COLLECTIONS.length + 1; // +1 for supplier invoices
+  let done = 0;
+
+  try {
+    for (const colName of TOP_COLLECTIONS) {
+      setProgress('exportBar', 'exportLabel', Math.round((done / total) * 100), `Esportazione ${colName}…`);
+      try {
+        const snap = await getDocs(collection(db, colName));
+        backup.collections[colName] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch (e) {
+        backup.collections[colName] = [];
+        console.warn(`Backup ${colName} fallito:`, e);
+      }
+      done++;
+    }
+
+    // Supplier invoices (subcollection)
+    setProgress('exportBar', 'exportLabel', Math.round((done / total) * 100), 'Esportazione fatture fornitori…');
+    try {
+      const supplierSnap = await getDocs(collection(db, 'suppliers'));
+      const invoicesAll = [];
+      for (const suppDoc of supplierSnap.docs) {
+        const invSnap = await getDocs(collection(db, 'suppliers', suppDoc.id, 'invoices'));
+        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: suppDoc.id, ...d.data() }));
+      }
+      backup.collections['supplierInvoices'] = invoicesAll;
+    } catch (e) {
+      backup.collections['supplierInvoices'] = [];
+      console.warn('Backup fatture fornitori fallito:', e);
+    }
+    done++;
+
+    setProgress('exportBar', 'exportLabel', 100, 'Completato!');
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `dcrgroup-backup-${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    const totalDocs = Object.values(backup.collections).reduce((s, arr) => s + arr.length, 0);
+    showStatus('exportStatus', `✅ Backup completato con successo!\n${totalDocs} documenti esportati in ${Object.keys(backup.collections).length} collezioni.\nFile: dcrgroup-backup-${dateStr}.json`);
+  } catch (err) {
+    showStatus('exportStatus', '❌ Errore durante l\'esportazione: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ─── RESTORE ───────────────────────────────────────────────────────────────
+document.getElementById('btnRestore').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const ok = confirm(
+      '⚠️ ATTENZIONE\n\nIl ripristino sovrascrive TUTTI i dati attuali con quelli del file di backup.\n\nQuesta operazione NON è reversibile.\n\nVuoi continuare?'
+    );
+    if (!ok) return;
+
+    const btn = document.getElementById('btnRestore');
+    btn.disabled = true;
+    const progress = document.getElementById('restoreProgress');
+    progress.classList.add('show');
+    document.getElementById('restoreStatus').classList.remove('show');
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      const collections = data.collections;
+      if (!collections || typeof collections !== 'object') {
+        showStatus('restoreStatus', '❌ Formato backup non valido: manca il campo "collections".', 'error');
+        return;
+      }
+
+      // Normalize collection name aliases
+      const nameMap = {
+        'ordini': 'orders', 'clienti': 'clients',
+        'spese': 'expenses', 'fornitori': 'suppliers',
+        'fatturefornitori': 'supplierInvoices',
+        'fatture_fornitori': 'supplierInvoices',
+        'preventivi': 'priceRequests',
+        'agenda': 'agendaEvents',
+      };
+
+      function normalize(k) {
+        const lower = k.toLowerCase().replace(/[_-]/g, '');
+        return nameMap[lower] || nameMap[k] || k;
+      }
+
+      function deepClean(obj) {
+        if (obj === null || obj === undefined) return null;
+        if (typeof obj === 'number' && !isFinite(obj)) return 0;
+        if (Array.isArray(obj)) return obj.map(deepClean).filter(v => v !== undefined);
+        if (typeof obj === 'object') {
+          const out = {};
+          for (const [k, v] of Object.entries(obj)) {
+            if (k === 'id') continue;
+            const c = deepClean(v);
+            if (c !== undefined) out[k] = c;
+          }
+          return out;
+        }
+        return obj;
+      }
+
+      const colEntries = Object.entries(collections);
+      const total = colEntries.length;
+      let done = 0;
+      let totalWritten = 0;
+
+      for (const [rawKey, docs] of colEntries) {
+        const colName = normalize(rawKey);
+        setProgress('restoreBar', 'restoreLabel',
+          Math.round((done / total) * 100),
+          `Ripristino ${colName}… (${Array.isArray(docs) ? docs.length : 0} doc)`
+        );
+
+        if (!Array.isArray(docs) || docs.length === 0) { done++; continue; }
+
+        if (colName === 'supplierInvoices') {
+          // Write to subcollection suppliers/{id}/invoices
+          for (const inv of docs) {
+            const { supplierId, id, ...invData } = inv;
+            if (!supplierId || !id) continue;
+            const cleaned = deepClean(invData);
+            await setDoc(doc(db, 'suppliers', supplierId, 'invoices', id), cleaned, { merge: true });
+            totalWritten++;
+          }
+        } else {
+          // Batch write top-level collection
+          const BATCH_SIZE = 450;
+          for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+            const batch = writeBatch(db);
+            const chunk = docs.slice(i, i + BATCH_SIZE);
+            for (const item of chunk) {
+              const { id, ...data } = item;
+              if (!id) continue;
+              const cleaned = deepClean(data);
+              batch.set(doc(collection(db, colName), id), cleaned, { merge: true });
+              totalWritten++;
+            }
+            await batch.commit();
+          }
+        }
+        done++;
+      }
+
+      setProgress('restoreBar', 'restoreLabel', 100, 'Completato!');
+      showStatus('restoreStatus', `✅ Ripristino completato!\n${totalWritten} documenti ripristinati in ${total} collezioni.`);
+    } catch (err) {
+      console.error('Restore error:', err);
+      showStatus('restoreStatus', '❌ Errore durante il ripristino: ' + (err.message || err), 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  input.click();
+});
+</script>
+</body>
+</html>

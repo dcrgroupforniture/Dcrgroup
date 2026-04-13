@@ -233,3 +233,49 @@ html, body{max-width:100%; overflow-x:hidden;}
   #clientProductsTable td:nth-child(4)::before{content:"Ordini";font-weight:800;color:#64748b;}
   #clientProductsTable td:nth-child(5)::before{content:"Ultimo prezzo";font-weight:800;color:#64748b;}
 }
+
+/* ── Dark mode – client.html ── */
+:root:not(.theme-light) .client-main,
+:root:not(.theme-light) .client-side {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.10) !important;
+  color: #e2e8f0;
+}
+:root:not(.theme-light) .panel {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+:root:not(.theme-light) .panel-title { color: #a5b4fc; }
+:root:not(.theme-light) .field label { color: #cbd5e1; }
+:root:not(.theme-light) .field input,
+:root:not(.theme-light) .field select,
+:root:not(.theme-light) .field textarea {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,.20) !important;
+}
+:root:not(.theme-light) .orderItem {
+  background: #162032 !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+:root:not(.theme-light) .orderTitle { color: #f1f5f9 !important; }
+:root:not(.theme-light) .orderSub,
+:root:not(.theme-light) .orderDetail { color: #94a3b8 !important; }
+:root:not(.theme-light) .tile-blue { background: rgba(37,99,235,.20) !important; border-color: rgba(37,99,235,.40) !important; }
+:root:not(.theme-light) .tile-green { background: rgba(16,185,129,.18) !important; border-color: rgba(16,185,129,.35) !important; }
+:root:not(.theme-light) .tile-red { background: rgba(239,68,68,.18) !important; border-color: rgba(239,68,68,.35) !important; }
+:root:not(.theme-light) .tile-title { color: #f1f5f9 !important; }
+:root:not(.theme-light) .tile-sub { color: #94a3b8 !important; }
+:root:not(.theme-light) .client-title { color: #f1f5f9 !important; }
+:root:not(.theme-light) .client-sub { color: #94a3b8 !important; }
+:root:not(.theme-light) #clientProductsTable th {
+  background: #162032 !important;
+  color: #94a3b8 !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+:root:not(.theme-light) #clientProductsTable td {
+  color: #e2e8f0 !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+:root:not(.theme-light) #clientProductsTable tr { background: #1e293b !important; }
+:root:not(.theme-light) #clientProductsTable tr:hover td { background: rgba(59,130,246,.08) !important; }

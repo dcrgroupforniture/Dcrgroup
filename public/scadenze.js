@@ -49,18 +49,18 @@ function esc(s) {
 async function syncScadenzaToSpese(dateKey, amount, note) {
   if (!dateKey) return;
   try {
-    await setDoc(doc(db, 'spese', `scad_${dateKey}`), {
+    await setDoc(doc(db, 'expenses', `scad_${dateKey}`), {
       date: dateKey, amount: amount || 0,
       note: note || '', category: 'scadenze',
       source: 'scadenza', syncedAt: new Date().toISOString()
     }, { merge: true });
-  } catch (e) { console.warn('Sync scadenza→spese:', e); }
+  } catch (e) { console.warn('Sync scadenza→expenses:', e); }
 }
 
 async function removeScadenzaFromSpese(dateKey) {
   if (!dateKey) return;
-  try { await deleteDoc(doc(db, 'spese', `scad_${dateKey}`)); }
-  catch (e) { console.warn('Rimozione scadenza da spese:', e); }
+  try { await deleteDoc(doc(db, 'expenses', `scad_${dateKey}`)); }
+  catch (e) { console.warn('Rimozione scadenza da expenses:', e); }
 }
 
 // ── State ─────────────────────────────────────────────────────
@@ -89,6 +89,7 @@ const mDate        = document.getElementById('mDate');
 const mAmount      = document.getElementById('mAmount');
 const mNote        = document.getElementById('mNote');
 const mCategory    = document.getElementById('mCategory');
+const mPagato      = document.getElementById('mPagato');
 const mDateErr     = document.getElementById('mDateErr');
 const mAmountErr   = document.getElementById('mAmountErr');
 
@@ -261,8 +262,33 @@ function renderChart() {
   const isDark = !document.documentElement.classList.contains('theme-light');
   const textColor  = isDark ? '#94a3b8' : '#64748b';
   const gridColor  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
+  const labelColor = isDark ? '#60a5fa' : '#1d4ed8';
 
   if (chartInstance) chartInstance.destroy();
+
+  // Plugin: draw exact values above each bar
+  const topLabelsPlugin = {
+    id: 'topLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx, scales } = chart;
+      const yScale = scales.y;
+      if (!yScale) return;
+      chart.data.datasets.forEach((dataset, i) => {
+        const meta = chart.getDatasetMeta(i);
+        meta.data.forEach((bar, index) => {
+          const val = dataset.data[index];
+          if (!val) return;
+          ctx.save();
+          ctx.font = 'bold 10px "Segoe UI",system-ui,sans-serif';
+          ctx.fillStyle = labelColor;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(fmt(val), bar.x, bar.y - 3);
+          ctx.restore();
+        });
+      });
+    }
+  };
 
   chartInstance = new Chart(canvas, {
     type: 'bar',
@@ -280,6 +306,7 @@ function renderChart() {
     options: {
       responsive: true,
       maintainAspectRatio: true,
+      layout: { padding: { top: 28 } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -302,7 +329,8 @@ function renderChart() {
           grid: { color: gridColor }
         }
       }
-    }
+    },
+    plugins: [topLabelsPlugin]
   });
 }
 
@@ -326,12 +354,14 @@ async function openModal(id = null) {
     mAmount.value = item ? (item.amount || '') : '';
     mNote.value   = item ? item.note : '';
     mCategory.value = '';
+    if (mPagato) mPagato.checked = false;
 
     try {
       const snap = await getDoc(doc(db, 'scadenze', id));
       if (snap.exists()) {
         const raw = snap.data();
         mCategory.value = raw.category || '';
+        if (mPagato) mPagato.checked = !!(raw.pagata || raw.paid || raw.pagato);
       }
     } catch (e) { console.warn('getDoc for edit:', e); }
 
@@ -344,6 +374,7 @@ async function openModal(id = null) {
     mAmount.value = '';
     mNote.value   = '';
     mCategory.value = '';
+    if (mPagato) mPagato.checked = false;
     mDate.readOnly = false;
     mDate.style.opacity = '';
   }
@@ -367,6 +398,7 @@ async function handleSave() {
   const amountVal = parseFloat(mAmount.value);
   const noteVal   = mNote.value.trim();
   const catVal    = mCategory.value;
+  const pagatoVal = mPagato ? mPagato.checked : false;
 
   if (!dateVal || !/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
     mDate.classList.add('input-error');
@@ -390,6 +422,7 @@ async function handleSave() {
       amount:   amountVal,
       note:     noteVal,
       category: catVal,
+      pagata:   pagatoVal,
       updatedAt: serverTimestamp()
     };
     await upsertDeadline(targetId, payload);
