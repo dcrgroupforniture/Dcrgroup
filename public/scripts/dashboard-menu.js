@@ -23,7 +23,7 @@
   function build(){
     let sel = document.getElementById("quickNav");
     if (!sel) {
-      const html = `<select id="quickNav" class="quick-nav" style="display:none"><option value="">Vai a…</option><option value="index.html">HOME</option><option value="clients.html">CLIENTI</option><option value="suppliers.html">FORNITORI</option><option value="scadenze.html">SCADENZE</option><option value="incassi.html">INCASSI</option><option value="spese.html">SPESE</option><option value="listini.html">LISTINI</option><option value="statistiche.html">STATISTICHE</option><option value="search.html">CERCA</option><option value="agenda.html">AGENDA</option><option value="ordini-clienti.html">ORDINI CLIENTI</option><option value="admin-portale.html">ADMIN PORTALE</option></select>`;
+      const html = `<select id="quickNav" class="quick-nav" style="display:none"><option value="">Vai a…</option><option value="index.html">HOME</option><option value="clients.html">CLIENTI</option><option value="suppliers.html">FORNITORI</option><option value="scadenze.html">SCADENZE</option><option value="incassi.html">INCASSI</option><option value="spese.html">SPESE</option><option value="listini.html">LISTINI</option><option value="statistiche.html">STATISTICHE</option><option value="search.html">CERCA</option><option value="agenda.html">AGENDA</option><option value="ordini-clienti.html">ORDINI CLIENTI</option><option value="admin-portale.html">ADMIN PORTALE</option><option value="audit-log.html">AUDIT LOG</option></select>`;
       const host = document.querySelector('.top-bar,.topbar,.top-actions,.topbar-actions,header') || document.body;
       host.insertAdjacentHTML('beforeend', html);
       sel = document.getElementById("quickNav");

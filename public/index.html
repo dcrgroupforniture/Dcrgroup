@@ -9,6 +9,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DCR GROUP</title>
+  <link rel="manifest" href="/manifest.json">
 
   <style>
     :root{
@@ -412,11 +413,26 @@
           <div class="hint">→</div>
         </div>
       </a>
+
+      <a class="card" href="audit-log.html" style="background:rgba(100,116,139,.08);border-color:rgba(100,116,139,.25);">
+        <div class="card-inner">
+          <div class="icon" style="font-size:26px">🕵️</div>
+          <div class="label" style="color:#475569">Audit Log</div>
+          <div class="hint">→</div>
+        </div>
+      </a>
 </div>
   </main>
   <!-- Navigazione: link diretti (compatibile iOS/Safari) -->
   <!-- Sidebar (fallback select) + bottone AI flottante -->
   <script type="module" src="/nav.js?v=15_20260225222215"></script>
   <script type="module" src="home.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
