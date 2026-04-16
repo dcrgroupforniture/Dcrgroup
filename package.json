@@ -6,6 +6,7 @@
     "firebase-admin": "^13.6.0"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "deploy:blindato": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-blindato.ps1"
   }
 }
