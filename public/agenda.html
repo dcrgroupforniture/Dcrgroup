@@ -1482,7 +1482,7 @@
         }
       });
       calendar.render();
-      // Two frames prevent premature resize when FullCalendar has just mounted toolbar + grid on mobile.
+      // Using two frames avoids a premature resize when FullCalendar has just mounted toolbar + grid on mobile.
       requestAnimationFrame(() => requestAnimationFrame(() => calendar?.updateSize()));
     }
 
@@ -1686,9 +1686,10 @@
       startRealtime();
     });
 
+    let agendaResizeTimer = null;
     window.addEventListener('resize', () => {
-      clearTimeout(window.__agendaResizeTimer);
-      window.__agendaResizeTimer = setTimeout(updateCalendarMobileLayout, 120);
+      clearTimeout(agendaResizeTimer);
+      agendaResizeTimer = setTimeout(updateCalendarMobileLayout, 120);
     });
   </script>
   <script type="module" src="/nav.js?v=20260420"></script>
