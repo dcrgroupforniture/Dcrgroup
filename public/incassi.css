@@ -542,3 +542,41 @@ textarea{min-height:120px;resize:none}
 :root:not(.theme-light) .incassi-popup .popup-title{
   color:#f8fafc !important;
 }
+
+/* Popup final fixes: bounded margins, readable contrast, no background scroll */
+body.incassi-modal-open{overflow:hidden;}
+.incassi-popup{
+  padding:clamp(12px, 2.5vw, 24px);
+  align-items:center;
+  justify-content:center;
+}
+.incassi-popup .popup-box{
+  width:min(640px, 100%);
+  max-height:min(88dvh, 780px);
+  border-radius:18px;
+  overflow:hidden;
+}
+.incassi-popup .popup-body{
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.incassi-popup .popup-actions{
+  position:static;
+}
+.incassi-popup .popup-close{
+  background:rgba(15,23,42,.08);
+  border-color:rgba(15,23,42,.16);
+  color:#0f172a;
+}
+:root:not(.theme-light) .incassi-popup .popup-close{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.18);
+  color:#e2e8f0;
+}
+@media (max-width:640px){
+  .incassi-popup .popup-box{
+    width:min(420px, 100%);
+    max-height:min(94dvh, 720px);
+    border-radius:16px;
+  }
+}

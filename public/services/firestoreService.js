@@ -57,6 +57,25 @@ function twinCollection(colName) {
   return null;
 }
 
+const READ_COLLECTION_TWINS = new Map([
+  ["clients", "clienti"],
+  ["clienti", "clients"],
+  ["orders", "ordini"],
+  ["ordini", "orders"],
+  ["expenses", "spese"],
+  ["spese", "expenses"],
+  ["suppliers", "fornitori"],
+  ["fornitori", "suppliers"],
+  ["payments", "scadenze"],
+  ["scadenze", "payments"],
+  ["incassi", "incomes"],
+  ["incomes", "incassi"],
+]);
+
+function readTwinCollection(colName) {
+  return READ_COLLECTION_TWINS.get(colName) || null;
+}
+
 function mapClientShape(data = {}) {
   const name = String(data.ragioneSociale || data.nome || data.name || "").trim();
   const city = String(data.citta || data.city || data.comune || data.town || "").trim();
@@ -138,6 +157,17 @@ export const firestoreService = {
           ...normalizeForCollection(colName, primary || {}),
         };
       }
+      const twinName = readTwinCollection(colName);
+      if (twinName) {
+        const primary = await safeGetCollectionDoc(colName, docId);
+        const twin = await safeGetCollectionDoc(twinName, docId);
+        if (!primary && !twin) return null;
+        return {
+          id: docId,
+          ...normalizeForCollection(twinName, twin || {}),
+          ...normalizeForCollection(colName, primary || {}),
+        };
+      }
       const snap = await getDoc(doc(db, colName, docId));
       return snap.exists() ? { id: snap.id, ...snap.data() } : null;
     } catch (e) {
@@ -157,6 +187,16 @@ export const firestoreService = {
           normalizeForCollection(twinName, x)
         );
         return mergeById(twin, primary);
+      }
+      const twinName = readTwinCollection(colName);
+      if (twinName) {
+        const primary = (await safeGetCollection(colName)).map((x) =>
+          normalizeForCollection(colName, x)
+        );
+        const twin = (await safeGetCollection(twinName)).map((x) =>
+          normalizeForCollection(twinName, x)
+        );
+        if (primary.length || twin.length) return mergeById(twin, primary);
       }
       const snap = await getDocs(collection(db, colName));
       return snap.docs.map(toData);

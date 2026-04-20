@@ -5,7 +5,11 @@
   --sc-radius: 10px;
 }
 
-.sconti-wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.sconti-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: calc(84px + env(safe-area-inset-top)) 16px 24px;
+}
 
 .sconti-kpi-strip {
   display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
@@ -74,3 +78,32 @@
 }
 .sc-field { display: flex; flex-direction: column; gap: 5px; }
 .sc-field label { font-size: 12px; font-weight: 700; color: #475569; }
+
+/* Night mode readability */
+:root:not(.theme-light) .sconti-wrap { color: #e2e8f0; }
+:root:not(.theme-light) .sconti-kpi-card,
+:root:not(.theme-light) .sconti-table-wrap,
+:root:not(.theme-light) .sc-modal {
+  background: #1e293b;
+  border-color: rgba(255,255,255,.14);
+}
+:root:not(.theme-light) .sconti-kpi-label,
+:root:not(.theme-light) .sconti-empty { color: #94a3b8; }
+:root:not(.theme-light) .sconti-kpi-value { color: #c4b5fd; }
+:root:not(.theme-light) .sc-input,
+:root:not(.theme-light) .sc-select {
+  background: #0f172a;
+  color: #f1f5f9;
+  border-color: rgba(255,255,255,.20);
+}
+:root:not(.theme-light) .sconti-table th {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+  border-bottom-color: rgba(255,255,255,.16) !important;
+}
+:root:not(.theme-light) .sconti-table td {
+  color: #e2e8f0 !important;
+  border-bottom-color: rgba(255,255,255,.08) !important;
+}
+:root:not(.theme-light) .sc-field label,
+:root:not(.theme-light) .sc-modal-header h3 { color: #e2e8f0; }

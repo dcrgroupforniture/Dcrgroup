@@ -194,6 +194,7 @@ async function openDayPopup(dayISO){
   }
   renderAutoEntries(allEntries);
   computeAutoAmount();
+  document.body.classList.add("incassi-modal-open");
   els.popup.classList.add("show");
 }
 function kindLabel(v){
@@ -229,7 +230,12 @@ function renderAutoEntries(entries = []){
   }).join('');
 }
 
-function closeDayPopup(){ els.popup.classList.remove("show"); popupAutoTotal = 0; delete els.popup.dataset.day; }
+function closeDayPopup(){
+  els.popup.classList.remove("show");
+  document.body.classList.remove("incassi-modal-open");
+  popupAutoTotal = 0;
+  delete els.popup.dataset.day;
+}
 
 function openBlankDayPopup(dayISO){
   els.popup.dataset.day = dayISO;
@@ -239,6 +245,7 @@ function openBlankDayPopup(dayISO){
   popupAutoTotal = 0;
   renderAutoEntries([]);
   computeAutoAmount();
+  document.body.classList.add("incassi-modal-open");
   els.popup.classList.add("show");
 }
 els.closeBtn?.addEventListener("click", closeDayPopup);
