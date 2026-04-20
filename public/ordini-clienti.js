@@ -107,7 +107,7 @@ function parseNum(v){
   return Number.isFinite(n) ? n : 0;
 }
 
-function normText(v){
+function normalizeText(v){
   return String(v ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
@@ -117,14 +117,14 @@ function mapQuoteRowsToOrderRows(rows){
       const product = String(r?.desc || "").trim();
       const qty = parseNum(r?.qty || 0);
       const price = parseNum(r?.price || 0);
-      const total = Number((qty * price) || 0);
+      const total = qty * price;
       return { product, qty, price, total };
     })
     .filter((r) => r.product && r.qty > 0 && r.price >= 0);
 }
 
 async function resolveClientForQuote(clientName){
-  const wanted = normText(clientName);
+  const wanted = normalizeText(clientName);
   if (!wanted) return null;
   const snap = await getDocs(collection(db, "clients"));
   let fallback = null;
@@ -132,7 +132,7 @@ async function resolveClientForQuote(clientName){
     const data = d.data() || {};
     const candidate = String(data.name || data.nome || data.ragioneSociale || data.businessName || "").trim();
     if (!candidate) continue;
-    const n = normText(candidate);
+    const n = normalizeText(candidate);
     if (n === wanted) return { id: d.id, name: candidate };
     if (!fallback && (n.includes(wanted) || wanted.includes(n))) fallback = { id: d.id, name: candidate };
   }
@@ -143,24 +143,24 @@ async function importQuoteToOrder(quote, sourcePreventivoId = null){
   const safeQuote = quote || {};
   const clientName = String(safeQuote.clientName || "").trim();
   if (!clientName){
-    throw new Error("Inserisci il nome cliente nel preventivo prima di importare.");
+    throw new Error("Il nome cliente è obbligatorio per importare il preventivo.");
   }
 
   const client = await resolveClientForQuote(clientName);
   if (!client?.id){
-    throw new Error("Cliente non trovato: apri prima la scheda cliente e poi importa il preventivo.");
+    throw new Error("Cliente non trovato. Crea il cliente nella sezione Clienti prima di importare il preventivo.");
   }
 
   const rows = mapQuoteRowsToOrderRows(safeQuote.rows);
   if (!rows.length){
-    throw new Error("Il preventivo non contiene righe valide da importare.");
+    throw new Error("Il preventivo non contiene righe valide da importare. Ogni riga deve avere descrizione, quantità > 0 e prezzo >= 0.");
   }
 
   const total = Number(getGrandTotalNumber({ rows }) || 0);
   const nowIso = new Date().toISOString();
   const payload = {
     clientId: client.id,
-    clientName: clientName || client.name || "",
+    clientName,
     rows,
     subTotal: total,
     grandTotal: total,

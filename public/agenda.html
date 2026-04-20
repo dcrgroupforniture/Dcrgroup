@@ -963,27 +963,41 @@
       return fallback;
     }
 
+    function parseMoneyValue(v){
+      if(typeof v==='number') return Number.isFinite(v)?v:0;
+      const raw=String(v??'').trim();
+      if(!raw) return 0;
+      const cleaned=raw.replace(/[^0-9,.-]/g,'');
+      const lastComma=cleaned.lastIndexOf(',');
+      const lastDot=cleaned.lastIndexOf('.');
+      let normalized=cleaned;
+      if(lastComma>=0&&lastDot>=0){
+        if(lastComma>lastDot){
+          normalized=cleaned.replace(/\./g,'').replace(',', '.');
+        }else{
+          normalized=cleaned.replace(/,/g,'');
+        }
+      }else if(lastComma>=0){
+        const decimals=cleaned.length-lastComma-1;
+        normalized=decimals<=2 ? cleaned.replace(',', '.') : cleaned.replace(/,/g,'');
+      }else if(lastDot>=0){
+        const decimals=cleaned.length-lastDot-1;
+        normalized=decimals<=2 ? cleaned : cleaned.replace(/\./g,'');
+      }
+      const n=Number(normalized);
+      return Number.isFinite(n)?n:0;
+    }
+
     function resolveAmount(data={},fallbackKeys=[]){
-      const parseMoney=(v)=>{
-        if(typeof v==='number') return Number.isFinite(v)?v:0;
-        const raw=String(v??'').trim();
-        if(!raw) return 0;
-        const cleaned=raw.replace(/[^0-9,.-]/g,'');
-        const normalized=cleaned.includes(',')
-          ? cleaned.replace(/\./g,'').replace(',','.')
-          : cleaned;
-        const n=Number(normalized);
-        return Number.isFinite(n)?n:0;
-      };
       for(const key of fallbackKeys){
-        const num=parseMoney(data?.[key]);
+        const num=parseMoneyValue(data?.[key]);
         if(Number.isFinite(num)&&num!==0) return num;
       }
       if(Array.isArray(data.entries)){
-        const total=data.entries.reduce((s,entry)=>s+parseMoney(entry?.amount),0);
+        const total=data.entries.reduce((s,entry)=>s+parseMoneyValue(entry?.amount),0);
         if(total) return total;
       }
-      return parseMoney(data.amount??data.total??data.importo??0);
+      return parseMoneyValue(data.amount??data.total??data.importo??0);
     }
 
     function normalizeDateKey(v){
@@ -997,8 +1011,12 @@
       if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
       const it=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
       if(it){
-        const dd=String(it[1]).padStart(2,'0');
-        const mm=String(it[2]).padStart(2,'0');
+        // Formato atteso: giorno/mese/anno (italiano).
+        const day=Number(it[1]);
+        const month=Number(it[2]);
+        if(!(day>=1&&day<=31&&month>=1&&month<=12)) return null;
+        const dd=String(day).padStart(2,'0');
+        const mm=String(month).padStart(2,'0');
         return `${it[3]}-${mm}-${dd}`;
       }
       const d=new Date(s);
