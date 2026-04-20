@@ -6,6 +6,7 @@ import {
   addDoc,
   setDoc,
   updateDoc,
+  increment,
   deleteDoc,
   query,
   orderBy,
@@ -26,7 +27,6 @@ const searchInput = document.getElementById("searchInput");
 const newSupplierBtn = document.getElementById("newSupplierBtn");
 
 let suppliersCache = [];
-const TOTAL_SYNC_TOLERANCE = 0.009;
 
 function eur(n){
   const v = parseEuroLike(n);
@@ -46,6 +46,7 @@ function parseEuroLike(v){
 function normalize(s){
   return (s || "").toString().trim().toLowerCase();
 }
+// Prefer VAT-inclusive amount when available, with backward-compatible fallbacks.
 function getInvoiceAmount(inv){
   return Number(inv?.totalWithVat || inv?.total || inv?.importo || inv?.amount || 0);
 }
@@ -514,7 +515,6 @@ async function loadOrdersHistory(){
       ? suppliersCache.map(s => ({ id: s.id, data: s }))
       : (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
     ordersHistory = {};
-    const totalsToSync = [];
     await Promise.all(supplierEntries.map(async (supplierEntry) => {
       const supplierData = supplierEntry.data || {};
       const name = String(supplierData.name || 'Senza nome');
@@ -531,16 +531,8 @@ async function loadOrdersHistory(){
 
       const idx = suppliersCache.findIndex(s => s.id === supplierEntry.id);
       if(idx >= 0) suppliersCache[idx] = { ...suppliersCache[idx], total: totalFromInvoices };
-
-      if(Math.abs(parseEuroLike(supplierData.total) - totalFromInvoices) > TOTAL_SYNC_TOLERANCE){
-        totalsToSync.push(
-          updateDoc(doc(db, 'suppliers', supplierEntry.id), { total: totalFromInvoices })
-            .catch(e => console.warn(`Sync totale fornitore ${supplierEntry.id} fallito:`, e))
-        );
-      }
     }));
     if(suppliersCache.length) applyFilter();
-    if(totalsToSync.length) void Promise.allSettled(totalsToSync);
     renderOrdersHistory();
     populateSupplierSelect();
     // Sincronizza tutte le fatture di tutti i fornitori → spese (idempotente, in background)
@@ -680,6 +672,7 @@ if(qoSaveBtn){
         photoUrl: photoUrl||null,
         createdAt: serverTimestamp()
       });
+      await updateDoc(doc(db,'suppliers',supplierId), { total: increment(amount) });
       alert('✅ Ordine salvato');
       quickOrderForm.style.display='none';
       document.getElementById('qoSupplier').value='';

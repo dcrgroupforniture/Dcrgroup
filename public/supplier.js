@@ -410,8 +410,7 @@ saveInvoiceBtn?.addEventListener("click", async () => {
 
   invoiceForm.classList.add("hidden");
   editingInvoiceId = null;
-  await loadInvoices();
-  await loadOrders();
+  await reloadInvoiceSections();
 });
 
 // ── Filters ───────────────────────────────────────────
@@ -639,6 +638,11 @@ async function loadInvoices(){
   renderInvoiceTable();
 }
 
+async function reloadInvoiceSections(){
+  await loadInvoices();
+  await loadOrders();
+}
+
 /* Init */
 await loadSupplier();
 await loadInvoices();
@@ -683,8 +687,7 @@ async function markAllInvoicesPaid(){
     }
 
     alert(`✅ ${unpaidInvoiceRefs.length} fattura/e segnata/e come pagata.`);
-    await loadInvoices();
-    await loadOrders();
+    await reloadInvoiceSections();
   } catch(err) {
     console.error("Errore durante il salvataggio:", err);
     alert("❌ Errore durante il salvataggio: " + (err?.message || err));
@@ -855,16 +858,14 @@ async function loadOrders(){
         e.stopPropagation();
         if(!confirm("Segna questa fattura come pagata?")) return;
         await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id), { status:"pagata" });
-        await loadInvoices();
-        await loadOrders();
+        await reloadInvoiceSections();
       });
       row.querySelector("[data-inv-del]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Eliminare questa fattura?")) return;
         await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id));
         await removeInvoiceFromSpese(entry.id);
-        await loadInvoices();
-        await loadOrders();
+        await reloadInvoiceSections();
       });
     }
 
