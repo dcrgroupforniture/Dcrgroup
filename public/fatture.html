@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fatture — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420" />
+  <link rel="stylesheet" href="mobile.css?v=20260420" />
+  <link rel="stylesheet" href="fatture.css?v=20260420" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page fatture-page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">Fatture</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+      <option value="incassi.html">INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="finanze.html">FINANZE</option>
+      <option value="mandanti.html">MANDANTI</option>
+      <option value="crm.html">CRM</option>
+      <option value="offerte.html">OFFERTE</option>
+      <option value="fatture.html" selected>FATTURE</option>
+      <option value="mailing.html">MAILING</option>
+    </select>
+  </header>
+
+  <main class="fatture-wrap">
+
+    <!-- KPI Strip -->
+    <section class="fatture-kpi-strip">
+      <div class="fatture-kpi-card">
+        <div class="fatture-kpi-label">Fatturato</div>
+        <div class="fatture-kpi-value" id="kpiFatturato">—</div>
+      </div>
+      <div class="fatture-kpi-card">
+        <div class="fatture-kpi-label">Incassato</div>
+        <div class="fatture-kpi-value" id="kpiIncassato">—</div>
+      </div>
+      <div class="fatture-kpi-card">
+        <div class="fatture-kpi-label">Da Incassare</div>
+        <div class="fatture-kpi-value" id="kpiDaIncassare">—</div>
+      </div>
+      <div class="fatture-kpi-card kpi-danger">
+        <div class="fatture-kpi-label">Scaduto</div>
+        <div class="fatture-kpi-value" id="kpiScaduto">—</div>
+      </div>
+    </section>
+
+    <!-- Main Tabs -->
+    <nav class="fatture-tabs" role="tablist">
+      <button class="fatture-tab active" role="tab" data-tab="fatture">Fatture</button>
+      <button class="fatture-tab" role="tab" data-tab="pagamenti">Pagamenti</button>
+      <button class="fatture-tab" role="tab" data-tab="scadenze">Scadenze</button>
+    </nav>
+
+    <!-- Tab: Fatture -->
+    <div class="fatture-panel" id="panelFatture">
+      <div class="fatture-filter-bar">
+        <select id="filterTipo" class="fatt-select">
+          <option value="">Tutti i tipi</option>
+          <option value="fattura_immediata">Fattura Immediata</option>
+          <option value="fattura_differita">Fattura Differita</option>
+          <option value="proforma">Proforma</option>
+          <option value="nota_credito">Nota Credito</option>
+          <option value="nota_debito">Nota Debito</option>
+        </select>
+        <select id="filterStato" class="fatt-select">
+          <option value="">Tutti gli stati</option>
+          <option value="bozza">Bozza</option>
+          <option value="emessa">Emessa</option>
+          <option value="inviata">Inviata</option>
+          <option value="pagata">Pagata</option>
+          <option value="parziale">Parziale</option>
+          <option value="scaduta">Scaduta</option>
+        </select>
+        <input type="number" id="filterAnno" class="fatt-input" placeholder="Anno" style="width:90px"/>
+        <input type="search" id="filterCliente" class="fatt-input" placeholder="Filtra cliente…"/>
+        <button class="fatture-btn fatture-btn-primary" id="btnNewFattura">＋ Nuova Fattura</button>
+      </div>
+      <div class="fatture-table-wrap">
+        <table class="fatture-table" id="fattureTable">
+          <thead>
+            <tr>
+              <th>Numero</th>
+              <th>Tipo</th>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Mandante</th>
+              <th>Totale</th>
+              <th>Pagato</th>
+              <th>Stato</th>
+              <th>Scadenza</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="fattureBody"></tbody>
+        </table>
+        <div class="fatture-empty-state" id="fattureEmpty">Nessuna fattura trovata.</div>
+      </div>
+    </div>
+
+    <!-- Tab: Pagamenti -->
+    <div class="fatture-panel" id="panelPagamenti" style="display:none">
+      <div class="fatture-table-wrap">
+        <table class="fatture-table" id="pagamentiTable">
+          <thead>
+            <tr>
+              <th>Data Pagamento</th>
+              <th>Fattura</th>
+              <th>Cliente</th>
+              <th>Importo</th>
+              <th>Metodo</th>
+              <th>Riferimento</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="pagamentiBody"></tbody>
+        </table>
+        <div class="fatture-empty-state" id="pagamentiEmpty">Nessun pagamento registrato.</div>
+      </div>
+    </div>
+
+    <!-- Tab: Scadenze -->
+    <div class="fatture-panel" id="panelScadenze" style="display:none">
+      <div class="fatture-table-wrap">
+        <table class="fatture-table" id="scadenzeTable">
+          <thead>
+            <tr>
+              <th>Scadenza</th>
+              <th>Fattura</th>
+              <th>Tipo</th>
+              <th>Cliente</th>
+              <th>Totale</th>
+              <th>Importo Residuo</th>
+              <th>Stato</th>
+            </tr>
+          </thead>
+          <tbody id="scadenzeBody"></tbody>
+        </table>
+        <div class="fatture-empty-state" id="scadenzeEmpty">Nessuna scadenza.</div>
+      </div>
+    </div>
+
+  </main><!-- /.fatture-wrap -->
+
+  <!-- ═══════════════════════════════════════════════
+       FULL-SCREEN INVOICE EDITOR
+  ═══════════════════════════════════════════════ -->
+  <div class="fatt-editor-overlay" id="fattEditorOverlay" style="display:none">
+    <div class="fatt-editor">
+
+      <div class="fatt-editor-header">
+        <h2 id="fattEditorTitle">Nuova Fattura</h2>
+        <button class="fatture-btn fatture-btn-sm" id="closefattEditor">✕ Chiudi</button>
+      </div>
+
+      <div class="fatt-editor-body">
+        <form id="formFattura" autocomplete="off">
+
+          <!-- Main fields grid -->
+          <div class="fatt-form-grid">
+            <div class="fatt-field">
+              <label>Tipo Documento</label>
+              <select name="tipo">
+                <option value="fattura_immediata">Fattura Immediata</option>
+                <option value="fattura_differita">Fattura Differita</option>
+                <option value="proforma">Proforma</option>
+                <option value="nota_credito">Nota Credito</option>
+                <option value="nota_debito">Nota Debito</option>
+              </select>
+            </div>
+            <div class="fatt-field">
+              <label>Numero</label>
+              <input type="text" name="numero" id="fattNumero" readonly placeholder="Auto"/>
+            </div>
+            <div class="fatt-field">
+              <label>Data Emissione *</label>
+              <input type="date" name="dataEmissione" required/>
+            </div>
+            <div class="fatt-field">
+              <label>Data Scadenza</label>
+              <input type="date" name="dataScadenza"/>
+            </div>
+            <div class="fatt-field">
+              <label>Cliente</label>
+              <select name="clienteId" id="fattClienteSel">
+                <option value="">— Nessuno —</option>
+              </select>
+            </div>
+            <div class="fatt-field">
+              <label>Mandante</label>
+              <select name="mandanteId" id="fattMandanteSel">
+                <option value="">— Nessuno —</option>
+              </select>
+            </div>
+            <div class="fatt-field">
+              <label>Metodo Pagamento</label>
+              <select name="metodoPagamento">
+                <option value="bonifico">Bonifico</option>
+                <option value="contanti">Contanti</option>
+                <option value="carta">Carta</option>
+                <option value="riba">RiBa</option>
+              </select>
+            </div>
+            <div class="fatt-field">
+              <label>Numero Rate</label>
+              <input type="number" name="nRate" min="1" value="1" max="48"/>
+            </div>
+            <div class="fatt-field" style="grid-column:1/-1">
+              <label>Note</label>
+              <textarea name="note" rows="2" placeholder="Note fattura…"></textarea>
+            </div>
+          </div>
+
+          <!-- Cliente Snapshot (auto-filled on client select) -->
+          <div class="fatt-cliente-snapshot" id="fattClienteSnapshot" style="display:none">
+            <div class="fatt-snapshot-title">Dati Cliente (Snapshot)</div>
+            <div class="fatt-snapshot-grid">
+              <div class="fatt-field">
+                <label>Ragione Sociale</label>
+                <input type="text" name="snapRagioneSociale" readonly/>
+              </div>
+              <div class="fatt-field">
+                <label>Partita IVA</label>
+                <input type="text" name="snapPartitaIVA" readonly/>
+              </div>
+              <div class="fatt-field">
+                <label>Indirizzo</label>
+                <input type="text" name="snapIndirizzo" readonly/>
+              </div>
+              <div class="fatt-field">
+                <label>PEC</label>
+                <input type="text" name="snapPec" readonly/>
+              </div>
+              <div class="fatt-field">
+                <label>Codice SDI</label>
+                <input type="text" name="snapSdi" readonly/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Righe Fattura -->
+          <div class="fatt-righe-section">
+            <div class="fatt-righe-toolbar">
+              <h3>Righe Fattura</h3>
+              <button type="button" class="fatture-btn fatture-btn-sm fatture-btn-primary" id="btnAddFattRiga">＋ Aggiungi Riga</button>
+            </div>
+            <div class="fatt-righe-wrap">
+              <table class="fatt-righe-table" id="fattRigheTable">
+                <thead>
+                  <tr>
+                    <th style="min-width:90px">Codice</th>
+                    <th style="min-width:200px">Descrizione</th>
+                    <th style="width:60px">Qtà</th>
+                    <th style="width:70px">U.M.</th>
+                    <th style="width:100px">Prezzo Unit.</th>
+                    <th style="width:80px">Sconto %</th>
+                    <th style="width:70px">IVA %</th>
+                    <th style="width:100px">Totale Riga</th>
+                    <th style="width:36px"></th>
+                  </tr>
+                </thead>
+                <tbody id="fattRigheBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- IVA Breakdown + Totals -->
+          <div class="fatt-totals-box" id="fattTotals">
+            <div class="fatt-totals-breakdown" id="fattBreakdown"></div>
+            <div class="fatt-totals-row">
+              <span>Imponibile</span>
+              <span id="fattImponibile">€ 0,00</span>
+            </div>
+            <div class="fatt-totals-row">
+              <span>IVA</span>
+              <span id="fattIVA">€ 0,00</span>
+            </div>
+            <div class="fatt-totals-row fatt-totals-total">
+              <span>Totale Documento</span>
+              <span id="fattTotale">€ 0,00</span>
+            </div>
+          </div>
+
+          <input type="hidden" name="docId"/>
+          <input type="hidden" name="anno"/>
+          <input type="hidden" name="stato"/>
+
+        </form>
+      </div><!-- /.fatt-editor-body -->
+
+      <div class="fatt-editor-footer">
+        <button class="fatture-btn" id="btnSalvaBozzaFatt">Salva Bozza</button>
+        <button class="fatture-btn fatture-btn-primary" id="btnEmettiFattura">Emetti Fattura</button>
+        <button class="fatture-btn fatture-btn-danger" id="btnAnnullaFattura" style="display:none">Annulla Fattura</button>
+      </div>
+
+    </div><!-- /.fatt-editor -->
+  </div><!-- /.fatt-editor-overlay -->
+
+  <!-- ═══════════════════════════════════════════════
+       PAYMENT REGISTRATION MODAL
+  ═══════════════════════════════════════════════ -->
+  <div class="fatt-pag-modal-overlay" id="pagModal" style="display:none">
+    <div class="fatt-pag-modal">
+      <div class="fatt-pag-modal-header">
+        <h3>Registra Pagamento</h3>
+        <button class="fatture-btn fatture-btn-sm" id="closePagModal">×</button>
+      </div>
+      <form id="formPagamento" class="fatt-form-grid" autocomplete="off">
+        <input type="hidden" name="fatturaId"/>
+        <input type="hidden" name="clienteId"/>
+        <div class="fatt-field" style="grid-column:1/-1">
+          <label>Fattura</label>
+          <input type="text" name="fatturaNome" readonly/>
+        </div>
+        <div class="fatt-field">
+          <label>Importo *</label>
+          <input type="number" name="importo" required min="0.01" step="0.01"/>
+        </div>
+        <div class="fatt-field">
+          <label>Data Pagamento *</label>
+          <input type="date" name="dataPagamento" required/>
+        </div>
+        <div class="fatt-field">
+          <label>Metodo</label>
+          <select name="metodo">
+            <option value="bonifico">Bonifico</option>
+            <option value="contanti">Contanti</option>
+            <option value="carta">Carta</option>
+            <option value="riba">RiBa</option>
+          </select>
+        </div>
+        <div class="fatt-field">
+          <label>Riferimento</label>
+          <input type="text" name="riferimento" placeholder="Es. numero bonifico"/>
+        </div>
+        <div class="fatt-field" style="grid-column:1/-1">
+          <label>Note</label>
+          <textarea name="note" rows="2"></textarea>
+        </div>
+        <div style="grid-column:1/-1; padding: 0 0 6px">
+          <button type="submit" class="fatture-btn fatture-btn-primary">Registra Pagamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden print area (populated by JS) -->
+  <div id="fattPrintArea" style="display:none"></div>
+
+  <script type="module" src="./fatture.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>
