@@ -73,7 +73,7 @@ function filterFatture() {
   const { anno, mese } = getFilters();
   return fatture.filter(f => {
     if (!f.dataEmissione) return false;
-    if (f.tipo === 'bozza') return false;
+    if (f.stato === 'bozza') return false;
     if (anno && !f.dataEmissione.startsWith(anno)) return false;
     if (mese && f.dataEmissione.slice(5, 7) !== mese) return false;
     return true;
