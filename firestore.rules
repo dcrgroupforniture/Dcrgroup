@@ -156,8 +156,12 @@ service cloud.firestore {
       allow read, create, update, delete: if isStaff();
     }
 
+    // Moduli gestionali interni (legacy + nuova UI):
+    // per questa app interna, ogni utente autenticato è staff.
+    // Manteniamo quindi accesso completo ai documenti non coperti da match specifici
+    // per evitare blocchi funzionali tra collection legacy e nuove.
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isStaff();
     }
   }
 }

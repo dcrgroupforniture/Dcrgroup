@@ -2,19 +2,20 @@
 
 /* ─── CSS Variables (dark mode default) ───────────────────────────────────── */
 :root {
-  --mand-bg:            #0b1a2a;
-  --mand-surface:       rgba(255,255,255,.08);
-  --mand-surface-hover: rgba(255,255,255,.12);
-  --mand-border:        rgba(255,255,255,.1);
-  --mand-text:          #e2e8f0;
-  --mand-text-muted:    #94a3b8;
+  --mand-bg:            #0f172a;
+  --mand-surface:       #1e293b;
+  --mand-surface-hover: #263449;
+  --mand-border:        rgba(255,255,255,.16);
+  --mand-text:          #f1f5f9;
+  --mand-text-muted:    #cbd5e1;
   --mand-primary:       #a855f7;
   --mand-primary-hover: #9333ea;
   --mand-danger:        #ef4444;
   --mand-danger-hover:  #dc2626;
-  --mand-input-bg:      rgba(255,255,255,.06);
-  --mand-input-border:  rgba(255,255,255,.18);
+  --mand-input-bg:      #0f172a;
+  --mand-input-border:  rgba(255,255,255,.22);
   --mand-sidebar-w:     280px;
+  --mand-topbar-h:      calc(64px + env(safe-area-inset-top));
 }
 
 :root.theme-light {
@@ -38,7 +39,8 @@
 .mand-wrap {
   display: flex;
   gap: 0;
-  height: calc(100vh - 56px);
+  margin-top: var(--mand-topbar-h);
+  height: calc(100vh - var(--mand-topbar-h));
   overflow: hidden;
 }
 
@@ -50,7 +52,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--mand-border);
-  background: rgba(0,0,0,.18);
+  background: #111b2d;
   overflow: hidden;
 }
 
@@ -125,7 +127,7 @@
   letter-spacing: .4px;
 }
 .mand-item-badge.attivo   { background: rgba(34,197,94,.18); color: #4ade80; }
-.mand-item-badge.non_attivo { background: rgba(239,68,68,.18); color: #f87171; }
+.mand-item-badge.non_attivo { background: rgba(239,68,68,.24); color: #fecaca; }
 
 /* ─── Main Content ────────────────────────────────────────────────────────── */
 .mand-content {
@@ -494,9 +496,12 @@
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
+  :root {
+    --mand-topbar-h: calc(56px + env(safe-area-inset-top));
+  }
   .mand-wrap {
     flex-direction: column;
-    height: auto;
+    height: calc(100vh - var(--mand-topbar-h));
     overflow: visible;
   }
 

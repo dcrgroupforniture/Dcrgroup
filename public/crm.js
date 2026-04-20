@@ -62,15 +62,26 @@ async function init() {
 // ── Data loading ───────────────────────────────────────────────────────────
 
 async function loadAttivita() {
+  let loaded = false;
   try {
     const q = fs.col('crmAttivita');
     const { query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const sorted = query(q, orderBy('data', 'desc'));
     attivita = await fs.getAllFromQuery(sorted, { name: 'crmAttivita' });
-  } catch {
-    attivita = await fs.getAll('crmAttivita');
-    attivita.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+    loaded = true;
+  } catch (e) {
+    console.warn('[crm] loadAttivita query failed, fallback to getAll', e);
   }
+  if (!loaded) {
+    try {
+      attivita = await fs.getAll('crmAttivita');
+      loaded = true;
+    } catch (e) {
+      console.error('[crm] loadAttivita getAll failed', e);
+      attivita = [];
+    }
+  }
+  attivita.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
   applyFilters();
 }
 
@@ -355,10 +366,23 @@ async function addToAgenda(attivitaId) {
   const a = attivita.find(x => x.id === attivitaId);
   if (!a) return;
   try {
-    await fs.add('agenda', {
+    const data = a.data || todayISO();
+    const ora = a.ora || '09:00';
+    const durata = Math.max(Number(a.durata) || 60, 15);
+    let start = new Date(`${data}T${ora}:00`);
+    if (Number.isNaN(start.getTime())) start = new Date(`${data}T09:00:00`);
+    const end = new Date(start.getTime() + (durata * 60 * 1000));
+    await fs.add('agendaEvents', {
       title: `[CRM] ${a.tipo || 'attività'} - ${a.clienteNome || 'Cliente'}`,
-      date: a.data || todayISO(),
+      type: 'crm',
+      start: start.toISOString(),
+      end: end.toISOString(),
+      allDay: false,
+      color: '#14b8a6',
+      date: data,
       crmAttivitaId: attivitaId,
+      clienteId: a.clienteId || '',
+      clienteNome: a.clienteNome || '',
       createdAt: new Date().toISOString(),
     });
     showCrmToast('Evento aggiunto all\'Agenda');
