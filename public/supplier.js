@@ -114,6 +114,7 @@ function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); ret
 function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
 function getInvoicePaymentMethodNormalized(inv){ return String(inv?.paymentMethod || "bonifico").toLowerCase(); }
+function formatPaymentMethodLabel(method){ return String(method || "bonifico").toLowerCase().replace(/_/g," "); }
 function getInvoiceEffectivePaymentDate(inv){
   const method = getInvoicePaymentMethodNormalized(inv);
   const checkDue = String(inv?.checkDueDate || "").trim();
@@ -531,7 +532,7 @@ function renderInvoiceTable(){
       <div class="inv-info">
         <div class="inv-desc">${inv.description || "Fattura del "+formatDate(inv.date)}</div>
         <div class="inv-supplier-sub">${inv.category ? `📂 ${inv.category}` : ""}</div>
-        <div class="inv-supplier-sub">${inv.paymentMethod ? `💳 ${String(inv.paymentMethod).replace(/_/g," ")}` : ""}${inv.checkDueDate ? ` · 📅 assegno ${formatDate(inv.checkDueDate)}` : ""}</div>
+        <div class="inv-supplier-sub">${inv.paymentMethod ? `💳 ${formatPaymentMethodLabel(inv.paymentMethod)}` : ""}${inv.checkDueDate ? ` · 📅 assegno ${formatDate(inv.checkDueDate)}` : ""}</div>
         <div class="inv-status-mobile"><span class="status-pill ${statusCls}">${statusLabel}</span></div>
       </div>
       <span class="inv-date">${formatDate(inv.date)}</span>
@@ -705,10 +706,10 @@ async function loadInvoices(){
   // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
   try {
     const supplierName = await getSupplierName();
-    await Promise.all(allInvoices.map(async (inv) => {
-      await syncInvoiceToSpese(inv.id, inv, supplierName);
-      await syncInvoiceToScadenze(inv.id, inv, supplierName);
-    }));
+    await Promise.all(allInvoices.flatMap((inv) => ([
+      syncInvoiceToSpese(inv.id, inv, supplierName),
+      syncInvoiceToScadenze(inv.id, inv, supplierName),
+    ])));
   } catch(e){ console.warn("Sync fatture→spese fallito:", e); }
 
   renderInvoiceTable();
