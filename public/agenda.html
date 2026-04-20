@@ -78,14 +78,15 @@
       position:fixed;top:0;left:0;right:0;
       height:calc(64px + env(safe-area-inset-top));
       padding-top:env(safe-area-inset-top);
-      background:#fff;display:flex;align-items:center;gap:12px;
+      background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);
+      display:flex;align-items:center;gap:12px;
       padding-left:16px;padding-right:16px;border-bottom:1px solid var(--line);z-index:1000;
     }
-    .back-btn{background:var(--brand);color:#fff;border:none;font-size:18px;line-height:1;
+    .back-btn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.26);font-size:18px;line-height:1;
       padding:10px 14px;border-radius:12px;cursor:pointer;
       -webkit-tap-highlight-color:transparent;touch-action:manipulation}
-    .back-btn:hover{background:var(--brand2)}
-    .page-title{font-weight:800;font-size:16px}
+    .back-btn:hover{background:rgba(255,255,255,.22)}
+    .page-title{font-weight:800;font-size:16px;color:#fff}
 
     /* ─── KPI strip ─── */
     .kpi-strip{
@@ -526,6 +527,12 @@
       .sidebar-col{grid-row:2;}
       .hist-section{grid-row:3;}
     }
+    @media (hover:none) and (pointer:coarse){
+      .page-content{grid-template-columns:1fr;}
+      .sidebar-col{grid-row:2;}
+      .hist-section{grid-row:3;}
+      .calendar-col,.cal-card,#calendar{max-width:100%;}
+    }
     @media (max-width:600px){
       .kpi-strip{
         display:grid;
@@ -550,6 +557,7 @@
       .page-content{padding:10px 8px 20px;}
       .sidebar-col{gap:10px;}
       .calendar-col .cal-card{padding:6px;}
+      .filter-strip .btn{margin-left:0 !important;}
     }
     @media (max-width:480px){
       /* Compact toolbar on iPhone */
@@ -575,6 +583,8 @@
       .top-bar{flex-wrap:wrap;height:auto;min-height:calc(58px + env(safe-area-inset-top));padding-bottom:6px;}
       .top-bar .page-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .top-bar .quick-nav{width:100%;margin-top:4px;order:3;}
+      .filter-strip{flex-wrap:wrap;}
+      .filter-strip #reloadBtn{width:100%;justify-content:center;}
       .modal-backdrop{padding:10px;}
       .modal{border-radius:14px;max-height:calc(100vh - 20px);}
       @supports (height: 100dvh){
@@ -954,15 +964,45 @@
     }
 
     function resolveAmount(data={},fallbackKeys=[]){
+      const parseMoney=(v)=>{
+        if(typeof v==='number') return Number.isFinite(v)?v:0;
+        const raw=String(v??'').trim();
+        if(!raw) return 0;
+        const cleaned=raw.replace(/[^0-9,.-]/g,'');
+        const normalized=cleaned.includes(',')
+          ? cleaned.replace(/\./g,'').replace(',','.')
+          : cleaned;
+        const n=Number(normalized);
+        return Number.isFinite(n)?n:0;
+      };
       for(const key of fallbackKeys){
-        const num=Number(data?.[key]);
+        const num=parseMoney(data?.[key]);
         if(Number.isFinite(num)&&num!==0) return num;
       }
       if(Array.isArray(data.entries)){
-        const total=data.entries.reduce((s,entry)=>s+(Number(entry?.amount)||0),0);
+        const total=data.entries.reduce((s,entry)=>s+parseMoney(entry?.amount),0);
         if(total) return total;
       }
-      return Number(data.amount||data.total||data.importo||0)||0;
+      return parseMoney(data.amount??data.total??data.importo??0);
+    }
+
+    function normalizeDateKey(v){
+      if(!v) return null;
+      if(typeof v==='object'&&typeof v.toDate==='function'){
+        const d=v.toDate();
+        return !isNaN(d.getTime()) ? d.toISOString().slice(0,10) : null;
+      }
+      const s=String(v).trim();
+      if(!s) return null;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      const it=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if(it){
+        const dd=String(it[1]).padStart(2,'0');
+        const mm=String(it[2]).padStart(2,'0');
+        return `${it[3]}-${mm}-${dd}`;
+      }
+      const d=new Date(s);
+      return !isNaN(d.getTime()) ? d.toISOString().slice(0,10) : null;
     }
 
     function extractDate(data,docId){
@@ -1033,11 +1073,16 @@
             const invSnap=await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
             invSnap.forEach(d=>{
               const data=d.data()||{};
-              const iso=data.dateISO||dateISO(data.date||data.invoiceDate)||null;
-              if(isSameMonth(iso,y,m)){
-                fornitoreMese+=Number(data.totalWithVat||data.total||data.importo||0);
-              }
-            });
+                const iso=
+                  normalizeDateKey(data.dateISO)||
+                  normalizeDateKey(data.date)||
+                  normalizeDateKey(data.invoiceDate)||
+                  dateISO(data.date||data.invoiceDate)||
+                  null;
+                if(isSameMonth(iso,y,m)){
+                  fornitoreMese+=resolveAmount(data,['totalWithVat','total','importo','amount']);
+                }
+              });
           }catch(_){}
         }));
       }catch(e){console.warn('kpi fornitori',e);}

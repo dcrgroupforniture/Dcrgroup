@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./styles.css?v=final_20260318">
   <link rel="stylesheet" href="./mobile.css?v=final_20260318">
   <style>
+    body{background:#0f172a;color:#e2e8f0}
     .wrap-price{max-width:1100px;margin:0 auto;padding:16px}
     .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
     .price-kpi,.request-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 16px 32px rgba(0,0,0,.18)}
@@ -30,10 +31,17 @@
     .request-actions button{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
     .btn-pending{background:#fff3c4;color:#7c5a00}.btn-quoted{background:#d9eeff;color:#13528a}.btn-completed{background:#daf2d0;color:#286426}
     .empty{padding:22px;text-align:center;opacity:.8}
+    :root.theme-light body{background:#f3f6ff;color:#0f172a}
+    :root.theme-light .price-kpi,:root.theme-light .request-card{
+      background:#fff;border-color:rgba(15,23,42,.10);box-shadow:0 12px 28px rgba(15,23,42,.10);
+    }
+    :root.theme-light .toolbar-requests input,:root.theme-light .toolbar-requests select{
+      background:#fff;color:#0f172a;border-color:rgba(15,23,42,.18);
+    }
     @media(max-width:820px){.price-grid{grid-template-columns:1fr}.request-head{flex-direction:column}.request-title{font-size:20px}}
   </style>
 </head>
-<body>
+<body class="page">
 <header class="top-bar">
   <button class="back-btn" onclick="window.location.href='index.html'">←</button>
   <span class="page-title">Richieste prezzo</span>
@@ -53,5 +61,6 @@
 </main>
 <script type="module" src="./price-requests.js?v=final_20260318"></script>
 <script type="module" src="/nav.js?v=final_20260318"></script>
+<script src="scripts/dashboard-menu.js?v=20260420"></script>
 </body>
 </html>
