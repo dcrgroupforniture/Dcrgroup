@@ -151,6 +151,33 @@
 
 .kpi-blue{background: rgba(188, 216, 255, .35); border-color: rgba(188, 216, 255, .75);} 
 .kpi-green{background: rgba(186, 243, 210, .35); border-color: rgba(186, 243, 210, .75);} 
+.kpi-orange{background: rgba(254, 215, 170, .45); border-color: rgba(251, 146, 60, .35);}
+.kpi-red{background: rgba(254, 202, 202, .45); border-color: rgba(239, 68, 68, .35);}
+
+.inv-hist-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:5px;
+}
+.inv-act-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:4px 9px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  text-decoration:none;
+  background:#f1f5f9;
+  border:1px solid #e2e8f0;
+  color:#334155;
+  white-space:nowrap;
+}
+.inv-act-btn:hover{background:#e2e8f0;}
+.inv-act-del{background:#fff0f0;border-color:#fecaca;color:#dc2626;}
+.inv-act-del:hover{background:#fee2e2;}
 
 /* Button */
 .btn{

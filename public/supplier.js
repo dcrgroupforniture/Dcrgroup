@@ -23,9 +23,11 @@ import {
 const params = new URLSearchParams(window.location.search);
 const requestedSupplierId = params.get("supplierId") || params.get("id") || null;
 const shouldOpenInvoiceForm = params.get("openInvoice") === "1";
+const requestedEditInvoiceId = params.get("editInvoiceId") || null;
 let supplierId = (requestedSupplierId && requestedSupplierId !== "undefined" && requestedSupplierId !== "null")
   ? requestedSupplierId
   : null;
+let pendingEditInvoiceId = requestedEditInvoiceId;
 
 // ── DOM refs ─────────────────────────────────────────
 const supplierNameTitle   = document.getElementById("supplierNameTitle");
@@ -641,6 +643,14 @@ async function loadInvoices(){
   } catch(e){ console.warn("Sync fatture→spese fallito:", e); }
 
   renderInvoiceTable();
+
+  if(pendingEditInvoiceId){
+    const invToEdit = allInvoices.find(inv => inv.id === pendingEditInvoiceId);
+    if(invToEdit){
+      startEdit(invToEdit);
+      pendingEditInvoiceId = null;
+    }
+  }
 }
 
 async function reloadInvoiceSections(){
