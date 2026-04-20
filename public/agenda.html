@@ -1482,7 +1482,7 @@
         }
       });
       calendar.render();
-      // Due frame evitano il resize prematuro quando FullCalendar ha appena montato toolbar + grid su mobile.
+      // Two frames prevent premature resize when FullCalendar has just mounted toolbar + grid on mobile.
       requestAnimationFrame(() => requestAnimationFrame(() => calendar?.updateSize()));
     }
 
