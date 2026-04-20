@@ -406,3 +406,39 @@
 :root:not(.theme-light) .scad-amt { color: #e2e8f0 !important; }
 :root:not(.theme-light) .scad-head { background: rgba(245,158,11,.12) !important; border-color: rgba(245,158,11,.25) !important; color: #fcd34d !important; }
 
+/* ── Dark mode – invoice table rows (new-style .inv-row) ── */
+:root:not(.theme-light) .inv-table-head { background: #162032 !important; border-bottom-color: rgba(255,255,255,.08) !important; }
+:root:not(.theme-light) .inv-table-head span { color: #64748b !important; }
+:root:not(.theme-light) .inv-row { background: #1e293b; border-bottom-color: rgba(255,255,255,.08) !important; }
+:root:not(.theme-light) .inv-row:hover { background: #1e3a5f !important; }
+:root:not(.theme-light) .inv-num { color: #93c5fd !important; }
+:root:not(.theme-light) .inv-desc { color: #e2e8f0 !important; }
+:root:not(.theme-light) .inv-supplier-sub { color: #64748b !important; }
+:root:not(.theme-light) .inv-date { color: #cbd5e1 !important; }
+:root:not(.theme-light) .inv-due.overdue { color: #fca5a5 !important; }
+:root:not(.theme-light) .inv-due.soon { color: #fdba74 !important; }
+:root:not(.theme-light) .inv-due.ok { color: #86efac !important; }
+:root:not(.theme-light) .inv-due.none { color: #64748b !important; }
+:root:not(.theme-light) .inv-amt { color: #60a5fa !important; }
+:root:not(.theme-light) .act-btn { background: #1e293b !important; border-color: rgba(255,255,255,.12) !important; color: #e2e8f0 !important; }
+:root:not(.theme-light) .act-btn:hover { background: #263348 !important; }
+:root:not(.theme-light) .act-btn.photo-btn-sm { background: rgba(59,130,246,.12) !important; border-color: rgba(59,130,246,.30) !important; }
+:root:not(.theme-light) .act-btn.pay-btn { background: rgba(22,163,74,.12) !important; border-color: rgba(22,163,74,.30) !important; }
+:root:not(.theme-light) .act-btn.del-btn { background: rgba(239,68,68,.10) !important; border-color: rgba(239,68,68,.28) !important; }
+/* status pills dark */
+:root:not(.theme-light) .status-pill.pagata { background: rgba(22,163,74,.20) !important; color: #86efac !important; }
+:root:not(.theme-light) .status-pill.scaduta { background: rgba(185,28,28,.20) !important; color: #fca5a5 !important; }
+:root:not(.theme-light) .status-pill.in-scadenza { background: rgba(245,158,11,.18) !important; color: #fcd34d !important; }
+:root:not(.theme-light) .status-pill.da-pagare { background: rgba(59,130,246,.18) !important; color: #93c5fd !important; }
+:root:not(.theme-light) .status-pill.pagata-parz { background: rgba(124,58,237,.18) !important; color: #c4b5fd !important; }
+/* order status pills dark */
+:root:not(.theme-light) .order-status-pill.pagato { background: rgba(22,163,74,.20) !important; color: #86efac !important; }
+:root:not(.theme-light) .order-status-pill.in-attesa { background: rgba(59,130,246,.18) !important; color: #93c5fd !important; }
+/* inv-amt-mobile */
+:root:not(.theme-light) .inv-amt-mobile { color: #60a5fa !important; font-weight: 900; }
+:root:not(.theme-light) .inv-actions-mobile { border-top-color: rgba(255,255,255,.06) !important; }
+/* photo modal dark */
+:root:not(.theme-light) .photo-modal-box { background: #1e293b !important; color: #e2e8f0; }
+:root:not(.theme-light) .photo-modal-title { color: #f1f5f9 !important; border-bottom-color: rgba(255,255,255,.10) !important; }
+:root:not(.theme-light) .photo-modal-close { background: rgba(255,255,255,.08) !important; color: #e2e8f0 !important; }
+

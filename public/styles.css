@@ -865,3 +865,85 @@ html,body{overflow-x:hidden;}
 :root:not(.theme-light) .sp-row-date { color: #60a5fa !important; }
 :root:not(.theme-light) .sp-row-note { color: #e2e8f0 !important; }
 :root:not(.theme-light) .sp-row-amount { color: #ef4444 !important; }
+
+/* =========================
+   DARK MODE — Global extra readability (all pages)
+   Numbers, amounts, dates, badges must always be visible
+========================= */
+/* All amounts / totals */
+:root:not(.theme-light) .amount,
+:root:not(.theme-light) .total,
+:root:not(.theme-light) .importo,
+:root:not(.theme-light) .totale,
+:root:not(.theme-light) [class*="amount"],
+:root:not(.theme-light) [class*="total"],
+:root:not(.theme-light) .kpi-num { color: #60a5fa !important; }
+
+/* All date fields */
+:root:not(.theme-light) .date,
+:root:not(.theme-light) [class*="-date"]:not(input):not(select) { color: #93c5fd !important; }
+
+/* Badge / pill generic */
+:root:not(.theme-light) .badge {
+  background: rgba(96,165,250,.15) !important;
+  color: #93c5fd !important;
+  border-color: rgba(96,165,250,.30) !important;
+}
+:root:not(.theme-light) .badge.green,
+:root:not(.theme-light) .badge.success { background: rgba(22,163,74,.18) !important; color: #86efac !important; border-color: rgba(22,163,74,.35) !important; }
+:root:not(.theme-light) .badge.red,
+:root:not(.theme-light) .badge.danger { background: rgba(239,68,68,.18) !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.35) !important; }
+:root:not(.theme-light) .badge.orange,
+:root:not(.theme-light) .badge.warning { background: rgba(245,158,11,.15) !important; color: #fcd34d !important; border-color: rgba(245,158,11,.30) !important; }
+
+/* Row items: ensure text is always readable */
+:root:not(.theme-light) .row-label,
+:root:not(.theme-light) .row-title,
+:root:not(.theme-light) .row-name { color: #f1f5f9 !important; }
+:root:not(.theme-light) .row-sub,
+:root:not(.theme-light) .row-meta { color: #94a3b8 !important; }
+
+/* Navigation links dark */
+:root:not(.theme-light) a:not(.btn):not([class*="btn"]):not([class*="sdp"]):not([class*="inv"]) {
+  color: #60a5fa;
+}
+:root:not(.theme-light) a:not(.btn):not([class*="btn"]):not([class*="sdp"]):not([class*="inv"]):hover {
+  color: #93c5fd;
+}
+
+/* Generic number emphasis */
+:root:not(.theme-light) strong,
+:root:not(.theme-light) b { color: inherit; }
+
+/* Ensure any inline-styled white backgrounds are replaced */
+:root:not(.theme-light) .content-area,
+:root:not(.theme-light) .page-body,
+:root:not(.theme-light) .main-content { background: #0f172a !important; color: #e2e8f0 !important; }
+
+/* List items generic */
+:root:not(.theme-light) li { color: #e2e8f0; }
+
+/* Form elements contrast */
+:root:not(.theme-light) fieldset { border-color: rgba(255,255,255,.12) !important; }
+:root:not(.theme-light) legend { color: #94a3b8 !important; }
+
+/* Stat values across all pages */
+:root:not(.theme-light) .stat-value,
+:root:not(.theme-light) .stat-num,
+:root:not(.theme-light) .value-big { color: #f1f5f9 !important; font-weight: 900; }
+:root:not(.theme-light) .stat-label,
+:root:not(.theme-light) .stat-name { color: #94a3b8 !important; }
+
+/* Section dividers */
+:root:not(.theme-light) .divider,
+:root:not(.theme-light) .separator { border-color: rgba(255,255,255,.10) !important; }
+
+/* Empty state messages */
+:root:not(.theme-light) .empty-state,
+:root:not(.theme-light) .no-data { color: #64748b !important; }
+
+/* Toast / alert */
+:root:not(.theme-light) .alert-info { background: rgba(59,130,246,.15) !important; color: #93c5fd !important; border-color: rgba(59,130,246,.30) !important; }
+:root:not(.theme-light) .alert-success { background: rgba(22,163,74,.15) !important; color: #86efac !important; border-color: rgba(22,163,74,.30) !important; }
+:root:not(.theme-light) .alert-warning { background: rgba(245,158,11,.15) !important; color: #fcd34d !important; border-color: rgba(245,158,11,.30) !important; }
+:root:not(.theme-light) .alert-danger { background: rgba(239,68,68,.15) !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.30) !important; }

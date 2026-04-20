@@ -516,3 +516,106 @@
 }
 :root:not(.theme-light) #ordersHistoryList { color: #e2e8f0; }
 :root:not(.theme-light) .analytics-card { background: #1e293b !important; border-color: rgba(31,79,216,.15) !important; }
+
+/* ── sdp-hist-row clickable ── */
+.sdp-hist-row--clickable {
+  cursor: pointer;
+  transition: background .12s;
+}
+.sdp-hist-row--clickable:hover {
+  background: #eef2ff;
+}
+:root:not(.theme-light) .sdp-hist-row--clickable:hover {
+  background: #1e3a5f;
+}
+
+/* ── Invoice history list (renderOrdersHistory) ── */
+.inv-hist-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  margin-bottom: 12px;
+}
+.inv-hist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+.inv-hist-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inv-hist-name { font-weight: 900; font-size: 15px; color: #0f172a; }
+.inv-hist-count { font-size: 12px; color: #6b7280; margin-top: 2px; }
+.inv-hist-total { font-weight: 900; font-size: 16px; color: #1f4fd8; }
+.inv-hist-open-link {
+  font-size: 12px;
+  background: #eef2ff;
+  color: #1f4fd8;
+  border-radius: 8px;
+  padding: 5px 10px;
+  text-decoration: none;
+  font-weight: 700;
+}
+.inv-hist-open-link:hover { background: #e0e7ff; }
+.inv-hist-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+.inv-hist-row:last-of-type { border-bottom: none; }
+.inv-hist-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.inv-hist-date { min-width: 86px; color: #374151; font-weight: 600; }
+.inv-hist-desc { flex: 1; color: #475569; min-width: 80px; }
+.inv-hist-amount { font-weight: 800; color: #1f4fd8; white-space: nowrap; }
+.inv-hist-status { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.inv-hist-status.inv-hist-status--paid { color: #16a34a; }
+.inv-hist-status.inv-hist-status--partial { color: #d97706; }
+.inv-hist-status.inv-hist-status--due { color: #1f4fd8; }
+.inv-hist-more {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+}
+.inv-hist-more-link { color: #1f4fd8; text-decoration: none; font-weight: 700; }
+.inv-hist-more-link:hover { text-decoration: underline; }
+
+/* Dark mode – invoice history list */
+:root:not(.theme-light) .inv-hist-card {
+  background: #1e293b;
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+}
+:root:not(.theme-light) .inv-hist-header {
+  background: #162032;
+  border-bottom-color: rgba(255,255,255,.08);
+}
+:root:not(.theme-light) .inv-hist-name { color: #f1f5f9; }
+:root:not(.theme-light) .inv-hist-count { color: #94a3b8; }
+:root:not(.theme-light) .inv-hist-total { color: #60a5fa; }
+:root:not(.theme-light) .inv-hist-open-link {
+  background: rgba(96,165,250,.12);
+  color: #60a5fa;
+}
+:root:not(.theme-light) .inv-hist-open-link:hover { background: rgba(96,165,250,.20); }
+:root:not(.theme-light) .inv-hist-row { border-bottom-color: rgba(255,255,255,.06); }
+:root:not(.theme-light) .inv-hist-date { color: #60a5fa; }
+:root:not(.theme-light) .inv-hist-desc { color: #e2e8f0; }
+:root:not(.theme-light) .inv-hist-amount { color: #93c5fd; }
+:root:not(.theme-light) .inv-hist-status.inv-hist-status--paid { color: #86efac; }
+:root:not(.theme-light) .inv-hist-status.inv-hist-status--partial { color: #fcd34d; }
+:root:not(.theme-light) .inv-hist-status.inv-hist-status--due { color: #93c5fd; }
+:root:not(.theme-light) .inv-hist-more { color: #64748b; }
+:root:not(.theme-light) .inv-hist-more-link { color: #60a5fa; }
