@@ -267,18 +267,23 @@
       const text = await file.text();
       const rows = parseCSV(text);
       if (!rows.length) { alert('Nessun dato trovato nel CSV.'); return; }
+      // Load existing clients once to avoid N+1 Firestore queries
+      let existingClienti = [];
+      try { existingClienti = await fs.getAll('clienti'); } catch (_) {}
       let saved = 0, errors = 0;
       for (const row of rows) {
         const data = normalizeClienteRow(row);
         if (!data.ragioneSociale) continue;
         try {
-          // Try merge by partitaIVA
+          // Try merge by partitaIVA using the pre-loaded list
           if (data.partitaIVA) {
-            const existing = await fs.getAll('clienti');
-            const found = existing.find(c => (c.partitaIVA || '').replace(/\s/g,'') === data.partitaIVA.replace(/\s/g,''));
+            const normalizedPIVA = data.partitaIVA.replace(/\s/g, '');
+            const found = existingClienti.find(c => (c.partitaIVA || '').replace(/\s/g,'') === normalizedPIVA);
             if (found) { await fs.update('clienti', found.id, data); saved++; continue; }
           }
-          await fs.add('clienti', { ...data, createdAt: new Date().toISOString() });
+          const newId = await fs.add('clienti', { ...data, createdAt: new Date().toISOString() });
+          // Keep cache in sync so later rows in the same batch can also match
+          existingClienti.push({ id: newId, ...data });
           saved++;
         } catch (err) {
           console.error('Import cliente error', err);

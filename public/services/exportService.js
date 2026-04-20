@@ -133,7 +133,15 @@ export function downloadXML(xml, filename) {
  * @param {string} title     - Page title shown in PDF header
  */
 export function exportToPDF(tableHtml, title = 'Report') {
-  const esc = (s) => String(s ?? '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Full HTML-escape for the title (user-supplied string).
+  // tableHtml is always generated internally by analytics.js using escapeHtml()
+  // on every cell value, so it is already sanitized before being passed here.
+  const esc = (s) => String(s ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
   let printDiv = document.getElementById('_pdf-print-div');
   if (!printDiv) {
     printDiv = document.createElement('div');

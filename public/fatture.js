@@ -792,7 +792,8 @@ async function generateRate({ fatturaId, clienteId, clienteNome, totale, nRate, 
   const tasks = [];
   for (let i = 1; i <= nRate; i++) {
     const scadDate = new Date(dataScadenza);
-    scadDate.setDate(scadDate.getDate() + (i - 1) * 30);
+    // Advance by (i-1) calendar months, clamping to end-of-month
+    scadDate.setMonth(scadDate.getMonth() + (i - 1));
     const dataScadenzaRata = scadDate.toISOString().slice(0, 10);
     const isLast = i === nRate;
     const importoRata = isLast
