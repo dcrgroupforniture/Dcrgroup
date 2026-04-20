@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRM — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420" />
+  <link rel="stylesheet" href="mobile.css?v=20260420" />
+  <link rel="stylesheet" href="crm.css?v=20260420" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page crm-page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">CRM Attività</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+      <option value="incassi.html">INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="finanze.html">FINANZE</option>
+      <option value="mandanti.html">MANDANTI</option>
+      <option value="crm.html" selected>CRM</option>
+      <option value="offerte.html">OFFERTE</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="mailing.html">MAILING</option>
+    </select>
+  </header>
+  <main class="crm-wrap">
+    <!-- KPI Strip -->
+    <section class="crm-kpi-strip">
+      <div class="crm-kpi-card"><div class="crm-kpi-label">Totale Attività</div><div class="crm-kpi-value" id="kpiTotale">0</div></div>
+      <div class="crm-kpi-card"><div class="crm-kpi-label">Visite</div><div class="crm-kpi-value" id="kpiVisite">0</div></div>
+      <div class="crm-kpi-card"><div class="crm-kpi-label">Chiamate</div><div class="crm-kpi-value" id="kpiChiamate">0</div></div>
+      <div class="crm-kpi-card"><div class="crm-kpi-label">Email</div><div class="crm-kpi-value" id="kpiEmail">0</div></div>
+    </section>
+    <!-- Filter Bar -->
+    <div class="crm-filter-bar">
+      <select id="filterTipo" class="crm-select"><option value="">Tutti i tipi</option><option value="visita">Visita</option><option value="chiamata">Chiamata</option><option value="email">Email</option></select>
+      <input type="date" id="filterDataDa" class="crm-input" title="Data da"/>
+      <input type="date" id="filterDataA" class="crm-input" title="Data a"/>
+      <input type="search" id="filterCliente" class="crm-input" placeholder="Filtra cliente…"/>
+      <input type="search" id="filterMandante" class="crm-input" placeholder="Filtra mandante…"/>
+      <button class="crm-btn crm-btn-primary" id="btnNewAttivita">＋ Nuova Attività</button>
+    </div>
+    <!-- Table -->
+    <div class="crm-table-wrap">
+      <table class="crm-table" id="crmTable">
+        <thead><tr><th>Data</th><th>Tipo</th><th>Cliente</th><th>Mandante</th><th>Esito</th><th>Descrizione</th><th>Azioni</th></tr></thead>
+        <tbody id="crmBody"></tbody>
+      </table>
+      <div class="crm-empty-state" id="crmEmpty">Nessuna attività trovata.</div>
+    </div>
+  </main>
+  <!-- Modal -->
+  <div class="crm-modal-overlay" id="modalAttivita" style="display:none">
+    <div class="crm-modal">
+      <div class="crm-modal-header"><h3 id="modalAttivitaTitle">Nuova Attività</h3><button class="crm-modal-close" id="closeModalAttivita">×</button></div>
+      <form id="formAttivita" class="crm-form-grid" autocomplete="off">
+        <input type="hidden" name="id"/>
+        <div class="crm-field"><label>Tipo *</label><select name="tipo" required class="crm-select"><option value="visita">Visita</option><option value="chiamata">Chiamata</option><option value="email">Email</option></select></div>
+        <div class="crm-field"><label>Data *</label><input type="date" name="data" required class="crm-input"/></div>
+        <div class="crm-field"><label>Ora</label><input type="time" name="ora" class="crm-input"/></div>
+        <div class="crm-field"><label>Durata (min)</label><input type="number" name="durata" class="crm-input" min="0" placeholder="60"/></div>
+        <div class="crm-field"><label>Cliente</label><select name="clienteId" class="crm-select" id="selectCliente"><option value="">— Nessuno —</option></select></div>
+        <div class="crm-field"><label>Mandante</label><select name="mandanteId" class="crm-select" id="selectMandante"><option value="">— Nessuno —</option></select></div>
+        <div class="crm-field"><label>Esito</label><select name="esito" class="crm-select"><option value="positivo">Positivo</option><option value="neutro">Neutro</option><option value="negativo">Negativo</option><option value="da_seguire">Da Seguire</option></select></div>
+        <div class="crm-field" style="grid-column:1/-1"><label>Descrizione</label><textarea name="descrizione" rows="3" class="crm-textarea" placeholder="Descrizione attività…"></textarea></div>
+        <div class="crm-field" style="grid-column:1/-1"><label>Note</label><textarea name="note" rows="2" class="crm-textarea" placeholder="Note aggiuntive…"></textarea></div>
+        <div style="grid-column:1/-1"><button type="submit" class="crm-btn crm-btn-primary">Salva</button></div>
+      </form>
+    </div>
+  </div>
+  <script type="module" src="./crm.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+/* ============================================================
+   Fatture (Invoices) – DCR GROUP
+   Dark mode default | Light mode via html.theme-light
+   Primary brand: #ec4899 (pink)
+   ============================================================ */
+
+/* ── CSS Variables ── */
+:root:not(.theme-light) {
+  --fatt-bg:           #0b1a2a;
+  --fatt-card:         #112233;
+  --fatt-card2:        #1a2f44;
+  --fatt-brand:        #ec4899;
+  --fatt-brand-dark:   #db2777;
+  --fatt-text:         #e2e8f0;
+  --fatt-muted:        #94a3b8;
+  --fatt-border:       rgba(255,255,255,.10);
+  --fatt-danger:       #ef4444;
+  --fatt-success:      #22c55e;
+  --fatt-warning:      #f59e0b;
+  --fatt-info:         #3b82f6;
+  --fatt-shadow:       0 4px 24px rgba(0,0,0,.45);
+  --fatt-input-bg:     #0b1a2a;
+  --fatt-input-border: rgba(255,255,255,.18);
+  --fatt-row-hover:    rgba(236,72,153,.07);
+  --fatt-overlay:      rgba(0,0,0,.75);
+  --fatt-editor-bg:    #0e1f33;
+  --fatt-editor-hdr:   #0b1a2a;
+  --fatt-totals-bg:    #1a2f44;
+  --fatt-thead-bg:     #0b1a2a;
+}
+
+:root.theme-light {
+  --fatt-bg:           #f0f4f8;
+  --fatt-card:         #ffffff;
+  --fatt-card2:        #f1f5f9;
+  --fatt-brand:        #ec4899;
+  --fatt-brand-dark:   #db2777;
+  --fatt-text:         #0f172a;
+  --fatt-muted:        #64748b;
+  --fatt-border:       rgba(0,0,0,.10);
+  --fatt-danger:       #dc2626;
+  --fatt-success:      #16a34a;
+  --fatt-warning:      #d97706;
+  --fatt-info:         #2563eb;
+  --fatt-shadow:       0 4px 24px rgba(0,0,0,.10);
+  --fatt-input-bg:     #ffffff;
+  --fatt-input-border: rgba(0,0,0,.18);
+  --fatt-row-hover:    rgba(236,72,153,.06);
+  --fatt-overlay:      rgba(0,0,0,.55);
+  --fatt-editor-bg:    #ffffff;
+  --fatt-editor-hdr:   #f8fafc;
+  --fatt-totals-bg:    #f1f5f9;
+  --fatt-thead-bg:     #f1f5f9;
+}
+
+/* ── Page Base ── */
+body.fatture-page {
+  background: var(--fatt-bg);
+  color: var(--fatt-text);
+  min-height: 100vh;
+}
+
+/* ── Main Wrap ── */
+.fatture-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: calc(76px + env(safe-area-inset-top)) 20px 80px;
+  padding-left:  max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(80px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ─────────────────────────────────────────────
+   KPI STRIP
+───────────────────────────────────────────── */
+.fatture-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.fatture-kpi-card {
+  background: var(--fatt-card);
+  border: 1px solid var(--fatt-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--fatt-shadow);
+  transition: transform .15s;
+}
+.fatture-kpi-card:hover { transform: translateY(-2px); }
+.fatture-kpi-card.kpi-danger { border-color: rgba(239,68,68,.35); }
+.fatture-kpi-card.kpi-danger .fatture-kpi-value { color: var(--fatt-danger); }
+
+.fatture-kpi-label {
+  font-size: 11px;
+  color: var(--fatt-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 600;
+}
+
+.fatture-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fatt-brand);
+  letter-spacing: -.02em;
+}
+
+/* ─────────────────────────────────────────────
+   MAIN TABS
+───────────────────────────────────────────── */
+.fatture-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--fatt-border);
+  padding-bottom: 0;
+}
+
+.fatture-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 10px 22px;
+  color: var(--fatt-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.fatture-tab:hover {
+  color: var(--fatt-text);
+  background: rgba(255,255,255,.04);
+}
+.fatture-tab.active {
+  color: var(--fatt-brand);
+  border-bottom-color: var(--fatt-brand);
+  background: rgba(236,72,153,.06);
+}
+
+/* ─────────────────────────────────────────────
+   PANELS
+───────────────────────────────────────────── */
+.fatture-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ─────────────────────────────────────────────
+   FILTER BAR
+───────────────────────────────────────────── */
+.fatture-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.fatt-select,
+.fatt-input {
+  background: var(--fatt-input-bg);
+  border: 1px solid var(--fatt-input-border);
+  border-radius: 8px;
+  color: var(--fatt-text);
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+}
+.fatt-select:focus,
+.fatt-input:focus {
+  border-color: var(--fatt-brand);
+}
+.fatt-select option { background: var(--fatt-card); }
+
+/* ─────────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────────── */
+.fatture-btn {
+  background: var(--fatt-card2);
+  border: 1px solid var(--fatt-border);
+  border-radius: 8px;
+  color: var(--fatt-text);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  white-space: nowrap;
+}
+.fatture-btn:hover { background: var(--fatt-card); border-color: var(--fatt-brand); }
+.fatture-btn:active { transform: scale(.97); }
+
+.fatture-btn-primary {
+  background: var(--fatt-brand);
+  border-color: var(--fatt-brand);
+  color: #fff;
+}
+.fatture-btn-primary:hover { background: var(--fatt-brand-dark); border-color: var(--fatt-brand-dark); }
+
+.fatture-btn-sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.fatture-btn-danger {
+  background: rgba(239,68,68,.15);
+  border-color: var(--fatt-danger);
+  color: var(--fatt-danger);
+}
+.fatture-btn-danger:hover { background: var(--fatt-danger); color: #fff; }
+
+/* ─────────────────────────────────────────────
+   TABLE
+───────────────────────────────────────────── */
+.fatture-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--fatt-border);
+  box-shadow: var(--fatt-shadow);
+}
+
+.fatture-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.fatture-table thead th {
+  background: var(--fatt-thead-bg);
+  color: var(--fatt-muted);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--fatt-border);
+  white-space: nowrap;
+}
+
+.fatture-table tbody tr {
+  border-bottom: 1px solid var(--fatt-border);
+  transition: background .12s;
+}
+.fatture-table tbody tr:last-child { border-bottom: none; }
+.fatture-table tbody tr:hover { background: var(--fatt-row-hover); }
+
+.fatture-table td {
+  padding: 11px 14px;
+  vertical-align: middle;
+  color: var(--fatt-text);
+}
+
+.fatture-empty-state {
+  display: none;
+  text-align: center;
+  color: var(--fatt-muted);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+.fatture-empty-state.visible { display: block; }
+
+/* ─────────────────────────────────────────────
+   STATUS BADGES
+───────────────────────────────────────────── */
+.fatt-stato-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fatt-stato-bozza {
+  background: rgba(148,163,184,.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148,163,184,.3);
+}
+.fatt-stato-emessa {
+  background: rgba(59,130,246,.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,.3);
+}
+.fatt-stato-inviata {
+  background: rgba(99,102,241,.15);
+  color: #818cf8;
+  border: 1px solid rgba(99,102,241,.3);
+}
+.fatt-stato-pagata {
+  background: rgba(34,197,94,.15);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,.3);
+}
+.fatt-stato-parziale {
+  background: rgba(245,158,11,.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245,158,11,.3);
+}
+.fatt-stato-scaduta {
+  background: rgba(239,68,68,.15);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,.3);
+}
+.fatt-stato-annullata {
+  background: rgba(148,163,184,.10);
+  color: #64748b;
+  border: 1px solid rgba(148,163,184,.2);
+  text-decoration: line-through;
+}
+
+/* ── Document type badge ── */
+.fatt-tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba(236,72,153,.12);
+  color: var(--fatt-brand);
+  border: 1px solid rgba(236,72,153,.25);
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   TABLE ACTION BUTTONS (inside td)
+───────────────────────────────────────────── */
+.fatt-td-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   FULL-SCREEN EDITOR OVERLAY
+───────────────────────────────────────────── */
+.fatt-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: var(--fatt-overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.fatt-editor {
+  background: var(--fatt-editor-bg);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 980px;
+  box-shadow: 0 8px 48px rgba(0,0,0,.60);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.fatt-editor-header {
+  background: var(--fatt-editor-hdr);
+  border-bottom: 1px solid var(--fatt-border);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.fatt-editor-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fatt-brand);
+}
+
+.fatt-editor-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.fatt-editor-footer {
+  background: var(--fatt-editor-hdr);
+  border-top: 1px solid var(--fatt-border);
+  padding: 14px 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   FORM GRID
+───────────────────────────────────────────── */
+.fatt-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px 18px;
+}
+
+.fatt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fatt-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--fatt-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.fatt-field input,
+.fatt-field select,
+.fatt-field textarea {
+  background: var(--fatt-input-bg);
+  border: 1px solid var(--fatt-input-border);
+  border-radius: 8px;
+  color: var(--fatt-text);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+  resize: vertical;
+}
+.fatt-field input:focus,
+.fatt-field select:focus,
+.fatt-field textarea:focus { border-color: var(--fatt-brand); }
+.fatt-field input[readonly] { opacity: .65; cursor: default; }
+.fatt-field select option { background: var(--fatt-card); }
+
+/* ── Cliente Snapshot Block ── */
+.fatt-cliente-snapshot {
+  border: 1px solid rgba(236,72,153,.25);
+  border-radius: 10px;
+  padding: 16px 20px;
+  background: rgba(236,72,153,.04);
+}
+.fatt-snapshot-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fatt-brand);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 12px;
+}
+.fatt-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px 18px;
+}
+
+/* ─────────────────────────────────────────────
+   RIGHE FATTURA (Invoice Lines)
+───────────────────────────────────────────── */
+.fatt-righe-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fatt-righe-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fatt-righe-toolbar h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fatt-text);
+}
+
+.fatt-righe-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--fatt-border);
+}
+
+.fatt-righe-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.fatt-righe-table thead th {
+  background: var(--fatt-thead-bg);
+  color: var(--fatt-muted);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 10px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--fatt-border);
+  white-space: nowrap;
+}
+
+.fatt-righe-table tbody tr { border-bottom: 1px solid var(--fatt-border); }
+.fatt-righe-table tbody tr:last-child { border-bottom: none; }
+
+.fatt-righe-table td {
+  padding: 7px 8px;
+  vertical-align: middle;
+}
+
+.fatt-righe-table td input,
+.fatt-righe-table td select {
+  background: var(--fatt-input-bg);
+  border: 1px solid var(--fatt-input-border);
+  border-radius: 6px;
+  color: var(--fatt-text);
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color .12s;
+}
+.fatt-righe-table td input:focus,
+.fatt-righe-table td select:focus { border-color: var(--fatt-brand); }
+
+.fatt-righe-table td .totale-riga {
+  font-weight: 700;
+  color: var(--fatt-brand);
+  white-space: nowrap;
+  min-width: 80px;
+  display: inline-block;
+  text-align: right;
+}
+
+/* ─────────────────────────────────────────────
+   TOTALS BOX
+───────────────────────────────────────────── */
+.fatt-totals-box {
+  background: var(--fatt-totals-bg);
+  border: 1px solid var(--fatt-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: flex-end;
+  min-width: 280px;
+  max-width: 380px;
+  width: 100%;
+}
+
+.fatt-totals-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fatt-border);
+  margin-bottom: 4px;
+}
+
+.fatt-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--fatt-muted);
+}
+
+.fatt-totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--fatt-text);
+}
+
+.fatt-totals-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fatt-brand);
+  padding-top: 6px;
+  border-top: 1px solid var(--fatt-border);
+  margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   PAYMENT MODAL
+───────────────────────────────────────────── */
+.fatt-pag-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  background: var(--fatt-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.fatt-pag-modal {
+  background: var(--fatt-editor-bg);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 8px 48px rgba(0,0,0,.60);
+  overflow: hidden;
+}
+
+.fatt-pag-modal-header {
+  background: var(--fatt-editor-hdr);
+  border-bottom: 1px solid var(--fatt-border);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fatt-pag-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fatt-brand);
+}
+
+.fatt-pag-modal form.fatt-form-grid {
+  padding: 20px;
+}
+
+/* ─────────────────────────────────────────────
+   SCADENZA STATES IN TABLE
+───────────────────────────────────────────── */
+.fatt-scad-overdue { color: var(--fatt-danger); font-weight: 700; }
+.fatt-scad-today   { color: var(--fatt-warning); font-weight: 700; }
+.fatt-scad-ok      { color: var(--fatt-success); }
+
+/* ─────────────────────────────────────────────
+   PRINT STYLESHEET
+───────────────────────────────────────────── */
+@media print {
+  body > *:not(#fattPrintArea) { display: none !important; }
+  #fattPrintArea {
+    display: block !important;
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    color: #000;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    z-index: 99999;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .fatture-kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .fatt-totals-box {
+    align-self: stretch;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .fatture-kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .fatture-kpi-value { font-size: 17px; }
+
+  .fatture-filter-bar { gap: 8px; }
+  .fatture-filter-bar .fatture-btn { margin-left: auto; }
+
+  .fatt-editor-overlay { padding: 0; align-items: flex-end; }
+  .fatt-editor {
+    border-radius: 14px 14px 0 0;
+    max-width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+  .fatt-editor-body { padding: 16px; }
+  .fatt-editor-header { padding: 14px 16px; }
+
+  .fatture-table thead th,
+  .fatture-table td { padding: 9px 10px; font-size: 12px; }
+
+  .fatt-pag-modal { border-radius: 14px 14px 0 0; }
+  .fatt-pag-modal-overlay { align-items: flex-end; }
+}
+
+@media (max-width: 400px) {
+  .fatture-kpi-strip { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .fatture-kpi-card { padding: 12px 14px; }
+  .fatture-kpi-value { font-size: 15px; }
+}

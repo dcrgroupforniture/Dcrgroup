@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mailing — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420" />
+  <link rel="stylesheet" href="mobile.css?v=20260420" />
+  <link rel="stylesheet" href="mailing.css?v=20260420" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page mailing-page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">Mailing</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+      <option value="incassi.html">INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="finanze.html">FINANZE</option>
+      <option value="mandanti.html">MANDANTI</option>
+      <option value="crm.html">CRM</option>
+      <option value="offerte.html">OFFERTE</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="mailing.html" selected>MAILING</option>
+    </select>
+  </header>
+
+  <main class="mailing-wrap">
+    <!-- KPI Strip -->
+    <section class="mailing-kpi-strip">
+      <div class="mailing-kpi-card">
+        <div class="mailing-kpi-label">Campagne Totali</div>
+        <div class="mailing-kpi-value" id="kpiCampagne">0</div>
+      </div>
+      <div class="mailing-kpi-card">
+        <div class="mailing-kpi-label">Email Inviate</div>
+        <div class="mailing-kpi-value" id="kpiEmailInviate">0</div>
+      </div>
+      <div class="mailing-kpi-card">
+        <div class="mailing-kpi-label">Tasso Apertura Stimato</div>
+        <div class="mailing-kpi-value" id="kpiApertura">—</div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <nav class="mailing-tabs" role="tablist">
+      <button class="mailing-tab active" role="tab" data-tab="campagne">Campagne</button>
+      <button class="mailing-tab" role="tab" data-tab="nuova">Nuova Campagna</button>
+      <button class="mailing-tab" role="tab" data-tab="log">Log Invii</button>
+    </nav>
+
+    <!-- Tab: Campagne -->
+    <div class="mailing-panel" id="panelCampagne">
+      <div class="mailing-table-wrap">
+        <table class="mailing-table" id="campagneTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Oggetto</th>
+              <th>Segmento</th>
+              <th>Data Invio</th>
+              <th>Destinatari</th>
+              <th>Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="campagneBody"></tbody>
+        </table>
+        <div class="mailing-empty-state" id="campagneEmpty">
+          Nessuna campagna. Vai su "Nuova Campagna" per crearne una.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Nuova Campagna -->
+    <div class="mailing-panel" id="panelNuova" style="display:none">
+      <div class="mail-info-banner" id="mailInfoBanner">
+        ℹ️ <strong>Nota:</strong> L'invio effettivo delle email richiede la configurazione di Firebase Cloud Functions.
+        La campagna verrà salvata e il log registrato, ma le email non saranno inviate automaticamente senza il backend.
+      </div>
+      <form id="formCampagna" class="mail-campagna-form" autocomplete="off">
+        <input type="hidden" name="docId"/>
+        <div class="mail-form-grid">
+          <div class="mail-field">
+            <label>Nome Campagna *</label>
+            <input type="text" name="nome" required placeholder="Es. Newsletter Novembre 2025"/>
+          </div>
+          <div class="mail-field">
+            <label>Oggetto Email *</label>
+            <input type="text" name="oggetto" required placeholder="Es. Novità prodotti autunno"/>
+          </div>
+          <div class="mail-field">
+            <label>Segmento Destinatari</label>
+            <select name="segmento" id="segmentoSel">
+              <option value="tutti">Tutti i Clienti</option>
+              <option value="mandante">Per Mandante</option>
+              <option value="stato">Per Stato Cliente</option>
+            </select>
+          </div>
+          <div class="mail-field" id="fieldMandanteFiltro" style="display:none">
+            <label>Mandante</label>
+            <select name="filtroMandanteId" id="filtroMandanteSel">
+              <option value="">— Tutti —</option>
+            </select>
+          </div>
+          <div class="mail-field" id="fieldStatoFiltro" style="display:none">
+            <label>Stato Cliente</label>
+            <input type="text" name="filtroStato" placeholder="Es. attivo"/>
+          </div>
+        </div>
+        <div class="mail-field">
+          <label>Corpo Email *</label>
+          <textarea
+            name="corpo"
+            id="mailCorpo"
+            required
+            rows="12"
+            class="mail-editor-body"
+            placeholder="Scrivi qui il corpo dell'email. Puoi usare HTML di base (grassetto con <b>, a capo con <br>, link con <a href=…>)…"
+          ></textarea>
+        </div>
+        <div class="mail-preview-box" id="mailPreviewBox">
+          <span>Destinatari stimati:</span>
+          <strong id="mailDestinatariCount">—</strong>
+          <button type="button" class="mailing-btn mailing-btn-sm" id="btnCalcDestinatari">Calcola</button>
+        </div>
+        <div class="mail-form-actions">
+          <button type="button" class="mailing-btn" id="btnSalvaBozzaMail">Salva Bozza</button>
+          <button type="button" class="mailing-btn mailing-btn-primary" id="btnInviaTest">✉ Invia Test</button>
+          <button type="button" class="mailing-btn mailing-btn-primary" id="btnInviaTutti">📤 Invia a Tutti</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab: Log Invii -->
+    <div class="mailing-panel" id="panelLog" style="display:none">
+      <div class="mailing-table-wrap">
+        <table class="mailing-table" id="logTable">
+          <thead>
+            <tr>
+              <th>Campagna</th>
+              <th>Data Invio</th>
+              <th>Email</th>
+              <th>Cliente</th>
+              <th>Stato</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+        <div class="mailing-empty-state" id="logEmpty">
+          Nessun log invii disponibile.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./mailing.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>
