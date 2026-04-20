@@ -171,6 +171,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       const incassoId = `${orderId}__pay_${i}`;
       await setDoc(doc(db, "incassi", incassoId), {
         date: effectiveIncassoDate,
+        dateISO: effectiveIncassoDate,
         source: "ordine",
         orderId,
         clientId: clientId || null,

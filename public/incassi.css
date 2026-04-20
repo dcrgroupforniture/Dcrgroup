@@ -514,3 +514,31 @@ textarea{min-height:120px;resize:none}
 }
 :root:not(.theme-light) .backup-item { color: #e2e8f0; }
 :root:not(.theme-light) .backup-item:hover { background: rgba(59,130,246,.12); }
+
+/* Popup e modal: contrasto finale leggibile (override alto) */
+.incassi-popup .popup-box,
+.modal-card{
+  color:#0f172a;
+}
+.incassi-popup .popup-body,
+.modal-body{
+  color:#0f172a;
+}
+.incassi-popup .popup-actions .incassi-btn{
+  border:1px solid rgba(15,23,42,.18);
+  box-shadow:0 6px 14px rgba(15,23,42,.10);
+}
+:root:not(.theme-light) .incassi-popup .popup-box,
+:root:not(.theme-light) .modal-card{
+  background:#0f172a !important;
+  border-color:rgba(255,255,255,.18) !important;
+  color:#e2e8f0 !important;
+}
+:root:not(.theme-light) .incassi-popup .popup-body,
+:root:not(.theme-light) .modal-body{
+  color:#e2e8f0 !important;
+}
+:root:not(.theme-light) .modal-title,
+:root:not(.theme-light) .incassi-popup .popup-title{
+  color:#f8fafc !important;
+}
