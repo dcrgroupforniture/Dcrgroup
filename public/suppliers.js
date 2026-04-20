@@ -602,7 +602,7 @@ function sanitizeExternalUrl(rawUrl){
   if(!rawUrl) return "";
   try{
     const u = new URL(String(rawUrl), window.location.origin);
-    const allowedProtocols = new Set(["https:", "http:", "blob:", "data:"]);
+    const allowedProtocols = new Set(["https:", "http:"]);
     if(!allowedProtocols.has(u.protocol)) return "";
     return u.href;
   }catch(_){
