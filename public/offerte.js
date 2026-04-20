@@ -1,6 +1,7 @@
 // offerte.js — Offerte (Quotes) module for DCR GROUP
 import { firestoreService as fs } from './services/firestoreService.js';
 import { euro, todayISO, escapeHtml, fmtDate } from './utils.js';
+import { applyBestSconto } from './sconti.js';
 import { auth } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
@@ -60,6 +61,7 @@ const offTotale      = document.getElementById('offTotale');
 const btnSalvaBozza   = document.getElementById('btnSalvaBozza');
 const btnInviaOfferta = document.getElementById('btnInviaOfferta');
 const btnConvertOrdine= document.getElementById('btnConvertOrdine');
+const btnApplicaSconto= document.getElementById('btnApplicaSconto');
 
 // ── Auth guard ─────────────────────────────────────────────────────────────
 
@@ -555,7 +557,90 @@ function bindEvents() {
     await saveOfferta('inviata');
   });
 
-  btnConvertOrdine.addEventListener('click', () => {
-    alert('Funzione "Converti in Ordine" disponibile in una prossima versione.');
+  btnConvertOrdine.addEventListener('click', async () => {
+    if (!currentDocId) return;
+    const offerta = offerte.find(o => o.id === currentDocId);
+    if (!offerta) return;
+    if (offerta.ordineId) {
+      alert('Questa offerta è già stata convertita in ordine.');
+      return;
+    }
+    if (!confirm(`Convertire l'offerta ${offerta.numero || currentDocId} in un ordine?`)) return;
+
+    const righeOrdine = (offerta.righe || []).map(r => ({
+      codice:         r.codice || '',
+      descrizione:    r.descrizione || '',
+      quantita:       Number(r.quantita) || 0,
+      prezzoUnitario: Number(r.prezzoUnitario) || 0,
+      sconto:         Number(r.sconto) || 0,
+      aliquotaIVA:    Number(r.aliquotaIVA) || 0,
+      totaleRiga:     Number(r.totaleRiga) || 0,
+    }));
+
+    const orderData = {
+      clienteId:     offerta.clienteId     || '',
+      clienteNome:   offerta.clienteNome   || '',
+      mandanteId:    offerta.mandanteId    || '',
+      mandanteNome:  offerta.mandanteNome  || '',
+      righe:         righeOrdine,
+      totale:        Number(offerta.totale) || 0,
+      stato:         'da_incassare',
+      source:        'offerta_import',
+      offertaId:     currentDocId,
+      offertaNumero: offerta.numero || '',
+      createdAt:     fs.serverTimestamp(),
+    };
+
+    try {
+      const newOrderId = await fs.add('orders', orderData);
+      await fs.update(COL_OFFERTE, currentDocId, { ordineId: newOrderId });
+      const idx = offerte.findIndex(o => o.id === currentDocId);
+      if (idx !== -1) offerte[idx].ordineId = newOrderId;
+      alert(`Ordine creato con successo (ID: ${newOrderId}). Vuoi aprire la pagina ordini?`);
+      if (confirm('Vai alla pagina Ordini Clienti?')) {
+        window.location.href = 'ordini-clienti.html';
+      }
+    } catch (e) {
+      console.error('[offerte] convertOrdine', e);
+      alert('Errore nella conversione: ' + (e.message || e));
+    }
   });
+
+  // M2-D: Applica sconto
+  if (btnApplicaSconto) {
+    btnApplicaSconto.addEventListener('click', async () => {
+      const clienteId  = formOfferta.elements['clienteId']?.value  || '';
+      const mandanteId = formOfferta.elements['mandanteId']?.value || '';
+      let imponibile = 0;
+      righe.forEach(r => { imponibile += calcRiga(r); });
+      try {
+        const sconto = await applyBestSconto(clienteId, mandanteId, imponibile);
+        if (!sconto) {
+          alert('Nessuna regola di sconto applicabile per questa combinazione.');
+          return;
+        }
+        const label = sconto.tipoSconto === 'valore_fisso'
+          ? `€ ${sconto.valore}`
+          : `${sconto.valore}%`;
+        if (confirm(`Applicare sconto "${label}" (priorità ${sconto.priorita})?\nNote: ${sconto.note || '—'}`)) {
+          righe.forEach(r => { r.sconto = Number(sconto.valore) || 0; });
+          // re-render righe
+          righeBody.querySelectorAll('tr[data-riga-id]').forEach(tr => {
+            const rid  = Number(tr.dataset.rigaId);
+            const riga = righe.find(r => r.id === rid);
+            if (!riga) return;
+            const inp = tr.querySelector('[data-field="sconto"]');
+            if (inp) inp.value = riga.sconto;
+            riga.totaleRiga = calcRiga(riga);
+            const cell = tr.querySelector(`[data-riga-totale="${rid}"]`);
+            if (cell) cell.textContent = euro(riga.totaleRiga);
+          });
+          calcTotals();
+        }
+      } catch (err) {
+        console.error('[offerte] applySconto', err);
+        alert('Errore: ' + (err.message || err));
+      }
+    });
+  }
 }

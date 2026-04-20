@@ -385,3 +385,63 @@ body.crm-page {
     display: none;
   }
 }
+
+/* ── Tabs (M2-B) ── */
+.crm-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px 0;
+  border-bottom: 2px solid var(--crm-border, #e2e8f0);
+  margin-bottom: 0;
+}
+.crm-tab {
+  padding: 8px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 4px 4px 0 0;
+  transition: color .2s, border-color .2s;
+}
+.crm-tab.active {
+  color: #14b8a6;
+  border-bottom-color: #14b8a6;
+  background: rgba(20,184,166,.06);
+}
+
+/* ── Timeline (M2-B) ── */
+.crm-timeline-wrap {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin: 16px;
+  padding: 16px;
+}
+.crm-timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.crm-timeline-header h3 { flex: 1; margin: 0; font-size: 15px; }
+.crm-timeline-steps { display: flex; flex-direction: column; gap: 12px; }
+.crm-timeline-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.crm-timeline-dot {
+  width: 10px; height: 10px;
+  background: #14b8a6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.crm-timeline-content { flex: 1; }
+.crm-timeline-date { font-size: 12px; color: #64748b; }
+.crm-timeline-desc { font-size: 14px; color: #1e293b; }
+.crm-timeline-user { font-size: 11px; color: #94a3b8; }

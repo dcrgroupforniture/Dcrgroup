@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sconti — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420"/>
+  <link rel="stylesheet" href="mobile.css?v=20260420"/>
+  <link rel="stylesheet" href="sconti.css?v=20260420"/>
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">🏷️ Sconti</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="offerte.html">OFFERTE</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="crm.html">CRM</option>
+    </select>
+  </header>
+
+  <main class="sconti-wrap">
+    <section class="sconti-kpi-strip">
+      <div class="sconti-kpi-card"><div class="sconti-kpi-label">Totale Regole</div><div class="sconti-kpi-value" id="kpiTot">0</div></div>
+      <div class="sconti-kpi-card"><div class="sconti-kpi-label">Attive Oggi</div><div class="sconti-kpi-value" id="kpiAttive">0</div></div>
+      <div class="sconti-kpi-card"><div class="sconti-kpi-label">% Media</div><div class="sconti-kpi-value" id="kpiMedia">0%</div></div>
+    </section>
+
+    <div class="sconti-filter-bar">
+      <input type="search" id="filterCliente" class="sc-input" placeholder="Filtra cliente…"/>
+      <input type="search" id="filterMandante" class="sc-input" placeholder="Filtra mandante…"/>
+      <button class="sc-btn sc-btn-primary" id="btnNewSconto">＋ Nuovo Sconto</button>
+    </div>
+
+    <div class="sconti-table-wrap">
+      <table class="sconti-table">
+        <thead>
+          <tr>
+            <th>Priorità</th>
+            <th>Cliente</th>
+            <th>Mandante</th>
+            <th>Tipo</th>
+            <th>Valore</th>
+            <th>Soglia (€)</th>
+            <th>Dal</th>
+            <th>Al</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="scontiBody"></tbody>
+      </table>
+      <div class="sconti-empty" id="scontiEmpty">Nessuna regola trovata.</div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="sc-modal-overlay" id="modalSconto" style="display:none">
+    <div class="sc-modal">
+      <div class="sc-modal-header">
+        <h3 id="modalScontoTitle">Nuovo Sconto</h3>
+        <button class="sc-modal-close" id="closeModalSconto">×</button>
+      </div>
+      <form id="formSconto" class="sc-form-grid" autocomplete="off">
+        <input type="hidden" name="id"/>
+        <div class="sc-field"><label>Cliente</label><select name="clienteId" class="sc-select" id="selectScontoCliente"><option value="">— Tutti —</option></select></div>
+        <div class="sc-field"><label>Mandante</label><select name="mandanteId" class="sc-select" id="selectScontoMandante"><option value="">— Tutti —</option></select></div>
+        <div class="sc-field"><label>Tipo Sconto</label>
+          <select name="tipoSconto" class="sc-select">
+            <option value="percentuale">Percentuale %</option>
+            <option value="valore_fisso">Valore fisso €</option>
+          </select>
+        </div>
+        <div class="sc-field"><label>Valore *</label><input type="number" name="valore" required class="sc-input" min="0" step="any" placeholder="es. 10"/></div>
+        <div class="sc-field"><label>Soglia minima (€)</label><input type="number" name="soglia" class="sc-input" min="0" step="any" placeholder="0"/></div>
+        <div class="sc-field"><label>Priorità (1=max)</label><input type="number" name="priorita" class="sc-input" min="1" placeholder="1"/></div>
+        <div class="sc-field"><label>Data Inizio</label><input type="date" name="dataInizio" class="sc-input"/></div>
+        <div class="sc-field"><label>Data Fine</label><input type="date" name="dataFine" class="sc-input"/></div>
+        <div class="sc-field" style="grid-column:1/-1"><label>Note</label><input type="text" name="note" class="sc-input" placeholder="Note facoltative…"/></div>
+        <div style="grid-column:1/-1"><button type="submit" class="sc-btn sc-btn-primary">Salva</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./sconti.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>

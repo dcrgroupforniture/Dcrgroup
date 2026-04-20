@@ -38,6 +38,14 @@
     </select>
   </header>
   <main class="crm-wrap">
+    <!-- Tab switcher -->
+    <div class="crm-tabs">
+      <button class="crm-tab active" id="tabAttivita" data-tab="attivita">Attività</button>
+      <button class="crm-tab" id="tabTrattative" data-tab="trattative">Trattative</button>
+    </div>
+
+    <!-- Panel: Attività -->
+    <div id="panelAttivita">
     <!-- KPI Strip -->
     <section class="crm-kpi-strip">
       <div class="crm-kpi-card"><div class="crm-kpi-label">Totale Attività</div><div class="crm-kpi-value" id="kpiTotale">0</div></div>
@@ -62,8 +70,47 @@
       </table>
       <div class="crm-empty-state" id="crmEmpty">Nessuna attività trovata.</div>
     </div>
+    </div><!-- end panelAttivita -->
+
+    <!-- Panel: Trattative -->
+    <div id="panelTrattative" style="display:none">
+      <section class="crm-kpi-strip">
+        <div class="crm-kpi-card"><div class="crm-kpi-label">Totale</div><div class="crm-kpi-value" id="kpiTrattTot">0</div></div>
+        <div class="crm-kpi-card"><div class="crm-kpi-label">Aperte</div><div class="crm-kpi-value" id="kpiTrattAperte">0</div></div>
+        <div class="crm-kpi-card"><div class="crm-kpi-label">Vinte</div><div class="crm-kpi-value" id="kpiTrattVinte">0</div></div>
+        <div class="crm-kpi-card"><div class="crm-kpi-label">Perse</div><div class="crm-kpi-value" id="kpiTrattPerse">0</div></div>
+      </section>
+      <div class="crm-filter-bar">
+        <input type="search" id="filterTrattCliente" class="crm-input" placeholder="Filtra cliente…"/>
+        <select id="filterTrattStato" class="crm-select">
+          <option value="">Tutti gli stati</option>
+          <option value="aperta">Aperta</option>
+          <option value="in_corso">In Corso</option>
+          <option value="chiusa_vinta">Chiusa Vinta</option>
+          <option value="chiusa_persa">Chiusa Persa</option>
+        </select>
+        <button class="crm-btn crm-btn-primary" id="btnNewTrattativa">＋ Nuova Trattativa</button>
+      </div>
+      <div class="crm-table-wrap">
+        <table class="crm-table" id="trattativeTable">
+          <thead><tr><th>Titolo</th><th>Cliente</th><th>Mandante</th><th>Stato</th><th>Valore</th><th>Apertura</th><th>Azioni</th></tr></thead>
+          <tbody id="trattativeBody"></tbody>
+        </table>
+        <div class="crm-empty-state" id="trattativeEmpty">Nessuna trattativa trovata.</div>
+      </div>
+      <!-- Timeline panel -->
+      <div id="trattativaTimeline" style="display:none" class="crm-timeline-wrap">
+        <div class="crm-timeline-header">
+          <h3 id="timelineTitle">Timeline</h3>
+          <button class="crm-btn" id="btnAddStep">＋ Aggiungi nota</button>
+          <button class="crm-btn" id="btnCloseTimeline">✕ Chiudi</button>
+        </div>
+        <div id="timelineSteps" class="crm-timeline-steps"></div>
+      </div>
+    </div><!-- end panelTrattative -->
   </main>
-  <!-- Modal -->
+
+  <!-- Modal Attività -->
   <div class="crm-modal-overlay" id="modalAttivita" style="display:none">
     <div class="crm-modal">
       <div class="crm-modal-header"><h3 id="modalAttivitaTitle">Nuova Attività</h3><button class="crm-modal-close" id="closeModalAttivita">×</button></div>
@@ -82,6 +129,38 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Trattativa -->
+  <div class="crm-modal-overlay" id="modalTrattativa" style="display:none">
+    <div class="crm-modal">
+      <div class="crm-modal-header"><h3 id="modalTrattativaTitle">Nuova Trattativa</h3><button class="crm-modal-close" id="closeModalTrattativa">×</button></div>
+      <form id="formTrattativa" class="crm-form-grid" autocomplete="off">
+        <input type="hidden" name="id"/>
+        <div class="crm-field" style="grid-column:1/-1"><label>Titolo *</label><input type="text" name="titolo" required class="crm-input" placeholder="Titolo trattativa…"/></div>
+        <div class="crm-field"><label>Cliente</label><select name="clienteId" class="crm-select" id="selectTrattCliente"><option value="">— Nessuno —</option></select></div>
+        <div class="crm-field"><label>Mandante</label><select name="mandanteId" class="crm-select" id="selectTrattMandante"><option value="">— Nessuno —</option></select></div>
+        <div class="crm-field"><label>Stato</label><select name="stato" class="crm-select"><option value="aperta">Aperta</option><option value="in_corso">In Corso</option><option value="chiusa_vinta">Chiusa Vinta</option><option value="chiusa_persa">Chiusa Persa</option></select></div>
+        <div class="crm-field"><label>Valore Stimato (€)</label><input type="number" name="valoreStimato" class="crm-input" min="0" step="any" placeholder="0"/></div>
+        <div class="crm-field"><label>Data Apertura</label><input type="date" name="dataApertura" class="crm-input"/></div>
+        <div class="crm-field"><label>Data Chiusura</label><input type="date" name="dataChiusura" class="crm-input"/></div>
+        <div class="crm-field" style="grid-column:1/-1"><label>Note</label><textarea name="note" rows="2" class="crm-textarea" placeholder="Note…"></textarea></div>
+        <div style="grid-column:1/-1"><button type="submit" class="crm-btn crm-btn-primary">Salva</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Step/Nota Timeline -->
+  <div class="crm-modal-overlay" id="modalStep" style="display:none">
+    <div class="crm-modal">
+      <div class="crm-modal-header"><h3>Aggiungi Nota Timeline</h3><button class="crm-modal-close" id="closeModalStep">×</button></div>
+      <form id="formStep" class="crm-form-grid" autocomplete="off">
+        <div class="crm-field"><label>Data *</label><input type="date" name="data" required class="crm-input"/></div>
+        <div class="crm-field" style="grid-column:1/-1"><label>Descrizione *</label><textarea name="descrizione" rows="3" class="crm-textarea" required placeholder="Descrizione passo…"></textarea></div>
+        <div style="grid-column:1/-1"><button type="submit" class="crm-btn crm-btn-primary">Aggiungi</button></div>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="./crm.js?v=20260420"></script>
   <script type="module" src="/nav.js?v=20260420"></script>
   <script src="scripts/dashboard-menu.js?v=20260420"></script>

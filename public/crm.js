@@ -55,6 +55,8 @@ async function init() {
   populateMandanteSelect();
   await loadAttivita();
   bindEvents();
+  setupTabs();
+  setupTrattativeEvents();
 }
 
 // ── Data loading ───────────────────────────────────────────────────────────
@@ -186,6 +188,7 @@ function renderTable(list) {
       <td class="crm-actions-cell">
         <button class="crm-btn crm-btn-sm" data-edit="${id}">✏️</button>
         <button class="crm-btn crm-btn-sm crm-btn-danger" data-delete="${id}">🗑️</button>
+        <button class="crm-btn crm-btn-sm" data-agenda="${id}" title="Aggiungi all'Agenda">📅 Agenda</button>
       </td>
     </tr>`;
   }).join('');
@@ -310,12 +313,15 @@ function bindEvents() {
   crmBody.addEventListener('click', (e) => {
     const editBtn   = e.target.closest('[data-edit]');
     const deleteBtn = e.target.closest('[data-delete]');
+    const agendaBtn = e.target.closest('[data-agenda]');
     if (editBtn) {
       const id = editBtn.dataset.edit;
       const item = attivita.find(a => a.id === id);
       if (item) openModal(item);
     } else if (deleteBtn) {
       deleteAttivita(deleteBtn.dataset.delete);
+    } else if (agendaBtn) {
+      addToAgenda(agendaBtn.dataset.agenda);
     }
   });
 
@@ -342,3 +348,306 @@ function bindEvents() {
     });
   }
 }
+
+// ── M2-C: Add to Agenda ────────────────────────────────────────────────────
+
+async function addToAgenda(attivitaId) {
+  const a = attivita.find(x => x.id === attivitaId);
+  if (!a) return;
+  try {
+    await fs.add('agenda', {
+      title: `[CRM] ${a.tipo || 'attività'} - ${a.clienteNome || 'Cliente'}`,
+      date: a.data || todayISO(),
+      crmAttivitaId: attivitaId,
+      createdAt: new Date().toISOString(),
+    });
+    showCrmToast('Evento aggiunto all\'Agenda');
+  } catch (e) {
+    console.error('[crm] addToAgenda', e);
+    showCrmToast('Errore: ' + (e.message || e), true);
+  }
+}
+
+// ── M2-B: Trattative ──────────────────────────────────────────────────────
+
+let trattative = [];
+let currentTrattativaId = null;
+
+async function loadTrattative() {
+  try {
+    trattative = await fs.getAll('trattative');
+    trattative.sort((a, b) => (b.dataApertura || '').localeCompare(a.dataApertura || ''));
+  } catch (e) {
+    trattative = [];
+  }
+  applyTrattativeFilters();
+}
+
+function applyTrattativeFilters() {
+  const q = (document.getElementById('filterTrattCliente')?.value || '').toLowerCase();
+  const s = document.getElementById('filterTrattStato')?.value || '';
+  const list = trattative.filter(t => {
+    if (s && t.stato !== s) return false;
+    if (q && !(t.clienteNome || '').toLowerCase().includes(q) && !(t.titolo || '').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  updateTrattativeKpis(list);
+  renderTrattativeTable(list);
+}
+
+function updateTrattativeKpis(list) {
+  const el = (id) => document.getElementById(id);
+  if (el('kpiTrattTot'))    el('kpiTrattTot').textContent   = list.length;
+  if (el('kpiTrattAperte')) el('kpiTrattAperte').textContent = list.filter(t => t.stato === 'aperta' || t.stato === 'in_corso').length;
+  if (el('kpiTrattVinte'))  el('kpiTrattVinte').textContent  = list.filter(t => t.stato === 'chiusa_vinta').length;
+  if (el('kpiTrattPerse'))  el('kpiTrattPerse').textContent  = list.filter(t => t.stato === 'chiusa_persa').length;
+}
+
+const TRATT_STATO_LABELS = {
+  aperta: 'Aperta', in_corso: 'In Corso',
+  chiusa_vinta: 'Chiusa Vinta', chiusa_persa: 'Chiusa Persa',
+};
+
+function renderTrattativeTable(list) {
+  const tbody = document.getElementById('trattativeBody');
+  const empty = document.getElementById('trattativeEmpty');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '';
+    if (empty) empty.classList.add('visible');
+    return;
+  }
+  if (empty) empty.classList.remove('visible');
+  tbody.innerHTML = list.map(t => `<tr>
+    <td><strong>${escapeHtml(t.titolo || '—')}</strong></td>
+    <td>${escapeHtml(t.clienteNome || '—')}</td>
+    <td>${escapeHtml(t.mandanteNome || '—')}</td>
+    <td><span class="crm-badge crm-badge-${escapeHtml(t.stato || 'aperta')}">${escapeHtml(TRATT_STATO_LABELS[t.stato] || t.stato || '—')}</span></td>
+    <td>${t.valoreStimato ? '€ ' + Number(t.valoreStimato).toLocaleString('it-IT') : '—'}</td>
+    <td>${escapeHtml(fmtDate(t.dataApertura) || '—')}</td>
+    <td class="crm-actions-cell">
+      <button class="crm-btn crm-btn-sm" data-tratt-edit="${escapeHtml(t.id)}">✏️</button>
+      <button class="crm-btn crm-btn-sm" data-tratt-timeline="${escapeHtml(t.id)}">📋 Timeline</button>
+      <button class="crm-btn crm-btn-sm crm-btn-danger" data-tratt-delete="${escapeHtml(t.id)}">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openTrattativaModal(t = null) {
+  const modal = document.getElementById('modalTrattativa');
+  const form  = document.getElementById('formTrattativa');
+  const title = document.getElementById('modalTrattativaTitle');
+  if (!modal || !form) return;
+  form.reset();
+  form.elements['id'].value = '';
+  if (t) {
+    if (title) title.textContent = 'Modifica Trattativa';
+    form.elements['id'].value          = t.id;
+    form.elements['titolo'].value      = t.titolo || '';
+    form.elements['clienteId'].value   = t.clienteId || '';
+    form.elements['mandanteId'].value  = t.mandanteId || '';
+    form.elements['stato'].value       = t.stato || 'aperta';
+    form.elements['valoreStimato'].value = t.valoreStimato || '';
+    form.elements['dataApertura'].value  = t.dataApertura || '';
+    form.elements['dataChiusura'].value  = t.dataChiusura || '';
+    form.elements['note'].value          = t.note || '';
+  } else {
+    if (title) title.textContent = 'Nuova Trattativa';
+    form.elements['dataApertura'].value = todayISO();
+  }
+  modal.style.display = 'flex';
+}
+
+async function saveTrattativa(fd) {
+  const id         = fd.get('id') || '';
+  const clienteId  = fd.get('clienteId') || '';
+  const mandanteId = fd.get('mandanteId') || '';
+  const clienteObj  = clienti.find(c => c.id === clienteId);
+  const mandanteObj = mandanti.find(m => m.id === mandanteId);
+  const doc = {
+    titolo:        fd.get('titolo') || '',
+    clienteId, clienteNome: clienteObj ? (clienteObj.ragioneSociale || clienteObj.nome || '') : '',
+    mandanteId, mandanteNome: mandanteObj ? (mandanteObj.ragioneSociale || mandanteObj.nome || '') : '',
+    stato:         fd.get('stato') || 'aperta',
+    valoreStimato: Number(fd.get('valoreStimato')) || 0,
+    dataApertura:  fd.get('dataApertura') || todayISO(),
+    dataChiusura:  fd.get('dataChiusura') || '',
+    note:          fd.get('note') || '',
+  };
+  if (id) {
+    await fs.update('trattative', id, doc);
+    const idx = trattative.findIndex(t => t.id === id);
+    if (idx !== -1) trattative[idx] = { ...trattative[idx], ...doc };
+  } else {
+    doc.createdAt = fs.serverTimestamp();
+    doc.steps = [];
+    const newId = await fs.add('trattative', doc);
+    trattative.unshift({ id: newId, ...doc, steps: [] });
+  }
+  document.getElementById('modalTrattativa').style.display = 'none';
+  applyTrattativeFilters();
+}
+
+async function deleteTrattativa(id) {
+  if (!confirm('Eliminare questa trattativa?')) return;
+  await fs.remove('trattative', id);
+  trattative = trattative.filter(t => t.id !== id);
+  applyTrattativeFilters();
+}
+
+function openTimeline(trattativaId) {
+  currentTrattativaId = trattativaId;
+  const t = trattative.find(x => x.id === trattativaId);
+  if (!t) return;
+  const panel  = document.getElementById('trattativaTimeline');
+  const title  = document.getElementById('timelineTitle');
+  if (title) title.textContent = `Timeline: ${t.titolo || ''}`;
+  renderTimelineSteps(t.steps || []);
+  if (panel) panel.style.display = '';
+}
+
+function renderTimelineSteps(steps) {
+  const el = document.getElementById('timelineSteps');
+  if (!el) return;
+  if (!steps.length) {
+    el.innerHTML = '<p style="color:#64748b;padding:12px">Nessuna nota ancora.</p>';
+    return;
+  }
+  const sorted = [...steps].sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+  el.innerHTML = sorted.map(s => `
+    <div class="crm-timeline-step">
+      <div class="crm-timeline-dot"></div>
+      <div class="crm-timeline-content">
+        <div class="crm-timeline-date">${escapeHtml(fmtDate(s.data) || s.data || '—')}</div>
+        <div class="crm-timeline-desc">${escapeHtml(s.descrizione || '')}</div>
+        ${s.utente ? `<div class="crm-timeline-user">${escapeHtml(s.utente)}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+async function addStep(fd) {
+  if (!currentTrattativaId) return;
+  const t = trattative.find(x => x.id === currentTrattativaId);
+  if (!t) return;
+  const step = {
+    data:        fd.get('data') || todayISO(),
+    descrizione: fd.get('descrizione') || '',
+    utente:      currentUser?.email || '',
+  };
+  const steps = [...(t.steps || []), step];
+  await fs.update('trattative', currentTrattativaId, { steps });
+  t.steps = steps;
+  renderTimelineSteps(steps);
+  document.getElementById('modalStep').style.display = 'none';
+}
+
+function setupTrattativeEvents() {
+  const btnNew = document.getElementById('btnNewTrattativa');
+  if (btnNew) btnNew.addEventListener('click', () => openTrattativaModal());
+
+  const closeModal = document.getElementById('closeModalTrattativa');
+  if (closeModal) closeModal.addEventListener('click', () => { document.getElementById('modalTrattativa').style.display = 'none'; });
+
+  const formTratt = document.getElementById('formTrattativa');
+  if (formTratt) formTratt.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = formTratt.querySelector('[type="submit"]');
+    btn.disabled = true;
+    try { await saveTrattativa(new FormData(formTratt)); }
+    catch (err) { console.error(err); alert('Errore: ' + (err.message || err)); }
+    finally { btn.disabled = false; }
+  });
+
+  const trattBody = document.getElementById('trattativeBody');
+  if (trattBody) trattBody.addEventListener('click', (e) => {
+    const editBtn     = e.target.closest('[data-tratt-edit]');
+    const deleteBtn   = e.target.closest('[data-tratt-delete]');
+    const timelineBtn = e.target.closest('[data-tratt-timeline]');
+    if (editBtn) {
+      const t = trattative.find(x => x.id === editBtn.dataset.trattEdit);
+      if (t) openTrattativaModal(t);
+    } else if (deleteBtn) {
+      deleteTrattativa(deleteBtn.dataset.trattDelete);
+    } else if (timelineBtn) {
+      openTimeline(timelineBtn.dataset.trattTimeline);
+    }
+  });
+
+  const btnClose = document.getElementById('btnCloseTimeline');
+  if (btnClose) btnClose.addEventListener('click', () => {
+    document.getElementById('trattativaTimeline').style.display = 'none';
+    currentTrattativaId = null;
+  });
+
+  const btnAddStep = document.getElementById('btnAddStep');
+  if (btnAddStep) btnAddStep.addEventListener('click', () => {
+    const ms = document.getElementById('modalStep');
+    const fs2 = document.getElementById('formStep');
+    if (fs2) fs2.reset();
+    const dateEl = fs2 && fs2.elements['data'];
+    if (dateEl) dateEl.value = todayISO();
+    if (ms) ms.style.display = 'flex';
+  });
+
+  const closeStep = document.getElementById('closeModalStep');
+  if (closeStep) closeStep.addEventListener('click', () => { document.getElementById('modalStep').style.display = 'none'; });
+
+  const formStep = document.getElementById('formStep');
+  if (formStep) formStep.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = formStep.querySelector('[type="submit"]');
+    btn.disabled = true;
+    try { await addStep(new FormData(formStep)); }
+    catch (err) { console.error(err); }
+    finally { btn.disabled = false; }
+  });
+
+  // Trattative filters
+  ['filterTrattCliente','filterTrattStato'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', applyTrattativeFilters);
+  });
+
+  // Populate trattative selects (clone from attività selects)
+  const sc = document.getElementById('selectTrattCliente');
+  const sm = document.getElementById('selectTrattMandante');
+  const srcC = document.getElementById('selectCliente');
+  const srcM = document.getElementById('selectMandante');
+  if (sc && srcC) sc.innerHTML = srcC.innerHTML;
+  if (sm && srcM) sm.innerHTML = srcM.innerHTML;
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+
+function setupTabs() {
+  document.querySelectorAll('.crm-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.crm-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('panelAttivita').style.display   = tab === 'attivita'   ? '' : 'none';
+      document.getElementById('panelTrattative').style.display = tab === 'trattative' ? '' : 'none';
+      if (tab === 'trattative' && !trattative.length) loadTrattative();
+    });
+  });
+}
+
+// ── Toast helper ───────────────────────────────────────────────────────────
+
+function showCrmToast(msg, error = false) {
+  let t = document.getElementById('crm-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'crm-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:opacity .3s;color:#fff;';
+    document.body.appendChild(t);
+  }
+  t.style.background = error ? '#dc2626' : '#1e293b';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+// ── Extend init ────────────────────────────────────────────────────────────
+// setupTabs and setupTrattativeEvents are called from the main init() above.
