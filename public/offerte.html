@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offerte — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420" />
+  <link rel="stylesheet" href="mobile.css?v=20260420" />
+  <link rel="stylesheet" href="offerte.css?v=20260420" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page offerte-page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">Offerte</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="clients.html">CLIENTI</option>
+      <option value="suppliers.html">FORNITORI</option>
+      <option value="listini.html">LISTINI</option>
+      <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+      <option value="incassi.html">INCASSI</option>
+      <option value="spese.html">SPESE</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="agenda.html">AGENDA</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="finanze.html">FINANZE</option>
+      <option value="mandanti.html">MANDANTI</option>
+      <option value="crm.html">CRM</option>
+      <option value="offerte.html" selected>OFFERTE</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="mailing.html">MAILING</option>
+    </select>
+  </header>
+
+  <main class="offerte-wrap">
+
+    <!-- KPI Strip -->
+    <section class="offerte-kpi-strip">
+      <div class="offerte-kpi-card">
+        <div class="offerte-kpi-label">Totale Offerte</div>
+        <div class="offerte-kpi-value" id="kpiTotOff">0</div>
+      </div>
+      <div class="offerte-kpi-card">
+        <div class="offerte-kpi-label">Valore Totale</div>
+        <div class="offerte-kpi-value" id="kpiValOff">—</div>
+      </div>
+      <div class="offerte-kpi-card">
+        <div class="offerte-kpi-label">Accettate</div>
+        <div class="offerte-kpi-value" id="kpiAccOff">0</div>
+      </div>
+      <div class="offerte-kpi-card">
+        <div class="offerte-kpi-label">In Corso</div>
+        <div class="offerte-kpi-value" id="kpiInCorso">0</div>
+      </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <div class="offerte-filter-bar">
+      <select id="filterStato" class="off-select">
+        <option value="">Tutti gli stati</option>
+        <option value="bozza">Bozza</option>
+        <option value="inviata">Inviata</option>
+        <option value="accettata">Accettata</option>
+        <option value="rifiutata">Rifiutata</option>
+        <option value="scaduta">Scaduta</option>
+      </select>
+      <input type="number" id="filterAnno" class="off-input" placeholder="Anno" style="width:90px"/>
+      <input type="search" id="filterCliente" class="off-input" placeholder="Filtra cliente…"/>
+      <input type="search" id="filterMandante" class="off-input" placeholder="Filtra mandante…"/>
+      <button class="offerte-btn offerte-btn-primary" id="btnNewOfferta">＋ Nuova Offerta</button>
+    </div>
+
+    <!-- Table -->
+    <div class="offerte-table-wrap">
+      <table class="offerte-table" id="offerteTable">
+        <thead>
+          <tr>
+            <th>Numero</th>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Mandante</th>
+            <th>Valore</th>
+            <th>Stato</th>
+            <th>Valida Fino</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="offerteBody"></tbody>
+      </table>
+      <div class="offerte-empty-state" id="offerteEmpty">Nessuna offerta trovata.</div>
+    </div>
+
+  </main>
+
+  <!-- Full-screen Offer Editor Modal -->
+  <div class="off-editor-overlay" id="offEditorOverlay" style="display:none">
+    <div class="off-editor">
+
+      <div class="off-editor-header">
+        <h2 id="offEditorTitle">Nuova Offerta</h2>
+        <button class="offerte-btn offerte-btn-sm" id="closeOffEditor">✕ Chiudi</button>
+      </div>
+
+      <div class="off-editor-body">
+        <form id="formOfferta" autocomplete="off">
+
+          <div class="off-form-grid">
+            <div class="off-field">
+              <label>Numero</label>
+              <input type="text" name="numero" id="offNumero" readonly placeholder="Auto"/>
+            </div>
+            <div class="off-field">
+              <label>Data *</label>
+              <input type="date" name="data" required/>
+            </div>
+            <div class="off-field">
+              <label>Valida Fino</label>
+              <input type="date" name="validaFino"/>
+            </div>
+            <div class="off-field">
+              <label>Stato</label>
+              <select name="stato">
+                <option value="bozza">Bozza</option>
+                <option value="inviata">Inviata</option>
+                <option value="accettata">Accettata</option>
+                <option value="rifiutata">Rifiutata</option>
+                <option value="scaduta">Scaduta</option>
+              </select>
+            </div>
+            <div class="off-field">
+              <label>Cliente</label>
+              <select name="clienteId" id="offClienteSel">
+                <option value="">— Nessuno —</option>
+              </select>
+            </div>
+            <div class="off-field">
+              <label>Mandante</label>
+              <select name="mandanteId" id="offMandanteSel">
+                <option value="">— Nessuno —</option>
+              </select>
+            </div>
+            <div class="off-field" style="grid-column:1/-1">
+              <label>Note</label>
+              <textarea name="note" rows="2" placeholder="Note offerta…"></textarea>
+            </div>
+          </div>
+
+          <!-- Righe -->
+          <div class="off-righe-section">
+            <div class="off-righe-toolbar">
+              <h3>Righe Offerta</h3>
+              <button type="button" class="offerte-btn offerte-btn-sm offerte-btn-primary" id="btnAddRiga">＋ Aggiungi Riga</button>
+            </div>
+            <div class="off-righe-wrap">
+              <table class="off-righe-table" id="righeTable">
+                <thead>
+                  <tr>
+                    <th>Codice</th>
+                    <th>Descrizione</th>
+                    <th>Qtà</th>
+                    <th>Prezzo Unit.</th>
+                    <th>Sconto %</th>
+                    <th>IVA %</th>
+                    <th>Totale Riga</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="righeBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Totals -->
+          <div class="off-totals-box" id="offTotals">
+            <div class="off-totals-row">
+              <span>Imponibile</span>
+              <span id="offImponibile">€ 0,00</span>
+            </div>
+            <div class="off-totals-row">
+              <span>IVA</span>
+              <span id="offIVA">€ 0,00</span>
+            </div>
+            <div class="off-totals-row off-totals-total">
+              <span>Totale</span>
+              <span id="offTotale">€ 0,00</span>
+            </div>
+          </div>
+
+          <input type="hidden" name="docId"/>
+          <input type="hidden" name="anno"/>
+        </form>
+      </div>
+
+      <div class="off-editor-footer">
+        <button class="offerte-btn" id="btnSalvaBozza">Salva Bozza</button>
+        <button class="offerte-btn offerte-btn-primary" id="btnInviaOfferta">Invia al Cliente</button>
+        <button class="offerte-btn" id="btnConvertOrdine" style="display:none">Converti in Ordine</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="./offerte.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>
