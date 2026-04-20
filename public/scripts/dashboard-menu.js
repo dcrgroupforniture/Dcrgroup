@@ -53,7 +53,7 @@
     const optionData = [...sel.querySelectorAll("option")].filter(o=>o.value && o.value.trim() && !o.disabled).map(o=>({value:o.value,text:o.textContent.trim()}));
 
     const btn = createEl("button",{type:"button",class:"dashnav-btn",title:"Apri dashboard"});
-    btn.innerHTML = '<span class="dashnav-btn-ico">⌘</span><span class="dashnav-btn-txt">Dashboard</span>';
+    btn.innerHTML = '<span class="dashnav-btn-ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="dashnav-btn-txt">Dashboard</span>';
 
     const overlay = createEl("div",{class:"dashnav-overlay", "aria-hidden":"true"});
     const panel = createEl("div",{class:"dashnav-panel"});

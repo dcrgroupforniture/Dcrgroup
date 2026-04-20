@@ -16,6 +16,7 @@ const grandTotalEl = document.getElementById("grandTotal");
 
 const addRowBtn = document.getElementById("addRow");
 const saveBtn = document.getElementById("save");
+const importCurrentToOrderBtn = document.getElementById("importCurrentToOrder");
 const resetBtn = document.getElementById("reset");
 const shareWhatsBtn = document.getElementById("shareWhats");
 const exportPdfBtn = document.getElementById("exportPdf");
@@ -104,6 +105,86 @@ function parseNum(v){
   if (c.includes(",")) c = c.replace(/\./g, "").replace(",", ".");
   const n = Number(c);
   return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeText(v){
+  return String(v ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function mapQuoteRowsToOrderRows(rows){
+  return (Array.isArray(rows) ? rows : [])
+    .map((r) => {
+      const product = String(r?.desc || "").trim();
+      const qty = parseNum(r?.qty || 0);
+      const price = parseNum(r?.price || 0);
+      const total = qty * price;
+      return { product, qty, price, total };
+    })
+    .filter((r) => r.product && r.qty > 0 && r.price >= 0);
+}
+
+async function resolveClientForQuote(clientName){
+  const wanted = normalizeText(clientName);
+  if (!wanted) return null;
+  const snap = await getDocs(collection(db, "clients"));
+  let fallback = null;
+  for (const d of snap.docs){
+    const data = d.data() || {};
+    const candidate = String(data.name || data.nome || data.ragioneSociale || data.businessName || "").trim();
+    if (!candidate) continue;
+    const n = normalizeText(candidate);
+    if (n === wanted) return { id: d.id, name: candidate };
+    if (!fallback && (n.includes(wanted) || wanted.includes(n))) fallback = { id: d.id, name: candidate };
+  }
+  return fallback;
+}
+
+async function importQuoteToOrder(quote, sourcePreventivoId = null){
+  const safeQuote = quote || {};
+  const clientName = String(safeQuote.clientName || "").trim();
+  if (!clientName){
+    throw new Error("Il nome cliente è obbligatorio per importare il preventivo.");
+  }
+
+  const client = await resolveClientForQuote(clientName);
+  if (!client?.id){
+    throw new Error("Cliente non trovato. Crea il cliente nella sezione Clienti prima di importare il preventivo.");
+  }
+
+  const rows = mapQuoteRowsToOrderRows(safeQuote.rows);
+  if (!rows.length){
+    throw new Error("Il preventivo non contiene righe valide da importare. Ogni riga deve avere descrizione, quantità > 0 e prezzo >= 0.");
+  }
+
+  const total = Number(getGrandTotalNumber({ rows }) || 0);
+  const nowIso = new Date().toISOString();
+  const payload = {
+    clientId: client.id,
+    clientName,
+    rows,
+    subTotal: total,
+    grandTotal: total,
+    total,
+    discountPercent: 0,
+    totalDiscount: 0,
+    paymentStatus: "da_incassare",
+    depositAmount: 0,
+    residual: total,
+    ivaEnabled: false,
+    ivaRate: 22,
+    netAmount: total,
+    vatAmount: 0,
+    source: "preventivo_import",
+    preventivoId: sourcePreventivoId || null,
+    quoteDate: String(safeQuote.date || ""),
+    importedAtISO: nowIso,
+    createdAtISO: nowIso,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  const ref = await addDoc(collection(db, "orders"), payload);
+  return { orderId: ref.id, clientId: client.id };
 }
 
 function defaultModel(){
@@ -289,7 +370,7 @@ function render(){
 }
 
 // installa subito il fix hard-tap (prima che l'utente tocchi)
-installIOSHardTapFix([addRowBtn, saveBtn, resetBtn, shareWhatsBtn, exportPdfBtn, exportImgBtn]);
+installIOSHardTapFix([addRowBtn, saveBtn, importCurrentToOrderBtn, resetBtn, shareWhatsBtn, exportPdfBtn, exportImgBtn]);
 
 function getGrandTotalNumber(m){
   let total = 0;
@@ -338,6 +419,22 @@ bindTap(saveBtn, async () => {
   }catch(err){
     console.error(err);
     alert("Errore salvataggio preventivo. Controlla la connessione.");
+  }
+});
+
+bindTap(importCurrentToOrderBtn, async () => {
+  try{
+    if (!confirm("Importare questo preventivo direttamente in ORDINI CLIENTI?")) return;
+    const out = await importQuoteToOrder({
+      clientName: clientNameEl.value,
+      date: quoteDateEl.value,
+      rows: model.rows
+    });
+    alert("Preventivo importato in Ordini Clienti.");
+    window.location.href = `order.html?orderId=${encodeURIComponent(out.orderId)}&clientId=${encodeURIComponent(out.clientId)}`;
+  }catch(err){
+    console.error(err);
+    alert(err?.message || "Importazione non riuscita.");
   }
 });
 
@@ -424,6 +521,7 @@ async function loadHistory(){
         <td style="text-align:right">${euro(r.tot)} €</td>
         <td>
           <button class="btn small" data-act="open" data-id="${r.id}">Apri</button>
+          <button class="btn small primary" data-act="import" data-id="${r.id}">Importa ordine</button>
           <button class="btn small" data-act="pdf" data-id="${r.id}">PDF</button>
           <button class="btn small" data-act="wa" data-id="${r.id}">WhatsApp</button>
           <button class="btn small danger" data-act="del" data-id="${r.id}">Elimina</button>
@@ -471,6 +569,18 @@ async function sharePreventivoWhatsAppById(id){
   shareWhatsBtn.click();
 }
 
+async function importPreventivoById(id){
+  const p = await getPreventivo(id);
+  if (!confirm("Importare questo preventivo nello storico ordini clienti?")) return;
+  const out = await importQuoteToOrder({
+    clientName: p.clientName || "",
+    date: p.date || "",
+    rows: Array.isArray(p.rows) ? p.rows : []
+  }, id);
+  alert("Preventivo importato in Ordini Clienti.");
+  window.location.href = `order.html?orderId=${encodeURIComponent(out.orderId)}&clientId=${encodeURIComponent(out.clientId)}`;
+}
+
 if (historyBodyEl){
   historyBodyEl.addEventListener("click", async (e)=>{
     const btn = e.target.closest("button[data-act]");
@@ -482,6 +592,7 @@ if (historyBodyEl){
       else if (act === "del") await deletePreventivoForever(id);
       else if (act === "pdf") await exportPreventivoPdfById(id);
       else if (act === "wa") await sharePreventivoWhatsAppById(id);
+      else if (act === "import") await importPreventivoById(id);
     }catch(err){
       console.error(err);
       alert("Operazione non riuscita.");
