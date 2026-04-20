@@ -78,7 +78,7 @@
   border-bottom-color: rgba(255,255,255,.12);
 }
 :root:not(.theme-light) .product-row {
-  background: #0f172a;
+  background: #162032;
   border-bottom-color: rgba(255,255,255,.08);
   color: #e2e8f0;
 }

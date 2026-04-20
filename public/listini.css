@@ -292,7 +292,7 @@ body.listini-page{
 :root:not(.theme-light) .search-meta { color: #cbd5e1; }
 :root:not(.theme-light) .search-price { color: #bfdbfe; }
 :root:not(.theme-light) .mini-table th {
-  background: #0f172a !important;
+  background: #162032 !important;
   color: #cbd5e1 !important;
   border-color: rgba(255,255,255,.10) !important;
 }
