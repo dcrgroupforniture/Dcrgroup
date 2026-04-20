@@ -394,7 +394,7 @@ function resetForm(){
   invoiceStatusInput.value = "da-pagare";
   if(invoicePaymentMethodInput) invoicePaymentMethodInput.value = "bonifico";
   if(invoiceCheckDueDateInput) invoiceCheckDueDateInput.value = "";
-  if(invoiceCheckDueGroup) invoiceCheckDueGroup.style.display = "none";
+  if(invoiceCheckDueGroup) invoiceCheckDueGroup.classList.add("hidden");
   invoiceNotesInput.value = "";
   if(photoFileInput) photoFileInput.value = "";
   photoUploadInner?.classList.remove("hidden");
@@ -422,7 +422,7 @@ cancelInvoiceBtn?.addEventListener("click", () => invoiceForm.classList.add("hid
 function updateInvoicePaymentMethodUI(){
   if(!invoiceCheckDueGroup) return;
   const isCheck = String(invoicePaymentMethodInput?.value || "").toLowerCase() === "assegno";
-  invoiceCheckDueGroup.style.display = isCheck ? "" : "none";
+  invoiceCheckDueGroup.classList.toggle("hidden", !isCheck);
   if(!isCheck && invoiceCheckDueDateInput) invoiceCheckDueDateInput.value = "";
 }
 invoicePaymentMethodInput?.addEventListener("change", updateInvoicePaymentMethodUI);

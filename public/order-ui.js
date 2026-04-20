@@ -138,7 +138,10 @@ applyBtn?.addEventListener('click', (e) => {
     return;
   }
 
-  const effectiveDate = String(method).toLowerCase() === 'assegno' && checkDueDate ? checkDueDate : date;
+  let effectiveDate = date;
+  if(String(method).toLowerCase() === 'assegno' && checkDueDate){
+    effectiveDate = checkDueDate;
+  }
   payments.push(sanitizePayment({ id: genId(), amount: finalAmount, method, reference, date: effectiveDate, type, checkDueDate }));
 
   // Reset campi modal

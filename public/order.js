@@ -163,7 +163,10 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       if(amt <= 0) continue;
       const methodNorm = String(pay.method || '').trim().toLowerCase();
       const isCheck = methodNorm === 'assegno';
-      const effectiveIncassoDate = (isCheck && pay.checkDueDate ? toDateKey(pay.checkDueDate) : toDateKey(pay.date)) || dayKey;
+      let effectiveIncassoDate = toDateKey(pay.date) || dayKey;
+      if(isCheck && pay.checkDueDate){
+        effectiveIncassoDate = toDateKey(pay.checkDueDate) || dayKey;
+      }
       const payKind = isCheck ? "assegno" : (pay.type || "acconto");
       const incassoId = `${orderId}__pay_${i}`;
       await setDoc(doc(db, "incassi", incassoId), {
