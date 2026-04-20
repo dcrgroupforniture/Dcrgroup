@@ -277,7 +277,6 @@ async function loadOrdersHistory(){
       supplierTotalsFromInvoices.set(suppDoc.id, totalFromInvoices);
       ordersHistory[suppDoc.id] = { name, orders };
     }));
-    if(suppliersCache.length) applyFilter();
     // Compute global KPIs from invoice data
     const now = new Date();
     const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -341,7 +340,7 @@ function renderOrdersHistory(){
         <div class="inv-hist-actions">${viewBtn}${editLink}${delBtn}</div>
       </div>`;
     }).join('');
-    const moreCount = orders.length > 5 ? `<div style="padding:6px 12px;font-size:12px;color:#6b7280;font-style:italic;">+ altri ${orders.length-5} fatture → <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="color:#1f4fd8;text-decoration:none;font-weight:700;">Apri scheda fornitore</a></div>` : '';
+    const moreCount = orders.length > 5 ? `<div style="padding:6px 12px;font-size:12px;color:#6b7280;font-style:italic;">+ altre ${orders.length-5} fatture → <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="color:#1f4fd8;text-decoration:none;font-weight:700;">Apri scheda fornitore</a></div>` : '';
     return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.05);">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;">
         <div>
