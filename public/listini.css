@@ -303,6 +303,11 @@ body.listini-page{
 :root:not(.theme-light) .mini-table tr:hover td {
   background: rgba(59,130,246,.08) !important;
 }
+/* Ensure even rows use dark bg (not white) in dark mode */
+:root:not(.theme-light) .mini-table tr:nth-child(even) td,
+:root:not(.theme-light) #tblProductsBank tbody tr:nth-child(even) td {
+  background: rgba(255,255,255,.03) !important;
+}
 :root:not(.theme-light) .history-card {
   background: #162032;
   border-color: rgba(255,255,255,.10);
@@ -325,6 +330,11 @@ body.listini-page{
   color: #e2e8f0;
 }
 :root:not(.theme-light) .search-result:hover { background: #1e3a5f; }
+/* Fix: correct class names used in listini.js */
+:root:not(.theme-light) .search-product { color: #f1f5f9; }
+:root:not(.theme-light) .search-meta { color: #94a3b8; }
+:root:not(.theme-light) .search-price { color: #93c5fd; }
+/* Keep old names as alias in case they appear elsewhere */
 :root:not(.theme-light) .search-result-name { color: #f1f5f9; }
 :root:not(.theme-light) .search-result-meta { color: #94a3b8; }
 :root:not(.theme-light) .search-result-price { color: #93c5fd; }
