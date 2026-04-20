@@ -39,11 +39,19 @@ async function init() {
 }
 
 // ─── Quick Nav ────────────────────────────────────────────────────────────────
+const ALLOWED_NAV = new Set([
+  'index.html','clients.html','suppliers.html','listini.html',
+  'ordini-clienti.html','incassi.html','spese.html','scadenze.html',
+  'agenda.html','statistiche.html','finanze.html','mandanti.html',
+  'crm.html','offerte.html','fatture.html','mailing.html',
+]);
+
 function setupQuickNav() {
   const sel = document.getElementById('quickNav');
   if (!sel) return;
   sel.addEventListener('change', () => {
-    if (sel.value) window.location.href = sel.value;
+    const dest = sel.value;
+    if (dest && ALLOWED_NAV.has(dest)) window.location.href = dest;
   });
 }
 
@@ -542,13 +550,11 @@ async function renderBudget(mandanteId) {
   const anno = parseInt(document.getElementById('budgetAnno').value, 10);
   currentBudget = null;
   try {
-    const q = fs.col(COL_BUDGET);
-    const snap = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js').then(
-      ({ query, where, getDocs }) => getDocs(query(q, where('mandanteId','==', mandanteId), where('anno','==', anno)))
+    const results = await fs.getAllFromQuery(
+      fs.query(fs.col(COL_BUDGET), fs.where('mandanteId', '==', mandanteId), fs.where('anno', '==', anno)),
+      { name: 'budget-by-mandante-anno' }
     );
-    if (!snap.empty) {
-      currentBudget = { id: snap.docs[0].id, ...snap.docs[0].data() };
-    }
+    if (results.length) currentBudget = results[0];
     buildBudgetGrid(currentBudget ? currentBudget.mesi : null);
     document.getElementById('budgetNote').value = currentBudget ? (currentBudget.note || '') : '';
   } catch (e) {

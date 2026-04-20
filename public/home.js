@@ -12,10 +12,6 @@ const elInc = document.getElementById('homeIncassi');
 const elIncSub = document.getElementById('homeIncassiSub');
 const elForn = document.getElementById('homeFornitori');
 const elScad = document.getElementById('homeScadenze');
-const iconThemeToggle = document.getElementById('iconThemeToggle');
-const HOME_ICON_THEME_KEY = 'dcr_home_icon_theme';
-const HOME_ICON_LABEL_STATIC = '🧊 Icone statiche';
-const HOME_ICON_LABEL_ANIMATED = '✨ Icone animate';
 
 function itMoney(n){
   return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(Number(n||0));
@@ -67,25 +63,3 @@ function waitForAuth() {
 }
 
 waitForAuth().then(() => loadHomeSummary());
-
-function applyHomeIconTheme(theme){
-  const isAnimated = theme === 'animated';
-  document.body.classList.toggle('icons-animated', isAnimated);
-  if(!iconThemeToggle) return;
-  iconThemeToggle.setAttribute('aria-pressed', isAnimated ? 'true' : 'false');
-  iconThemeToggle.setAttribute(
-    'aria-label',
-    isAnimated ? 'Passa alle icone statiche' : 'Passa alle icone animate'
-  );
-  iconThemeToggle.textContent = isAnimated ? HOME_ICON_LABEL_STATIC : HOME_ICON_LABEL_ANIMATED;
-}
-
-const savedIconTheme = localStorage.getItem(HOME_ICON_THEME_KEY);
-applyHomeIconTheme(savedIconTheme === 'animated' ? 'animated' : 'static');
-
-iconThemeToggle?.addEventListener('click', () => {
-  const nowAnimated = document.body.classList.contains('icons-animated');
-  const next = nowAnimated ? 'static' : 'animated';
-  localStorage.setItem(HOME_ICON_THEME_KEY, next);
-  applyHomeIconTheme(next);
-});
