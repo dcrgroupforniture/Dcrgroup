@@ -204,10 +204,8 @@ body.order-page .card--client .row--date label{font-size:11px !important;}
 /* Spaziatura esplicita per i bottoni principali nelle card pagamenti/scadenze */
 #openPaymentModalAlt { margin-top: 16px; }
 #addDeadlineBtn { margin-top: 16px; }
-.row.mt.gap:has(#registerIncassoBtn) { margin-top: 16px; }
-/* Fallback per browser senza :has() */
-#sendReminderBtn,
-#registerIncassoBtn { margin-top: 0; }
+#sendReminderBtn { margin-top: 16px; }
+#registerIncassoBtn { margin-top: 16px; }
 
 /* --- Righe prodotti: lista responsive (sostituisce tabella) --- */
 .ff-rows-list{display:flex; flex-direction:column; gap:10px;}
