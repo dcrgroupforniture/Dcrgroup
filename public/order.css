@@ -201,6 +201,14 @@ body.order-page .card--client .row--date label{font-size:11px !important;}
 #registerIncassoBtn,
 #addDeadlineBtn{min-height:44px;}
 
+/* Spaziatura esplicita per i bottoni principali nelle card pagamenti/scadenze */
+#openPaymentModalAlt { margin-top: 16px; }
+#addDeadlineBtn { margin-top: 16px; }
+.row.mt.gap:has(#registerIncassoBtn) { margin-top: 16px; }
+/* Fallback per browser senza :has() */
+#sendReminderBtn,
+#registerIncassoBtn { margin-top: 0; }
+
 /* --- Righe prodotti: lista responsive (sostituisce tabella) --- */
 .ff-rows-list{display:flex; flex-direction:column; gap:10px;}
 .ff-order-row{
@@ -337,25 +345,26 @@ body.order-page .card--client .row--date label{font-size:11px !important;}
   position:fixed;
   left:0; right:0; bottom:0;
   padding: 10px 14px calc(env(safe-area-inset-bottom) + 12px) 14px;
-  background: rgba(255,255,255,.8);
+  background: rgba(255,255,255,.95);
   backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(15,23,42,.08);
+  border-top: 1px solid rgba(15,23,42,.10);
   display:flex;
-  gap:10px;
+  gap:8px;
   align-items:center;
 }
 .footer .btn{
-  height:40px;
+  height:44px;
   flex: 1 1 0;
   min-width: 0;
   border-radius: 14px;
-  padding: 9px 10px;
+  padding: 10px 8px;
   font-size: 12px;
-  box-shadow: 0 6px 14px rgba(15,23,42,.10);
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(15,23,42,.12);
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:8px;
+  gap:6px;
 }
 .footer .icon{font-size:16px; line-height:1; flex:0 0 auto;}
 .footer .btn span:last-child{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}

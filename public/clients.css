@@ -717,3 +717,7 @@ main.page-content{max-width:100%;}
 :root:not(.theme-light) .modal-head{ border-bottom-color:rgba(255,255,255,.08); }
 :root:not(.theme-light) .modal-row{ border-color:rgba(255,255,255,.08); }
 :root:not(.theme-light) .pb-kpi{ background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.06); color:#e2e8f0; }
+/* Ensure even rows use dark bg (not white) in dark mode */
+:root:not(.theme-light) #tblProductsBank tbody tr:nth-child(even) td { background: rgba(255,255,255,.03) !important; }
+:root:not(.theme-light) #tblProductsBank tbody tr:nth-child(even) { background: transparent !important; }
+:root:not(.theme-light) .pb-kpi span { opacity: 1; color: #94a3b8; }
