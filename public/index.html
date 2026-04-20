@@ -38,6 +38,27 @@
       padding:16px 14px 10px;
       text-align:center;
     }
+    .hero-tools{
+      margin-top:10px;
+      display:flex;
+      justify-content:center;
+    }
+    .icon-theme-toggle{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:12px;
+      font-weight:800;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .12s ease, background .12s ease;
+    }
+    .icon-theme-toggle:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.15);
+    }
     .brand{
       font-weight:900;
       letter-spacing:2px;
@@ -159,6 +180,27 @@
     .icon svg{
       width:22px;height:22px;
       display:block;
+    }
+    body.icons-animated .grid .card .icon{
+      animation: homeIconFloat 2.3s ease-in-out infinite;
+    }
+    body.icons-animated .grid .card:nth-child(2n) .icon{
+      animation-delay:.2s;
+    }
+    body.icons-animated .grid .card:nth-child(3n) .icon{
+      animation-delay:.4s;
+    }
+    body.icons-animated .grid .card .icon svg{
+      animation: homeIconPulse 1.9s ease-in-out infinite;
+      transform-origin:center;
+    }
+    @keyframes homeIconFloat{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-3px)}
+    }
+    @keyframes homeIconPulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.08)}
     }
 
     .card-inner{
@@ -285,6 +327,9 @@
   <header class="hero">
     <h1 class="brand">DCR GROUP</h1>
     <div class="flag-strip"></div>
+    <div class="hero-tools">
+      <button id="iconThemeToggle" class="icon-theme-toggle" type="button" aria-pressed="false">✨ Icone animate</button>
+    </div>
   </header>
 
   <main class="wrap">

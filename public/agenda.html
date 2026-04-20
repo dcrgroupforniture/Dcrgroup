@@ -544,11 +544,16 @@
       .kpi-label{font-size:10px;}
       .kpi-value{font-size:16px;}
       .filter-strip{
-        padding:0 10px 2px;
+        position:sticky;
+        top:calc(62px + env(safe-area-inset-top));
+        z-index:25;
+        background:var(--bg);
+        padding:8px 10px 10px;
         gap:6px;
         flex-wrap:nowrap;
         overflow-x:auto;
         -webkit-overflow-scrolling:touch;
+        border-bottom:1px solid var(--line);
       }
       .filter-strip .filter-lbl,
       .filter-strip .filter-btn,
@@ -570,14 +575,36 @@
       .filter-strip #reloadBtn{grid-column:1 / -1;min-height:42px;}
       .calendar-col .cal-card{padding:8px;}
       #calendar{min-height:700px;}
-      .fc .fc-toolbar.fc-header-toolbar{display:grid;grid-template-columns:1fr;row-gap:6px;}
-      .fc .fc-toolbar-chunk{justify-content:space-between;}
+      .fc .fc-toolbar.fc-header-toolbar{
+        position:sticky;
+        top:0;
+        z-index:6;
+        display:grid;
+        grid-template-columns:1fr;
+        row-gap:6px;
+      }
+      .fc .fc-toolbar-chunk{
+        width:100%;
+        justify-content:space-between;
+      }
+      .fc .fc-toolbar-chunk:nth-child(2){justify-content:center;}
+      .fc .fc-scrollgrid,
+      .fc .fc-view-harness,
+      .fc .fc-view-harness-active{
+        width:100% !important;
+        min-width:0 !important;
+      }
+      .fc .fc-daygrid-body,
+      .fc .fc-daygrid-body-unbalanced,
+      .fc .fc-daygrid-body-natural{
+        width:100% !important;
+      }
     }
     @media (max-width:480px){
       /* Compact toolbar on iPhone */
       .fc .fc-toolbar.fc-header-toolbar{flex-wrap:wrap;gap:5px;padding:8px 10px 7px;border-radius:12px 12px 0 0;}
       .fc .fc-toolbar-chunk:first-child{width:100%;justify-content:space-between;}
-      .fc .fc-toolbar-chunk:last-child{display:none !important;}
+      .fc .fc-toolbar-chunk:last-child{display:flex !important;}
       .fc .fc-toolbar-title{font-size:15px !important;}
       .fc .fc-button-primary{padding:5px 9px !important;font-size:11px !important;}
       .fc .fc-daygrid-day{min-height:48px !important;}
@@ -1354,9 +1381,9 @@
         locale:"it",
         initialView: "dayGridMonth",
         headerToolbar:{
-          left:"prev,next today",
+          left: window.innerWidth <= 600 ? "prev,next" : "prev,next today",
           center:"title",
-          right: window.innerWidth <= 480 ? "listMonth" : "dayGridMonth,listMonth,timeGridWeek"
+          right: window.innerWidth <= 600 ? "today,listMonth" : "dayGridMonth,listMonth,timeGridWeek"
         },
         height:"auto",
         nowIndicator:true,
@@ -1455,6 +1482,19 @@
         }
       });
       calendar.render();
+      // Using two frames avoids a premature resize when FullCalendar has just mounted toolbar + grid on mobile.
+      requestAnimationFrame(() => requestAnimationFrame(() => calendar?.updateSize()));
+    }
+
+    function updateCalendarMobileLayout(){
+      if(!calendar) return;
+      const isMobile = window.innerWidth <= 600;
+      calendar.setOption('headerToolbar', {
+        left: isMobile ? 'prev,next' : 'prev,next today',
+        center: 'title',
+        right: isMobile ? 'today,listMonth' : 'dayGridMonth,listMonth,timeGridWeek'
+      });
+      calendar.updateSize();
     }
 
     // ─── Modal ───
@@ -1644,6 +1684,12 @@
       }
       loadKPIs();
       startRealtime();
+    });
+
+    let agendaResizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(agendaResizeTimer);
+      agendaResizeTimer = setTimeout(updateCalendarMobileLayout, 120);
     });
   </script>
   <script type="module" src="/nav.js?v=20260420"></script>

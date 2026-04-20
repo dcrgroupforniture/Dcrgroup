@@ -5,6 +5,7 @@
 // ed espone window.__fabfix per la comunicazione con order.js.
 
 import { euro as fmtEUR, todayISO, escapeHtml as escHtml } from './utils.js';
+const CHECK_METHOD = 'assegno';
 
 // ====================================
 // UTILS
@@ -82,6 +83,15 @@ const modal = qs('paymentModal');
 const modalBackdrop = qs('paymentModalBackdrop');
 const closeBtns = [qs('paymentModalClose'), qs('paymentModalCancel')].filter(Boolean);
 const applyBtn = qs('paymentModalApply');
+const paymentMethodModalEl = qs('paymentMethodModal');
+const checkDueDateWrapEl = qs('checkDueDateWrap');
+const checkDueDateModalEl = qs('checkDueDateModal');
+
+function syncCheckDueDateVisibility() {
+  const isCheck = String(paymentMethodModalEl?.value || '').toLowerCase() === CHECK_METHOD;
+  checkDueDateWrapEl?.classList.toggle('hidden', !isCheck);
+  if (!isCheck && checkDueDateModalEl) checkDueDateModalEl.value = '';
+}
 
 function openModal() {
   if (!modal) return;
@@ -94,6 +104,7 @@ function openModal() {
     const residual = Math.max(0, getGrandTotal() - calcTotalPaid());
     if (residual > 0) depositAmountModal.value = residual.toFixed(2);
   }
+  syncCheckDueDateVisibility();
   modal.classList.remove('hidden');
   modalBackdrop?.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -108,6 +119,7 @@ function closeModal() {
 openBtn?.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
 modalBackdrop?.addEventListener('click', closeModal);
 closeBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
+paymentMethodModalEl?.addEventListener('change', syncCheckDueDateVisibility);
 
 // Applica pagamento: aggiunge all'array payments[]
 applyBtn?.addEventListener('click', (e) => {
@@ -138,11 +150,7 @@ applyBtn?.addEventListener('click', (e) => {
     return;
   }
 
-  let effectiveDate = date;
-  if(String(method).toLowerCase() === 'assegno' && checkDueDate){
-    effectiveDate = checkDueDate;
-  }
-  payments.push(sanitizePayment({ id: genId(), amount: finalAmount, method, reference, date: effectiveDate, type, checkDueDate }));
+  payments.push(sanitizePayment({ id: genId(), amount: finalAmount, method, reference, date, type, checkDueDate }));
 
   // Reset campi modal
   if (qs('depositAmountModal')) qs('depositAmountModal').value = '';
@@ -207,7 +215,7 @@ function renderPaymentsUI() {
   payments.forEach((pay, idx) => {
     const item = document.createElement('div');
     item.className = 'payment-item';
-    const checkLabel = (String(pay.method).toLowerCase() === 'assegno' && pay.checkDueDate)
+    const checkLabel = (String(pay.method).toLowerCase() === CHECK_METHOD && pay.checkDueDate)
       ? `Scadenza assegno ${fmtDateLocal(pay.checkDueDate)}`
       : '';
     const sub = [pay.type, fmtDateLocal(pay.date), checkLabel, pay.reference].filter(Boolean).join(' • ');
