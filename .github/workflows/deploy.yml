@@ -1,0 +1,30 @@
+name: 🚀 Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install functions dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Deploy to Firebase Hosting & Functions
+        run: npx firebase-tools deploy --only hosting,functions --token "$FIREBASE_TOKEN" --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
