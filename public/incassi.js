@@ -12,13 +12,11 @@ import {
   getManualDaySnapshot,
 } from "./services/incomeService.js?v=69fix";
 import { getIncassiKpis } from "./services/kpiService.js";
+import { euro, todayISO, escapeHtml } from './utils.js';
 
 const MONTHS = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
 const MONTHS_LONG = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-const euro = (n) => new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR" }).format(Number(n)||0);
 const $ = (id) => document.getElementById(id);
-const todayISO = () => new Date().toISOString().slice(0,10);
-const escapeHtml = (s) => String(s ?? "").replace(/[&<>"]/g, (m)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));
 const fmtDate = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('it-IT');
 function parseLocaleAmount(value){
   const raw = String(value ?? '').trim();

@@ -5,6 +5,7 @@ import {
   collection, doc, getDoc, setDoc, runTransaction, addDoc, serverTimestamp,
   query, orderBy, limit, getDocs, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { todayISO, escapeHtml } from './utils.js';
 
 const STORAGE_KEY = "dcr_preventivo_v1";
 
@@ -103,12 +104,6 @@ function parseNum(v){
   if (c.includes(",")) c = c.replace(/\./g, "").replace(",", ".");
   const n = Number(c);
   return Number.isFinite(n) ? n : 0;
-}
-
-function todayISO(){
-  const d = new Date();
-  const pad = (x) => String(x).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
 
 function defaultModel(){
@@ -440,10 +435,6 @@ async function loadHistory(){
     console.error(err);
     historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Errore caricamento storico.</td></tr>`;
   }
-}
-
-function escapeHtml(s){
-  return String(s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 }
 
 async function getPreventivo(id){

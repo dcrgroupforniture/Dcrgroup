@@ -1,10 +1,10 @@
 import { db, doc, setDoc } from "./firebase.js";
+import { euro, escapeHtml } from './utils.js';
 
 const KEY = "fabfix:lisap:qty:v3";
 const HISTORY_KEY = "fabfix:lisap:history:v1";
 const PRICE_KEY = "fabfix:lisap:prices:v1";
 const MANUAL_KEY = "fabfix:lisap:manualRows:v1";
-const euro = (n) => new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR" }).format(Number(n)||0);
 const $ = (id) => document.getElementById(id);
 const els = { q: $("q"), rows: $("rows"), manualRows: $("manualRows"), countPill: $("countPill"), grandTotal: $("grandTotal"), btnPdf: $("btnPdf"), btnPdfFixed: $("btnPdfFixed"), btnReset: $("btnReset"), btnSaveOrder: $("btnSaveOrder"), btnSaveOrderFixed: $("btnSaveOrderFixed"), btnEmailOrder: $("btnEmailOrder"), btnEmailOrderFixed: $("btnEmailOrderFixed"), btnWhatsappOrder: $("btnWhatsappOrder"), btnWhatsappOrderFixed: $("btnWhatsappOrderFixed"), btnAddManualRow: $("btnAddManualRow") };
 
@@ -19,7 +19,6 @@ function makeManualRow(){ return { id:`manual:${Date.now()}_${Math.random().toSt
 function sanitizeManualRows(rows){ return (Array.isArray(rows)?rows:[]).map((r)=>({ id:String(r.id||makeManualRow().id), name:String(r.name||''), qty:Math.max(0, Math.floor(Number(r.qty||0))), price:Math.max(0, Number(r.price||0)) })).filter((r)=> r.name.trim() || r.qty>0 || r.price>0); }
 
 function saveHistory(v){ localStorage.setItem(HISTORY_KEY, JSON.stringify(v||[])); }
-function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, (m)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 function toNum(v){ const n = Number(String(v ?? '').replace(',', '.')); return Number.isFinite(n) ? n : 0; }
 function norm(s){ return String(s||'').toLowerCase().trim(); }
 

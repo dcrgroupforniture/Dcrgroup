@@ -4,29 +4,14 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/fi
 import {
   doc, setDoc, deleteDoc, addDoc, collection, serverTimestamp, getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { euro as fmt, todayISO, fmtDate, monthLabel } from './utils.js';
 
 // ── Helpers ──────────────────────────────────────────────────
-const fmt = (n) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(n) || 0);
-
-const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function dateAddDays(iso, n) {
   const d = new Date(iso);
   d.setDate(d.getDate() + n);
   return d.toISOString().slice(0, 10);
-}
-
-function fmtDate(iso) {
-  if (!iso || iso.length < 10) return iso || '—';
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function monthLabel(ym) {
-  const [y, m] = ym.split('-');
-  const d = new Date(Number(y), Number(m) - 1, 1);
-  return d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
 }
 
 function statusOf(item) {

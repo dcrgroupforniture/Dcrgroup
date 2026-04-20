@@ -19,6 +19,7 @@ import {
   getDownloadURL,
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { euro as eur, todayISO, fmtDate as formatDate, escapeHtml as escapeAttr } from './utils.js';
 
 const params = new URLSearchParams(window.location.search);
 const requestedSupplierId = params.get("supplierId") || params.get("id") || null;
@@ -106,13 +107,9 @@ let existingPhotoUrl = null;
 const storage = getStorage();
 
 // ── Helpers ───────────────────────────────────────────
-function eur(n){ return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n)||0); }
-function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
-function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
 function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
-function escapeAttr(v){ return String(v ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 // ── Spese sync ────────────────────────────────────────
 async function getSupplierName(){

@@ -2,6 +2,7 @@ import { firestoreService as fs } from "./services/firestoreService.js?v=69fix";
 import { listOrders } from "./services/orderService.js?v=69fix";
 import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { escapeHtml } from './utils.js';
 
 // ===============================
 // Helpers
@@ -316,12 +317,6 @@ function renderClientList(clients){
     row.addEventListener('click', () => openClientDetail(c.id));
     els.list.appendChild(row);
   });
-}
-
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"]/g, (m)=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
-  }[m]));
 }
 
 // ===============================

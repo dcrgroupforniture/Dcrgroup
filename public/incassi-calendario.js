@@ -2,8 +2,7 @@ import { firestoreService as fs } from "./services/firestoreService.js";
 import { getCalendarByMonth, getYearlyIncomesTotal, getManualDaySnapshot, listIncomesByDay } from "./services/incomeService.js";
 import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-const euro = (n) => new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR" }).format(Number(n)||0);
+import { euro } from './utils.js';
 const $ = (id) => document.getElementById(id);
 const title = $("monthTitle");
 const prevBtn = $("prevMonth");
