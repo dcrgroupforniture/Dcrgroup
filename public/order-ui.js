@@ -5,6 +5,7 @@
 // ed espone window.__fabfix per la comunicazione con order.js.
 
 import { euro as fmtEUR, todayISO, escapeHtml as escHtml } from './utils.js';
+const CHECK_METHOD = 'assegno';
 
 // ====================================
 // UTILS
@@ -25,7 +26,6 @@ function fmtDateLocal(isoStr) {
   if (!isoStr) return '';
   try { return new Date(isoStr + 'T00:00:00').toLocaleDateString('it-IT'); } catch { return isoStr; }
 }
-const CHECK_METHOD = 'assegno';
 
 // ====================================
 // STATE

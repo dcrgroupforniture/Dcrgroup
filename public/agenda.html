@@ -1482,6 +1482,7 @@
         }
       });
       calendar.render();
+      // Due frame evitano il resize prematuro quando FullCalendar ha appena montato toolbar + grid su mobile.
       requestAnimationFrame(() => requestAnimationFrame(() => calendar?.updateSize()));
     }
 

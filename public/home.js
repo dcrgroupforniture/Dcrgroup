@@ -14,6 +14,8 @@ const elForn = document.getElementById('homeFornitori');
 const elScad = document.getElementById('homeScadenze');
 const iconThemeToggle = document.getElementById('iconThemeToggle');
 const HOME_ICON_THEME_KEY = 'dcr_home_icon_theme';
+const HOME_ICON_LABEL_STATIC = '🧊 Icone statiche';
+const HOME_ICON_LABEL_ANIMATED = '✨ Icone animate';
 
 function itMoney(n){
   return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(Number(n||0));
@@ -75,7 +77,7 @@ function applyHomeIconTheme(theme){
     'aria-label',
     isAnimated ? 'Passa alle icone statiche' : 'Passa alle icone animate'
   );
-  iconThemeToggle.textContent = isAnimated ? '🧊 Icone statiche' : '✨ Icone animate';
+  iconThemeToggle.textContent = isAnimated ? HOME_ICON_LABEL_STATIC : HOME_ICON_LABEL_ANIMATED;
 }
 
 const savedIconTheme = localStorage.getItem(HOME_ICON_THEME_KEY);
