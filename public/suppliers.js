@@ -554,12 +554,13 @@ async function loadOrdersHistory(){
   const list = document.getElementById('ordersHistoryList');
   if(!list) return;
   try{
-    const supplierEntries = suppliersCache.length
-      ? suppliersCache.map(s => ({ id: s.id, data: s }))
-      : (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
-    if(!suppliersCache.length){
-      suppliersCache = supplierEntries.map(({ id, data }) => ({ id, ...data }));
+    let supplierEntries;
+    if(suppliersCache.length){
+      supplierEntries = suppliersCache.map(s => ({ id: s.id, data: s }));
+    } else {
+      supplierEntries = (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
     }
+    suppliersCache = supplierEntries.map(({ id, data }) => ({ id, ...data }));
     ordersHistory = {};
     supplierTotalsFromInvoices = new Map();
     await Promise.all(supplierEntries.map(async (supplierEntry) => {
@@ -576,10 +577,11 @@ async function loadOrdersHistory(){
       const totalFromInvoices = orders.reduce((sum, inv) => sum + getInvoiceAmount(inv), 0);
       supplierTotalsFromInvoices.set(supplierEntry.id, totalFromInvoices);
       ordersHistory[supplierEntry.id] = { name, orders };
-
-      const idx = suppliersCache.findIndex(s => s.id === supplierEntry.id);
-      if(idx >= 0) suppliersCache[idx] = { ...suppliersCache[idx], total: totalFromInvoices };
-      else suppliersCache.push({ id: supplierEntry.id, ...supplierData, total: totalFromInvoices });
+    }));
+    suppliersCache = supplierEntries.map(({ id, data }) => ({
+      id,
+      ...data,
+      total: supplierTotalsFromInvoices.get(id) || 0
     }));
     applyFilter();
     updateInvoiceKpisFromHistory();
@@ -592,8 +594,20 @@ async function loadOrdersHistory(){
   }
 }
 
-function escapeAttrSup(v){
+function escapeHtmlAttribute(v){
   return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function sanitizeExternalUrl(rawUrl){
+  if(!rawUrl) return "";
+  try{
+    const u = new URL(String(rawUrl), window.location.origin);
+    const allowedProtocols = new Set(["https:", "http:", "blob:", "data:"]);
+    if(!allowedProtocols.has(u.protocol)) return "";
+    return u.href;
+  }catch(_){
+    return "";
+  }
 }
 
 function renderOrdersHistory(){
@@ -614,11 +628,17 @@ function renderOrdersHistory(){
       const statusVal = o.status || 'da-pagare';
       const statusLabel = statusVal === 'pagata' ? '✅ Pagata' : statusVal === 'pagata-parz' ? '⚡ Parz.' : '🔵 Da pagare';
       const statusStyle = statusVal === 'pagata' ? 'color:#16a34a' : statusVal === 'pagata-parz' ? 'color:#d97706' : 'color:#1f4fd8';
-      const viewBtn = o.photoUrl
-        ? `<button class="inv-act-btn" data-photo="${escapeAttrSup(o.photoUrl)}">👁️ Visualizza</button>`
+      const safePhotoUrl = sanitizeExternalUrl(o.photoUrl);
+      const hasInvoiceId = typeof o.id === "string" && o.id.length > 0;
+      const viewBtn = safePhotoUrl
+        ? `<button class="inv-act-btn" data-photo="${escapeHtmlAttribute(safePhotoUrl)}">👁️ Visualizza</button>`
         : `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" class="inv-act-btn">👁️ Visualizza</a>`;
-      const editLink = `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}&editInvoiceId=${encodeURIComponent(o.id)}" class="inv-act-btn">✏️ Modifica</a>`;
-      const delBtn = `<button class="inv-act-btn inv-act-del" data-del-inv="${escapeAttrSup(o.id)}" data-del-sup="${escapeAttrSup(supplierId)}">🗑️ Elimina</button>`;
+      const editLink = hasInvoiceId
+        ? `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}&editInvoiceId=${encodeURIComponent(o.id)}" class="inv-act-btn">✏️ Modifica</a>`
+        : `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" class="inv-act-btn">✏️ Modifica</a>`;
+      const delBtn = hasInvoiceId
+        ? `<button class="inv-act-btn inv-act-del" data-del-inv="${escapeHtmlAttribute(o.id)}" data-del-sup="${escapeHtmlAttribute(supplierId)}">🗑️ Elimina</button>`
+        : '';
       return `<div style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span style="min-width:86px;color:#374151;font-weight:600;">${date}</span>
@@ -649,7 +669,9 @@ function renderOrdersHistory(){
   list.querySelectorAll('[data-photo]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      window.open(btn.dataset.photo, '_blank');
+      const safePhotoUrl = sanitizeExternalUrl(btn.dataset.photo);
+      if(!safePhotoUrl) return;
+      window.open(safePhotoUrl, '_blank', 'noopener,noreferrer');
     });
   });
   list.querySelectorAll('[data-del-inv]').forEach(btn => {
@@ -661,7 +683,8 @@ function renderOrdersHistory(){
       btn.disabled = true;
       btn.textContent = '…';
       try{
-        await deleteDoc(doc(collection(db,'suppliers',suppId,'invoices'), invId));
+        const invoicesRef = collection(db,'suppliers',suppId,'invoices');
+        await deleteDoc(doc(invoicesRef, invId));
         await loadOrdersHistory();
       }catch(err){
         console.error('Errore eliminazione fattura:', err);
@@ -689,7 +712,6 @@ const qoPhotoInput = document.getElementById('qoPhotoInput');
 
 if(addOrderGlobalBtn){
   addOrderGlobalBtn.addEventListener('click',(e)=>{
-    e.preventDefault();
     e.stopPropagation();
     if(storicoBody) storicoBody.style.display='block';
     if(btnToggleStorico) btnToggleStorico.textContent='▲ Nascondi storico';
