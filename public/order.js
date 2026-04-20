@@ -1,10 +1,5 @@
 
-import { escapeHtml } from './utils.js';
-
-function euro(v){
-  if(v === null || v === undefined || Number.isNaN(v)) return "€ 0,00";
-  return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(v);
-}
+import { euro, escapeHtml } from './utils.js';
 
 function getTotalFromUI(){
   const v = Number(String(grandTotalEl?.textContent || "0").replace(/[^0-9.,-]/g,"").replace(",","."));

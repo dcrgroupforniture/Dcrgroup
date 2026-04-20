@@ -268,7 +268,7 @@ async function openSupplierDetail(s) {
     row.addEventListener('click', () => {
       const supId = decodeURIComponent(row.dataset.supId || '');
       const invId = decodeURIComponent(row.dataset.invId || '');
-      if (!supId) { console.warn('sdp-hist-row: missing supplier ID, cannot navigate'); return; }
+      if (!supId) { console.warn('Invoice row click handler: missing supplier ID, cannot navigate'); return; }
       const url = invId
         ? `supplier.html?supplierId=${encodeURIComponent(supId)}&editInvoiceId=${encodeURIComponent(invId)}`
         : `supplier.html?supplierId=${encodeURIComponent(supId)}`;
