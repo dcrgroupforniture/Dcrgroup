@@ -113,7 +113,10 @@ async function getSupplierName(){
   try{
     const snap = await getDoc(doc(db,"suppliers",supplierId));
     return snap.exists() ? (snap.data().name || "Fornitore") : "Fornitore";
-  } catch { return "Fornitore"; }
+  } catch(e) {
+    console.warn("Impossibile leggere nome fornitore:", e);
+    return "Fornitore";
+  }
 }
 
 async function syncInvoiceToSpese(invId, inv, supplierName){

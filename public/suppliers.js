@@ -26,6 +26,7 @@ const searchInput = document.getElementById("searchInput");
 const newSupplierBtn = document.getElementById("newSupplierBtn");
 
 let suppliersCache = [];
+const TOTAL_SYNC_TOLERANCE = 0.009;
 
 function eur(n){
   const v = parseEuroLike(n);
@@ -531,7 +532,7 @@ async function loadOrdersHistory(){
       const idx = suppliersCache.findIndex(s => s.id === supplierEntry.id);
       if(idx >= 0) suppliersCache[idx] = { ...suppliersCache[idx], total: totalFromInvoices };
 
-      if(Math.abs(parseEuroLike(supplierData.total) - totalFromInvoices) > 0.009){
+      if(Math.abs(parseEuroLike(supplierData.total) - totalFromInvoices) > TOTAL_SYNC_TOLERANCE){
         totalsToSync.push(
           updateDoc(doc(db, 'suppliers', supplierEntry.id), { total: totalFromInvoices })
             .catch(e => console.warn(`Sync totale fornitore ${supplierEntry.id} fallito:`, e))
