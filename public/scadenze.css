@@ -150,6 +150,7 @@ body.scad-page {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-height: 44px;
   padding: 9px 14px;
   border-radius: 10px;
   border: 1px solid var(--sz-border);
@@ -527,6 +528,7 @@ details[open] .scad-chart-toggle::before { transform: rotate(90deg); }
   display: flex;
   gap: 8px;
   margin-left: auto;
+  flex-wrap: wrap;
 }
 
 /* ── Light mode input overrides ── */
