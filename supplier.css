@@ -136,14 +136,14 @@
 }
 .inv-table-head{
   display:grid;
-  grid-template-columns:100px 1fr 88px 88px 90px 110px 96px;
+  grid-template-columns:100px 1fr 88px 88px 90px 110px 180px;
   padding:10px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;gap:6px;
 }
 .inv-table-head span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#94a3b8;}
 .inv-table-body{display:flex;flex-direction:column;}
 .inv-row{
   display:grid;
-  grid-template-columns:100px 1fr 88px 88px 90px 110px 96px;
+  grid-template-columns:100px 1fr 88px 88px 90px 110px 180px;
   padding:11px 16px;border-bottom:1px solid #f1f5f9;gap:6px;align-items:center;
   cursor:pointer;transition:background .12s;
 }
@@ -160,16 +160,17 @@
 .inv-due.ok{color:#16a34a;}
 .inv-due.none{color:#94a3b8;}
 .inv-amt{font-size:14px;font-weight:900;color:#0f172a;}
-.inv-actions-cell{display:flex;gap:4px;justify-content:flex-end;}
+.inv-actions-cell{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;}
 .act-btn{
-  width:28px;height:28px;border-radius:8px;border:1px solid #e2e8f0;
-  background:#fff;cursor:pointer;font-size:13px;
-  display:flex;align-items:center;justify-content:center;
+  min-width:28px;height:28px;border-radius:8px;border:1px solid #e2e8f0;
+  background:#fff;cursor:pointer;font-size:11px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0 7px;white-space:nowrap;gap:3px;
 }
 .act-btn:hover{background:#f1f5f9;}
 .act-btn.photo-btn-sm{border-color:#bfdbfe;background:#eff6ff;}
 .act-btn.pay-btn{border-color:#bbf7d0;background:#f0fdf4;}
-.act-btn.del-btn{border-color:#fecaca;background:#fef2f2;}
+.act-btn.del-btn{border-color:#fecaca;background:#fef2f2;color:#dc2626;}
 
 /* status pills */
 .status-pill{
@@ -261,7 +262,7 @@
   /* invoice table: tighter columns on very small phones */
   .inv-table-head,.inv-row{grid-template-columns:70px 1fr 68px 68px;}
   /* increase tap targets */
-  .act-btn{width:36px;height:36px;font-size:15px;}
+  .act-btn{min-width:32px;height:32px;font-size:11px;padding:0 5px;}
   .filter-pill,.sup-toggle-btn,.ghost-btn.small-btn{min-height:36px;}
 }
 

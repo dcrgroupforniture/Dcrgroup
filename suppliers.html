@@ -44,7 +44,7 @@
     <aside class="suppliers-sidebar" aria-label="Lista fornitori">
       <div class="sidebar-head">
         <div class="sidebar-title">Fornitori</div>
-        <button id="newSupplierBtn" class="btn btn-primary btn-sm">+ Nuovo</button>
+        <button id="newSupplierBtn" class="btn btn-primary btn-sm">+ Nuovo fornitore</button>
       </div>
 
       <div class="sidebar-search">
@@ -79,6 +79,16 @@
           <div class="kpi-label">Totale generale</div>
           <div class="kpi-value" id="kpiSuppliersTotal">€ 0,00</div>
         </div>
+
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-label">Fatture mese corrente</div>
+          <div class="kpi-value" id="kpiMonthTotal">€ 0,00</div>
+        </div>
+
+        <div class="kpi-card kpi-red">
+          <div class="kpi-label">Da pagare (totale)</div>
+          <div class="kpi-value" id="kpiDaPagare">€ 0,00</div>
+        </div>
       </div>
 
       <div style="margin-top:14px; color:#667085; font-weight:700; line-height:1.45">Tocca un fornitore nella lista a sinistra per aprire la scheda e gestire ordini/documenti.</div>
@@ -92,16 +102,16 @@
         <div class="suppliers-chart-wrap"><canvas id="monthlyOrdersChart"></canvas></div>
       </div>
 
-      <!-- ── STORICO ORDINI PER FORNITORE ─────────────────── -->
+      <!-- ── STORICO FATTURE FORNITORI ─────────────────── -->
       <div style="margin-top:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-          <div style="font-weight:900;font-size:18px;color:#0f172a;">📦 Storico Ordini Fornitori</div>
-          <button id="addOrderGlobalBtn" class="btn btn-primary btn-sm" style="background:#1f4fd8;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer;">＋ Nuovo ordine</button>
+          <div style="font-weight:900;font-size:18px;color:#0f172a;">📋 Storico Fatture Fornitori</div>
+          <button id="addOrderGlobalBtn" class="btn btn-primary btn-sm" style="background:#1f4fd8;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer;">＋ Aggiungi fattura</button>
         </div>
 
-        <!-- Form aggiunta ordine rapido -->
+        <!-- Form aggiunta fattura rapida -->
         <div id="quickOrderForm" style="display:none;background:#f0f5ff;border:1px solid #c7d9ff;border-radius:16px;padding:16px;margin-bottom:16px;">
-          <div style="font-weight:800;font-size:14px;margin-bottom:12px;color:#1e3a8a;">Aggiungi ordine fornitore</div>
+          <div style="font-weight:800;font-size:14px;margin-bottom:12px;color:#1e3a8a;">Aggiungi fattura fornitore</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div>
               <label style="font-size:12px;font-weight:700;color:#667085;display:block;margin-bottom:4px">Fornitore *</label>
@@ -134,13 +144,13 @@
           </div>
           <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end;">
             <button id="qoCancelBtn" style="background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;">Annulla</button>
-            <button id="qoSaveBtn" style="background:#1f4fd8;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-weight:800;cursor:pointer;">💾 Salva ordine</button>
+            <button id="qoSaveBtn" style="background:#1f4fd8;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-weight:800;cursor:pointer;">💾 Salva fattura</button>
           </div>
         </div>
 
         <!-- Lista ordini raggruppati per fornitore -->
         <div id="ordersHistoryList" style="display:flex;flex-direction:column;gap:12px;">
-          <div style="color:#9ca3af;font-style:italic;padding:12px 0;">Caricamento storico ordini…</div>
+          <div style="color:#9ca3af;font-style:italic;padding:12px 0;">Caricamento storico fatture…</div>
         </div>
       </div>
     </section>
