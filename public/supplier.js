@@ -105,6 +105,7 @@ function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.g
 function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
 function invTotal(inv){ return Number(inv.total || inv.amount || 0); }
+function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
 
 // ── Spese sync ────────────────────────────────────────
 async function getSupplierName(){
@@ -112,14 +113,17 @@ async function getSupplierName(){
   try{
     const snap = await getDoc(doc(db,"suppliers",supplierId));
     return snap.exists() ? (snap.data().name || "Fornitore") : "Fornitore";
-  }catch(){ return "Fornitore"; }
+  } catch(e) {
+    console.warn("Impossibile leggere nome fornitore:", e);
+    return "Fornitore";
+  }
 }
 
 async function syncInvoiceToSpese(invId, inv, supplierName){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
   const amount = Number(inv.total || inv.amount || 0);
-  const date = inv.date || "";
+  const date = getInvoiceDateIso(inv);
   if(!date) return;
   const note = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
   try{
@@ -406,7 +410,7 @@ saveInvoiceBtn?.addEventListener("click", async () => {
 
   invoiceForm.classList.add("hidden");
   editingInvoiceId = null;
-  await loadInvoices();
+  await reloadInvoiceSections();
 });
 
 // ── Filters ───────────────────────────────────────────
@@ -559,20 +563,21 @@ async function loadInvoices(){
   if(!supplierId){ return; }
 
   const ref = collection(db, "suppliers", supplierId, "invoices");
-  const q   = query(ref, orderBy("date","desc"));
   let snap;
-  try { snap = await getDocs(q); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
+  try { snap = await getDocs(ref); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
 
   const currentYear = new Date().getFullYear().toString();
-  let totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
+  let totalAll = 0, totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
   const urgent = [];
 
-  allInvoices = [];
-  snap.forEach(docSnap => {
-    const inv = { id: docSnap.id, ...docSnap.data() };
-    allInvoices.push(inv);
+  allInvoices = snap.docs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+    .sort((a, b) => getInvoiceDateIso(b).localeCompare(getInvoiceDateIso(a)));
+
+  allInvoices.forEach(inv => {
     const amount = invTotal(inv);
-    if((inv.date||"").startsWith(currentYear)){
+    totalAll += amount;
+    if(getInvoiceDateIso(inv).startsWith(currentYear)){
       totalYear += amount; countYear++;
     }
     const { cls } = getStatusInfo(inv);
@@ -582,9 +587,8 @@ async function loadInvoices(){
   });
 
   // Stats
-  if(allInvoices.length){
-    invStatsGrid?.style.setProperty("display","grid");
-  }
+  if(allInvoices.length) invStatsGrid?.style.setProperty("display","grid");
+  else invStatsGrid?.style.setProperty("display","none");
   if(statCountYear)  statCountYear.textContent  = countYear;
   if(statTotalYear)  statTotalYear.textContent   = eur(totalYear);
   if(statDaPagare)   statDaPagare.textContent    = eur(daPagare);
@@ -623,7 +627,7 @@ async function loadInvoices(){
   }
 
   // update supplier total
-  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalYear }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
+  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
 
   // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
   try {
@@ -632,6 +636,11 @@ async function loadInvoices(){
   } catch(e){ console.warn("Sync fatture→spese fallito:", e); }
 
   renderInvoiceTable();
+}
+
+async function reloadInvoiceSections(){
+  await loadInvoices();
+  await loadOrders();
 }
 
 /* Init */
@@ -678,7 +687,7 @@ async function markAllInvoicesPaid(){
     }
 
     alert(`✅ ${unpaidInvoiceRefs.length} fattura/e segnata/e come pagata.`);
-    await loadInvoices();
+    await reloadInvoiceSections();
   } catch(err) {
     console.error("Errore durante il salvataggio:", err);
     alert("❌ Errore durante il salvataggio: " + (err?.message || err));
@@ -712,20 +721,18 @@ async function loadOrders(){
   ordersHistorySection.style.display = "block";
 
   const ordersRef  = collection(db, "suppliers", supplierId, "orders");
-  const invRef     = collection(db, "suppliers", supplierId, "invoices");
   const ordersQ    = query(ordersRef, orderBy("data", "desc"));
-  const invQ       = query(invRef, orderBy("date", "desc"));
 
-  let ordersSnap, invSnap;
+  let ordersSnap;
   try {
-    [ordersSnap, invSnap] = await Promise.all([getDocs(ordersQ), getDocs(invQ)]);
+    ordersSnap = await getDocs(ordersQ);
   } catch(e){
     console.warn("Storico non caricato:", e);
     ordersEmptyState?.classList.remove("hidden");
     return;
   }
 
-  // Build combined entries list (orders + invoices with photo)
+  // Build combined entries list (orders + invoices)
   const entries = [];
 
   ordersSnap.forEach(docSnap => {
@@ -734,11 +741,10 @@ async function loadOrders(){
     entries.push({ id: docSnap.id, type: "order", dateVal, data: o });
   });
 
-  invSnap.forEach(docSnap => {
-    const inv = docSnap.data();
-    // Include ALL invoices in order history, not just photo ones
-    const dateVal = inv.date ? new Date(inv.date + "T00:00:00") : null;
-    entries.push({ id: docSnap.id, type: "invoice", dateVal, data: inv });
+  allInvoices.forEach(inv => {
+    const invDate = getInvoiceDateIso(inv);
+    const dateVal = invDate ? new Date(invDate + "T00:00:00") : null;
+    entries.push({ id: inv.id, type: "invoice", dateVal, data: inv });
   });
 
   // Sort descending by date
@@ -852,16 +858,14 @@ async function loadOrders(){
         e.stopPropagation();
         if(!confirm("Segna questa fattura come pagata?")) return;
         await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id), { status:"pagata" });
-        await loadOrders();
-        await loadInvoices();
+        await reloadInvoiceSections();
       });
       row.querySelector("[data-inv-del]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Eliminare questa fattura?")) return;
         await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id));
         await removeInvoiceFromSpese(entry.id);
-        await loadOrders();
-        await loadInvoices();
+        await reloadInvoiceSections();
       });
     }
 
