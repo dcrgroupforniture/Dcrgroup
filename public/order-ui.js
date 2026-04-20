@@ -57,6 +57,7 @@ function sanitizePayment(p) {
   return {
     id: p.id || genId(),
     amount: Number(p.amount) || 0,
+    checkDueDate: String(p.checkDueDate || ''),
     method: String(p.method || 'Bonifico Bancario'),
     reference: String(p.reference || ''),
     date: String(p.date || todayISO()),
@@ -118,6 +119,7 @@ applyBtn?.addEventListener('click', (e) => {
   const method = qs('paymentMethodModal')?.value || 'Bonifico Bancario';
   const reference = String(qs('ibanModal')?.value || '');
   const date = qs('payDateModal')?.value || todayISO();
+  const checkDueDate = qs('checkDueDateModal')?.value || '';
 
   if (!Number.isFinite(amount) || amount <= 0) {
     alert('Inserisci un importo valido.');
@@ -136,10 +138,15 @@ applyBtn?.addEventListener('click', (e) => {
     return;
   }
 
-  payments.push(sanitizePayment({ id: genId(), amount: finalAmount, method, reference, date, type }));
+  let effectiveDate = date;
+  if(String(method).toLowerCase() === 'assegno' && checkDueDate){
+    effectiveDate = checkDueDate;
+  }
+  payments.push(sanitizePayment({ id: genId(), amount: finalAmount, method, reference, date: effectiveDate, type, checkDueDate }));
 
   // Reset campi modal
   if (qs('depositAmountModal')) qs('depositAmountModal').value = '';
+  if (qs('checkDueDateModal')) qs('checkDueDateModal').value = '';
   if (qs('ibanModal')) qs('ibanModal').value = '';
   if (qs('payDateModal')) qs('payDateModal').value = '';
 
@@ -200,7 +207,10 @@ function renderPaymentsUI() {
   payments.forEach((pay, idx) => {
     const item = document.createElement('div');
     item.className = 'payment-item';
-    const sub = [pay.type, fmtDateLocal(pay.date), pay.reference].filter(Boolean).join(' • ');
+    const checkLabel = (String(pay.method).toLowerCase() === 'assegno' && pay.checkDueDate)
+      ? `Scadenza assegno ${fmtDateLocal(pay.checkDueDate)}`
+      : '';
+    const sub = [pay.type, fmtDateLocal(pay.date), checkLabel, pay.reference].filter(Boolean).join(' • ');
     item.innerHTML = `
       <div class="payment-left">
         <div class="payment-title">${escHtml(pay.method)} <strong>${fmtEUR(pay.amount)}</strong></div>

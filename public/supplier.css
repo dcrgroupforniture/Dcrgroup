@@ -155,6 +155,7 @@
 .photo-preview-inner{
   display:flex;align-items:center;gap:14px;padding:14px 16px;
   background:#fff;border-top:1px solid #bfdbfe;
+  flex-wrap:wrap;
 }
 .photo-preview-img{
   width:64px;height:64px;object-fit:cover;border-radius:10px;
@@ -273,6 +274,9 @@
   /* mobile action row and status badge shown inline */
   .inv-actions-mobile{display:flex !important;}
   .inv-info .inv-status-mobile{display:flex !important;margin-top:3px;}
+  .photo-preview-img{width:56px;height:56px;}
+  .photo-preview-name{flex:1 1 100%;order:2;}
+  .photo-preview-inner .danger-btn{width:100%;justify-content:center;order:3;}
 }
 @media(max-width:980px){
   .invoice-form-grid{grid-template-columns:1fr;}
@@ -306,6 +310,12 @@
   /* increase tap targets */
   .act-btn{width:36px;height:36px;font-size:15px;}
   .filter-pill,.sup-toggle-btn,.ghost-btn.small-btn{min-height:36px;}
+  .invoice-form-head{padding:12px 14px;}
+  .invoice-form-head span:first-child{font-size:14px;line-height:1.2;}
+  .photo-upload-area{margin:12px 14px 0;}
+  .photo-upload-inner{padding:14px 12px;}
+  .photo-upload-text{font-size:12px;}
+  .invoice-actions{position:sticky;bottom:0;background:#fff;z-index:2;}
 }
 
 /* ── OCR OVERLAY ──────────────────────────────── */

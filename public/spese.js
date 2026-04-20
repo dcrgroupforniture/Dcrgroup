@@ -6,7 +6,7 @@ import { euro as fmt, todayISO, fmtDate, monthLabel, escapeHtml as esc } from '.
 
 // ── Helpers ──────────────────────────────────────────────────
 
-const CAT_KNOWN = ['prodotti','attrezzatura','servizi','utenze','fornitori','personale','marketing','affitto','altro'];
+const CAT_KNOWN = ['carburante','pranzo','prodotti','attrezzatura','servizi','utenze','fornitori','personale','marketing','affitto','altro'];
 
 function catClass(cat) {
   const c = String(cat || '').toLowerCase().trim();

@@ -68,6 +68,9 @@ const invoiceTotalDisplay = document.getElementById("invoiceTotalDisplay");
 const invoiceDescInput    = document.getElementById("invoiceDesc");
 const invoiceCategoryInput= document.getElementById("invoiceCategory");
 const invoiceStatusInput  = document.getElementById("invoiceStatus");
+const invoicePaymentMethodInput = document.getElementById("invoicePaymentMethod");
+const invoiceCheckDueDateInput = document.getElementById("invoiceCheckDueDate");
+const invoiceCheckDueGroup = document.getElementById("invoiceCheckDueGroup");
 const invoiceNotesInput   = document.getElementById("invoiceNotes");
 
 const photoFileInput      = document.getElementById("photoFileInput");
@@ -110,6 +113,14 @@ const storage = getStorage();
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
 function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
+function getInvoicePaymentMethodNormalized(inv){ return String(inv?.paymentMethod || "bonifico").toLowerCase(); }
+function formatPaymentMethodLabel(method){ return String(method || "bonifico").toLowerCase().replace(/_/g," "); }
+function getInvoiceEffectivePaymentDate(inv){
+  const method = getInvoicePaymentMethodNormalized(inv);
+  const checkDue = String(inv?.checkDueDate || "").trim();
+  if(method === "assegno" && checkDue) return checkDue;
+  return String(inv?.dueDate || inv?.date || inv?.invoiceDate || inv?.dateISO || "").trim();
+}
 
 // ── Spese sync ────────────────────────────────────────
 async function getSupplierName(){
@@ -127,15 +138,19 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
   const amount = invTotal(inv);
-  const date = getInvoiceDateIso(inv);
+  const date = getInvoiceEffectivePaymentDate(inv);
   if(!date) return;
-  const note = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
+  const method = getInvoicePaymentMethodNormalized(inv);
+  const noteParts = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean);
+  if(method === "assegno") noteParts.push("Assegno");
+  const note = noteParts.join(" • ");
   try{
     await setDoc(doc(db,"expenses",speseId),{
       date,
       amount,
       note,
       category: inv.category || "fornitori",
+      paymentMethod: method,
       source: "supplier_invoice",
       supplierId,
       invoiceId: invId,
@@ -148,6 +163,42 @@ async function removeInvoiceFromSpese(invId){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
   try{ await deleteDoc(doc(db,"expenses",speseId)); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
+}
+
+async function syncInvoiceToScadenze(invId, inv, supplierName){
+  if(!supplierId || !invId) return;
+  const scadenzaId = `supplier_invoice_${supplierId}_${invId}`;
+  const amount = invTotal(inv);
+  const date = getInvoiceEffectivePaymentDate(inv);
+  const method = getInvoicePaymentMethodNormalized(inv);
+  const noteParts = [`Fattura fornitore ${supplierName || "Fornitore"}`];
+  if(inv.invoiceNumber) noteParts.push(`#${inv.invoiceNumber}`);
+  if(inv.description) noteParts.push(inv.description);
+  if(method === "assegno") noteParts.push("Assegno");
+  const note = noteParts.join(" • ");
+  const isPaid = String(inv.status || "").toLowerCase() === "pagata";
+  try{
+    const dateISO = date || getInvoiceDateIso(inv) || "";
+    await setDoc(doc(db,"scadenze",scadenzaId),{
+      date: dateISO,
+      dateISO,
+      amount,
+      note,
+      isDeleted: isPaid || !(amount > 0) || !dateISO,
+      source: "supplier_invoice",
+      supplierId,
+      invoiceId: invId,
+      paymentMethod: method,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  }catch(e){ console.warn("Sync fattura→scadenze fallito:", e); }
+}
+
+async function removeInvoiceFromScadenze(invId){
+  if(!supplierId || !invId) return;
+  const scadenzaId = `supplier_invoice_${supplierId}_${invId}`;
+  try{ await setDoc(doc(db,"scadenze",scadenzaId), { isDeleted: true, updatedAt: new Date().toISOString() }, { merge: true }); }
+  catch(e){ console.warn("Rimozione fattura da scadenze fallita:", e); }
 }
 
 const MOBILE_BREAKPOINT = 640;
@@ -342,6 +393,9 @@ function resetForm(){
   invoiceDescInput.value = "";
   if(invoiceCategoryInput) invoiceCategoryInput.value = "";
   invoiceStatusInput.value = "da-pagare";
+  if(invoicePaymentMethodInput) invoicePaymentMethodInput.value = "bonifico";
+  if(invoiceCheckDueDateInput) invoiceCheckDueDateInput.value = "";
+  if(invoiceCheckDueGroup) invoiceCheckDueGroup.classList.add("hidden");
   invoiceNotesInput.value = "";
   if(photoFileInput) photoFileInput.value = "";
   photoUploadInner?.classList.remove("hidden");
@@ -366,6 +420,14 @@ addPhotoInvoiceBtn?.addEventListener("click", () => {
 });
 cancelInvoiceBtn?.addEventListener("click", () => invoiceForm.classList.add("hidden"));
 
+function updateInvoicePaymentMethodUI(){
+  if(!invoiceCheckDueGroup) return;
+  const isCheck = String(invoicePaymentMethodInput?.value || "").toLowerCase() === "assegno";
+  invoiceCheckDueGroup.classList.toggle("hidden", !isCheck);
+  if(!isCheck && invoiceCheckDueDateInput) invoiceCheckDueDateInput.value = "";
+}
+invoicePaymentMethodInput?.addEventListener("change", updateInvoicePaymentMethodUI);
+
 saveInvoiceBtn?.addEventListener("click", async () => {
   if(!requireSupplierSaved()) return;
   const date   = invoiceDateInput.value;
@@ -384,6 +446,8 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     description:   invoiceDescInput?.value.trim() || "",
     category:      invoiceCategoryInput?.value || "",
     status:        invoiceStatusInput?.value || "da-pagare",
+    paymentMethod: invoicePaymentMethodInput?.value || "bonifico",
+    checkDueDate:  invoiceCheckDueDateInput?.value || "",
     notes:         invoiceNotesInput?.value.trim() || "",
     photoUrl:      existingPhotoUrl || null,
     updatedAt:     new Date().toISOString()
@@ -468,6 +532,7 @@ function renderInvoiceTable(){
       <div class="inv-info">
         <div class="inv-desc">${inv.description || "Fattura del "+formatDate(inv.date)}</div>
         <div class="inv-supplier-sub">${inv.category ? `📂 ${inv.category}` : ""}</div>
+        <div class="inv-supplier-sub">${inv.paymentMethod ? `💳 ${formatPaymentMethodLabel(inv.paymentMethod)}` : ""}${inv.checkDueDate ? ` · 📅 assegno ${formatDate(inv.checkDueDate)}` : ""}</div>
         <div class="inv-status-mobile"><span class="status-pill ${statusCls}">${statusLabel}</span></div>
       </div>
       <span class="inv-date">${formatDate(inv.date)}</span>
@@ -509,6 +574,7 @@ function renderInvoiceTable(){
       if(!confirm("Eliminare questa fattura?")) return;
       await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
       await removeInvoiceFromSpese(inv.id);
+      await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
     });
 
@@ -526,6 +592,7 @@ function renderInvoiceTable(){
       if(!confirm("Eliminare questa fattura?")) return;
       await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
       await removeInvoiceFromSpese(inv.id);
+      await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
     });
 
@@ -546,6 +613,9 @@ function startEdit(inv){
   invoiceDescInput.value    = inv.description || "";
   if(invoiceCategoryInput) invoiceCategoryInput.value = inv.category || "";
   invoiceStatusInput.value  = inv.status || "da-pagare";
+  if(invoicePaymentMethodInput) invoicePaymentMethodInput.value = inv.paymentMethod || "bonifico";
+  if(invoiceCheckDueDateInput) invoiceCheckDueDateInput.value = inv.checkDueDate || "";
+  updateInvoicePaymentMethodUI();
   invoiceNotesInput.value   = inv.notes || "";
   computeInvoiceTotal();
   photoFile = null;
@@ -636,7 +706,10 @@ async function loadInvoices(){
   // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
   try {
     const supplierName = await getSupplierName();
-    await Promise.all(allInvoices.map(inv => syncInvoiceToSpese(inv.id, inv, supplierName)));
+    await Promise.all(allInvoices.flatMap((inv) => ([
+      syncInvoiceToSpese(inv.id, inv, supplierName),
+      syncInvoiceToScadenze(inv.id, inv, supplierName),
+    ])));
   } catch(e){ console.warn("Sync fatture→spese fallito:", e); }
 
   renderInvoiceTable();

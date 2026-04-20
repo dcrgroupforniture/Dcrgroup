@@ -558,6 +558,20 @@
       .sidebar-col{gap:10px;}
       .calendar-col .cal-card{padding:6px;}
       .filter-strip .btn{margin-left:0 !important;}
+      .top-bar{flex-wrap:nowrap;gap:8px;min-height:calc(56px + env(safe-area-inset-top));}
+      .top-bar .page-title{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .filter-strip{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        align-items:stretch;
+      }
+      .filter-strip .filter-lbl{grid-column:1 / -1;}
+      .filter-strip .filter-btn{width:100%;text-align:center;font-size:12px;padding:8px 10px;}
+      .filter-strip #reloadBtn{grid-column:1 / -1;min-height:42px;}
+      .calendar-col .cal-card{padding:8px;}
+      #calendar{min-height:700px;}
+      .fc .fc-toolbar.fc-header-toolbar{display:grid;grid-template-columns:1fr;row-gap:6px;}
+      .fc .fc-toolbar-chunk{justify-content:space-between;}
     }
     @media (max-width:480px){
       /* Compact toolbar on iPhone */
@@ -579,10 +593,9 @@
       .calendar-col,.cal-card,#calendar{max-width:100%;overflow:visible;}
       .fc .fc-view-harness{max-width:100%;overflow-x:hidden;}
       .fc .fc-col-header-cell-cushion{padding:4px 2px !important;font-size:10px !important;letter-spacing:0;}
-      /* iPhone top-bar: allow wrap so title/nav don't get crushed */
-      .top-bar{flex-wrap:wrap;height:auto;min-height:calc(58px + env(safe-area-inset-top));padding-bottom:6px;}
+      /* iPhone top-bar: keep controls on one line */
+      .top-bar{flex-wrap:nowrap;height:auto;min-height:calc(58px + env(safe-area-inset-top));padding-bottom:6px;}
       .top-bar .page-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .top-bar .quick-nav{width:100%;margin-top:4px;order:3;}
       .filter-strip{flex-wrap:wrap;}
       .filter-strip #reloadBtn{width:100%;justify-content:center;}
       .modal-backdrop{padding:10px;}
@@ -633,8 +646,8 @@
     }
 
     /* ─── Dashboard menu (stile iPhone) ─── */
-    .dashnav-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid rgba(15,23,42,.12);background:#fff;color:var(--text-dark);box-shadow:0 10px 25px rgba(2,6,23,.08);font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-    .dashnav-btn-ico{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:10px;background:rgba(37,99,235,.12);color:#2563eb;}
+    .dashnav-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.12);color:#fff;box-shadow:none;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+    .dashnav-btn-ico{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;}
     .dashnav-overlay{position:fixed;inset:0;background:rgba(2,6,23,.35);display:none;z-index:9999;padding:16px;}
     .dashnav-overlay.open{display:flex;align-items:center;justify-content:center;}
     .dashnav-panel{width:min(720px,100%);max-height:min(86vh,900px);background:#fff;border-radius:20px;box-shadow:0 20px 55px rgba(2,6,23,.35);overflow:auto;}
