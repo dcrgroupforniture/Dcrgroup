@@ -23,6 +23,7 @@ import {
 const params = new URLSearchParams(window.location.search);
 const requestedSupplierId = params.get("supplierId") || params.get("id") || null;
 const shouldOpenInvoiceForm = params.get("openInvoice") === "1";
+const editInvoiceIdParam = params.get("editInvoiceId") || null;
 let supplierId = (requestedSupplierId && requestedSupplierId !== "undefined" && requestedSupplierId !== "null")
   ? requestedSupplierId
   : null;
@@ -437,16 +438,16 @@ function renderInvoiceTable(){
       <!-- inv.total is the VAT-inclusive total for new invoices; inv.amount is kept for backward compatibility with old invoices that only stored the base amount -->
       <span class="status-pill ${statusCls}">${statusLabel}</span>
       <div class="inv-actions-cell">
-        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${escapeAttr(inv.photoUrl)}">📷</button>` : ""}
-        <button class="act-btn" title="Modifica" data-edit="${inv.id}">✏️</button>
-        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay="${inv.id}">✅</button>` : ""}
-        <button class="act-btn del-btn" title="Elimina" data-del="${inv.id}">🗑️</button>
+        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${escapeAttr(inv.photoUrl)}">📷 Vedi</button>` : ""}
+        <button class="act-btn" title="Modifica" data-edit="${inv.id}">✏️ Modifica</button>
+        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay="${inv.id}">✅ Paga</button>` : ""}
+        <button class="act-btn del-btn" title="Elimina" data-del="${inv.id}">🗑️ Elimina</button>
       </div>
       <!-- Mobile: compact action row always visible on small screens -->
       <div class="inv-actions-mobile">
         <span class="inv-amt-mobile">${eur(invTotal(inv))}</span>
         <button class="act-btn" title="Modifica" data-edit-m="${inv.id}">✏️</button>
-        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay-m="${inv.id}">✅</button>` : ""}
+        ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Pagata" data-pay-m="${inv.id}">✅</button>` : ""}
         <button class="act-btn del-btn" title="Elimina" data-del-m="${inv.id}">🗑️</button>
       </div>
     `;
@@ -601,6 +602,10 @@ await loadSupplier();
 await loadInvoices();
 await loadOrders();
 if(shouldOpenInvoiceForm && supplierId){ resetForm(); openForm(); }
+if(editInvoiceIdParam && supplierId){
+  const inv = allInvoices.find(i => i.id === editInvoiceIdParam);
+  if(inv) startEdit(inv);
+}
 
 // ── Toggle storico ordini ─────────────────────────────
 toggleOrdersBtn?.addEventListener("click", () => {

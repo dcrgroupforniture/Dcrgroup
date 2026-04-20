@@ -4,6 +4,7 @@ import {
   getDocs,
   doc,
   addDoc,
+  deleteDoc,
   query,
   orderBy,
   serverTimestamp,
@@ -277,6 +278,26 @@ async function loadOrdersHistory(){
       ordersHistory[suppDoc.id] = { name, orders };
     }));
     if(suppliersCache.length) applyFilter();
+    // Compute global KPIs from invoice data
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    let grandMonthTotal = 0;
+    let grandDaPagare = 0;
+    Object.values(ordersHistory).forEach(({orders}) => {
+      orders.forEach(inv => {
+        const amount = Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0);
+        const dateKey = String(inv.dateISO || inv.invoiceDate || inv.date || '').slice(0,7);
+        if(dateKey === currentMonthKey) grandMonthTotal += amount;
+        const status = inv.status || 'da-pagare';
+        if(status !== 'pagata') grandDaPagare += amount;
+      });
+    });
+    const kpiMonthTotalEl = document.getElementById('kpiMonthTotal');
+    const kpiDaPagareEl = document.getElementById('kpiDaPagare');
+    if(kpiMonthTotalEl) kpiMonthTotalEl.textContent = eurFmt(grandMonthTotal);
+    if(kpiDaPagareEl) kpiDaPagareEl.textContent = eurFmt(grandDaPagare);
+    // Always re-render list with correct totals
+    applyFilter();
     renderOrdersHistory();
     populateSupplierSelect();
   }catch(e){
@@ -285,13 +306,15 @@ async function loadOrdersHistory(){
   }
 }
 
+function escapeAttrSup(v){ return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function renderOrdersHistory(){
   const list = document.getElementById('ordersHistoryList');
   if(!list) return;
   renderMonthlyOrdersChart();
   const entries = Object.entries(ordersHistory).filter(([,v])=>v.orders.length>0);
   if(!entries.length){
-    list.innerHTML='<div style="color:#9ca3af;font-style:italic;padding:12px 0;">Nessun ordine registrato. Usa il pulsante <strong>＋ Nuovo ordine</strong> per iniziare.</div>';
+    list.innerHTML='<div style="color:#9ca3af;font-style:italic;padding:12px 0;">Nessuna fattura registrata. Usa il pulsante <strong>＋ Aggiungi fattura</strong> per iniziare.</div>';
     return;
   }
   list.innerHTML = entries.map(([supplierId,{name,orders}])=>{
@@ -300,30 +323,67 @@ function renderOrdersHistory(){
       const date = o.dateISO||o.invoiceDate||'—';
       const amount = Number(o.totalWithVat||o.total||o.importo||0);
       const desc = String(o.description||o.desc||o.note||'—').slice(0,40);
-      const photoBtn = o.photoUrl ? `<a href="${o.photoUrl}" target="_blank" style="font-size:11px;color:#1f4fd8;text-decoration:none;font-weight:700;">📷 Foto</a>` : '';
-      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;">
-        <span style="min-width:86px;color:#374151;font-weight:600;">${date}</span>
-        <span style="flex:1;color:#475569;">${desc}</span>
-        <span style="font-weight:800;color:#1f4fd8;white-space:nowrap;">${eurFmt(amount)}</span>
-        ${photoBtn}
+      const statusVal = o.status || 'da-pagare';
+      const statusLabel = statusVal === 'pagata' ? '✅ Pagata' : statusVal === 'pagata-parz' ? '⚡ Parz.' : '🔵 Da pagare';
+      const statusStyle = statusVal === 'pagata' ? 'color:#16a34a' : statusVal === 'pagata-parz' ? 'color:#d97706' : 'color:#1f4fd8';
+      const viewBtn = o.photoUrl
+        ? `<button class="inv-act-btn" data-photo="${escapeAttrSup(o.photoUrl)}">👁️ Vedi foto</button>`
+        : `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" class="inv-act-btn">👁️ Apri</a>`;
+      const editLink = `<a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}&editInvoiceId=${encodeURIComponent(o.id)}" class="inv-act-btn">✏️ Modifica</a>`;
+      const delBtn = `<button class="inv-act-btn inv-act-del" data-del-inv="${escapeAttrSup(o.id)}" data-del-sup="${escapeAttrSup(supplierId)}">🗑️ Elimina</button>`;
+      return `<div style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="min-width:86px;color:#374151;font-weight:600;">${date}</span>
+          <span style="flex:1;color:#475569;min-width:80px;">${desc}</span>
+          <span style="font-weight:800;color:#1f4fd8;white-space:nowrap;">${eurFmt(amount)}</span>
+          <span style="font-size:11px;font-weight:700;${statusStyle}">${statusLabel}</span>
+        </div>
+        <div class="inv-hist-actions">${viewBtn}${editLink}${delBtn}</div>
       </div>`;
     }).join('');
-    const moreCount = orders.length > 5 ? `<div style="padding:6px 12px;font-size:12px;color:#6b7280;font-style:italic;">+ altri ${orders.length-5} ordini → <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="color:#1f4fd8;text-decoration:none;font-weight:700;">Apri scheda fornitore</a></div>` : '';
+    const moreCount = orders.length > 5 ? `<div style="padding:6px 12px;font-size:12px;color:#6b7280;font-style:italic;">+ altri ${orders.length-5} fatture → <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="color:#1f4fd8;text-decoration:none;font-weight:700;">Apri scheda fornitore</a></div>` : '';
     return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.05);">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;">
         <div>
           <div style="font-weight:900;font-size:15px;color:#0f172a;">${name}</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:2px;">${orders.length} ordini registrati</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:2px;">${orders.length} fatture registrate</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-weight:900;font-size:16px;color:#1f4fd8;">${eurFmt(total)}</span>
-          <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="font-size:12px;background:#eef2ff;color:#1f4fd8;border-radius:8px;padding:5px 10px;text-decoration:none;font-weight:700;">Apri →</a>
+          <a href="supplier.html?supplierId=${encodeURIComponent(supplierId)}" style="font-size:12px;background:#eef2ff;color:#1f4fd8;border-radius:8px;padding:5px 10px;text-decoration:none;font-weight:700;">Apri scheda →</a>
         </div>
       </div>
       ${rows}
       ${moreCount}
     </div>`;
   }).join('');
+
+  // Attach event listeners after DOM is updated
+  list.querySelectorAll('[data-photo]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.open(btn.dataset.photo, '_blank');
+    });
+  });
+  list.querySelectorAll('[data-del-inv]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if(!confirm('Eliminare questa fattura?')) return;
+      const invId = btn.dataset.delInv;
+      const suppId = btn.dataset.delSup;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try{
+        await deleteDoc(doc(collection(db,'suppliers',suppId,'invoices'), invId));
+        await loadOrdersHistory();
+      }catch(err){
+        console.error('Errore eliminazione fattura:', err);
+        alert('❌ Errore eliminazione: '+(err.message||err));
+        btn.disabled = false;
+        btn.textContent = '🗑️ Elimina';
+      }
+    });
+  });
 }
 
 function populateSupplierSelect(){
@@ -406,7 +466,7 @@ if(qoSaveBtn){
       }
       await addDoc(collection(db,'suppliers',supplierId,'invoices'),{
         dateISO: dateVal,
-        description: desc||'Ordine fornitore',
+        description: desc||'Fattura fornitore',
         total: amount,
         totalWithVat: amount,
         invoiceDate: dateVal,
@@ -429,7 +489,7 @@ if(qoSaveBtn){
       alert('❌ Errore: '+(err.message||err));
     }finally{
       qoSaveBtn.disabled=false;
-      qoSaveBtn.textContent='💾 Salva ordine';
+      qoSaveBtn.textContent='💾 Salva fattura';
     }
   });
 }
