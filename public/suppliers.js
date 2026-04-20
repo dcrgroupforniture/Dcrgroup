@@ -5,6 +5,7 @@ import {
   doc,
   addDoc,
   setDoc,
+  updateDoc,
   deleteDoc,
   query,
   orderBy,
@@ -43,6 +44,9 @@ function parseEuroLike(v){
 
 function normalize(s){
   return (s || "").toString().trim().toLowerCase();
+}
+function getInvoiceAmount(inv){
+  return Number(inv?.totalWithVat || inv?.total || inv?.importo || inv?.amount || 0);
 }
 
 function render(list){
@@ -135,11 +139,11 @@ async function openSupplierDetail(s) {
 
   // KPIs
   const currentYear = new Date().getFullYear();
-  const totalAll = invoices.reduce((s, i) => s + Number(i.total || i.amount || 0), 0);
+  const totalAll = invoices.reduce((s, i) => s + getInvoiceAmount(i), 0);
   const totalYear = invoices.filter(i => {
     const d = i.date || i.invoiceDate || i.dateISO || '';
     return d.startsWith(String(currentYear));
-  }).reduce((s, i) => s + Number(i.total || i.amount || 0), 0);
+  }).reduce((s, i) => s + getInvoiceAmount(i), 0);
   const unpaidCount = invoices.filter(i => (i.status || 'da-pagare') !== 'pagata').length;
   const overdueCount = invoices.filter(i => {
     if ((i.status || '') === 'pagata') return false;
@@ -505,12 +509,15 @@ async function loadOrdersHistory(){
   const list = document.getElementById('ordersHistoryList');
   if(!list) return;
   try{
-    const snap = await getDocs(collection(db,'suppliers'));
+    const supplierEntries = suppliersCache.length
+      ? suppliersCache.map(s => ({ id: s.id, data: s }))
+      : (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
     ordersHistory = {};
-    await Promise.all(snap.docs.map(async suppDoc => {
-      const name = String(suppDoc.data().name||'Senza nome');
-      // Non usare orderBy('dateISO') perché le fatture da supplier.js usano il campo 'date'
-      const ordersSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+    const totalsToSync = [];
+    await Promise.all(supplierEntries.map(async (supplierEntry) => {
+      const supplierData = supplierEntry.data || {};
+      const name = String(supplierData.name || 'Senza nome');
+      const ordersSnap = await getDocs(collection(db,'suppliers',supplierEntry.id,'invoices'));
       const orders = ordersSnap.docs
         .map(d=>({id:d.id,...d.data()}))
         .sort((a,b)=>{
@@ -518,8 +525,21 @@ async function loadOrdersHistory(){
           const db_ = b.dateISO || b.invoiceDate || b.date || '';
           return db_.localeCompare(da);
         });
-      ordersHistory[suppDoc.id] = { name, orders };
+      const totalFromInvoices = orders.reduce((sum, inv) => sum + getInvoiceAmount(inv), 0);
+      ordersHistory[supplierEntry.id] = { name, orders };
+
+      const idx = suppliersCache.findIndex(s => s.id === supplierEntry.id);
+      if(idx >= 0) suppliersCache[idx] = { ...suppliersCache[idx], total: totalFromInvoices };
+
+      if(Math.abs(parseEuroLike(supplierData.total) - totalFromInvoices) > 0.009){
+        totalsToSync.push(
+          updateDoc(doc(db, 'suppliers', supplierEntry.id), { total: totalFromInvoices })
+            .catch(e => console.warn(`Sync totale fornitore ${supplierEntry.id} fallito:`, e))
+        );
+      }
     }));
+    if(suppliersCache.length) applyFilter();
+    if(totalsToSync.length) void Promise.allSettled(totalsToSync);
     renderOrdersHistory();
     populateSupplierSelect();
     // Sincronizza tutte le fatture di tutti i fornitori → spese (idempotente, in background)
