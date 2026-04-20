@@ -4,6 +4,8 @@
 // Gestisce lo stato in-memory di payments[] e deadlines[]
 // ed espone window.__fabfix per la comunicazione con order.js.
 
+import { euro as fmtEUR, todayISO, escapeHtml as escHtml } from './utils.js';
+
 // ====================================
 // UTILS
 // ====================================
@@ -15,14 +17,6 @@ function parseEuroLikeText(txt) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function fmtEUR(n) {
-  return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(n || 0));
-}
-
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
@@ -30,10 +24,6 @@ function genId() {
 function fmtDateLocal(isoStr) {
   if (!isoStr) return '';
   try { return new Date(isoStr + 'T00:00:00').toLocaleDateString('it-IT'); } catch { return isoStr; }
-}
-
-function escHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
 }
 
 // ====================================

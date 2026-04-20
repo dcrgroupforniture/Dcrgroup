@@ -1,4 +1,6 @@
 
+import { escapeHtml } from './utils.js';
+
 function euro(v){
   if(v === null || v === undefined || Number.isNaN(v)) return "€ 0,00";
   return new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(v);
@@ -353,11 +355,8 @@ async function shareFileOnDevice({ blob, filename, mime }){
 }
 
 function buildReceiptHtml({ clientName, dateStr, total, statusLabel, deposit, residual /* rows ignored */ }){
-  const esc = (s)=>String(s||"").replace(/[&<>"\']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
-  const eur = (n)=> new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n||0));
-
   const payExtra = (statusLabel === "Acconto")
-    ? `<div style="margin-top:8px;">Acconto: <strong>${eur(deposit)}</strong> — Residuo: <strong>${eur(residual)}</strong></div>`
+    ? `<div style="margin-top:8px;">Acconto: <strong>${euro(deposit)}</strong> — Residuo: <strong>${euro(residual)}</strong></div>`
     : "";
 
   const logoUrl = "./img/logo.png";
@@ -384,15 +383,15 @@ function buildReceiptHtml({ clientName, dateStr, total, statusLabel, deposit, re
     <hr style="border:none;border-top:1px solid rgba(0,0,0,.12);margin:12px 0" />
 
     <div style="font-size:13px;line-height:1.35;">
-      <div>Cliente: <strong>${esc(clientName)}</strong></div>
-      <div>Data: <strong>${esc(dateStr)}</strong></div>
-      <div>Pagamento: <strong>${esc(statusLabel)}</strong></div>
+      <div>Cliente: <strong>${escapeHtml(clientName)}</strong></div>
+      <div>Data: <strong>${escapeHtml(dateStr)}</strong></div>
+      <div>Pagamento: <strong>${escapeHtml(statusLabel)}</strong></div>
       ${payExtra}
     </div>
 
     <div style="margin-top:12px;padding:10px 12px;background:rgba(0,0,0,.04);border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
       <div style="font-weight:800;">Totale</div>
-      <div style="font-size:18px;font-weight:900;">${eur(total)}</div>
+      <div style="font-size:18px;font-weight:900;">${euro(total)}</div>
     </div>
   </div>
   `;
@@ -1109,15 +1108,14 @@ if(sharePdfBtn){
         // logo non disponibile: ignoriamo
       }
 
-      const eur = (n)=> new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(n||0));
       const lines = [];
       lines.push("RICEVUTA");
       if(data.clientName) lines.push("Cliente: " + data.clientName);
       if(data.dateStr) lines.push("Data: " + data.dateStr);
       if(data.statusLabel) lines.push("Stato pagamento: " + data.statusLabel);
       if(data.status === "acconto"){
-        lines.push("Acconto: " + eur(data.deposit));
-        lines.push("Residuo: " + eur(data.residual));
+        lines.push("Acconto: " + euro(data.deposit));
+        lines.push("Residuo: " + euro(data.residual));
       }
       lines.push("");
       lines.push("Righe:");
@@ -1127,13 +1125,13 @@ if(sharePdfBtn){
           const q = Number(r.qty || 0);
           const pr = Number(r.price || 0);
           const t = Number(r.total || (q*pr) || 0);
-          lines.push(`- ${p} | ${q} x ${eur(pr)} = ${eur(t)}`);
+          lines.push(`- ${p} | ${q} x ${euro(pr)} = ${euro(t)}`);
         });
       }else{
         lines.push("- (nessuna riga)");
       }
       lines.push("");
-      lines.push("Totale: " + eur(data.total));
+      lines.push("Totale: " + euro(data.total));
 
       const text = lines.join("\n");
       const margin = 40;
@@ -1323,7 +1321,6 @@ async function renderReceiptPngBlob(data){
   ctx.fillText('RICEVUTA', titleX, y);
   y += 70;
 
-  const eur = (n)=> new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(n||0));
   const line = (label, value) => `${label}: ${value}`;
 
   ctx.font = '28px -apple-system, BlinkMacSystemFont, Segoe UI, Arial';
@@ -1332,8 +1329,8 @@ async function renderReceiptPngBlob(data){
   if(data.dateStr) lines.push(line('Data', data.dateStr));
   if(data.statusLabel) lines.push(line('Stato pagamento', data.statusLabel));
   if(data.status === 'acconto'){
-    lines.push(line('Acconto', eur(data.deposit)));
-    lines.push(line('Residuo', eur(data.residual)));
+    lines.push(line('Acconto', euro(data.deposit)));
+    lines.push(line('Residuo', euro(data.residual)));
   }
   lines.push('');
   lines.push('Righe:');
@@ -1343,13 +1340,13 @@ async function renderReceiptPngBlob(data){
       const q = Number(r.qty || 0);
       const pr = Number(r.price || 0);
       const t = Number(r.total || (q*pr) || 0);
-      lines.push(`• ${p}  (${q} x ${eur(pr)})  =  ${eur(t)}`);
+      lines.push(`• ${p}  (${q} x ${euro(pr)})  =  ${euro(t)}`);
     });
   }else{
     lines.push('• (nessuna riga)');
   }
   lines.push('');
-  lines.push(line('Totale', eur(data.total)));
+  lines.push(line('Totale', euro(data.total)));
 
   // Stampa testo con wrapping
   const maxTextW = W - pad*2;

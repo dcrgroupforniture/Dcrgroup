@@ -2,36 +2,9 @@
 // Uses: dateISO field from normalizeExpense (via listExpenses)
 
 import { listExpenses, addExpense, upsertExpense, softDeleteExpense } from './services/expenseService.js';
+import { euro as fmt, todayISO, fmtDate, monthLabel, escapeHtml as esc } from './utils.js';
 
 // ── Helpers ──────────────────────────────────────────────────
-
-const fmt = (n) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(n) || 0);
-
-const todayISO = () => new Date().toISOString().slice(0, 10);
-
-function fmtDate(iso) {
-  if (!iso || iso.length < 10) return iso || '—';
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function monthLabel(ym) {
-  if (!ym || ym.length < 7) return ym || '';
-  const [y, m] = ym.split('-').map(Number);
-  const d = new Date(y, m - 1, 1);
-  const s = d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function esc(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
 
 const CAT_KNOWN = ['prodotti','attrezzatura','servizi','utenze','fornitori','personale','marketing','affitto','altro'];
 

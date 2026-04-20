@@ -1,6 +1,5 @@
 import { listPriceRequests, updatePriceRequest } from './services/priceRequestService.js';
-
-const euro = (n) => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' }).format(Number(n || 0));
+import { euro } from './utils.js';
 const state = { rows: [], filter: 'all', q: '' };
 
 function statusClass(status){

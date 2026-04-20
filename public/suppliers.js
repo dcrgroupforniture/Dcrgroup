@@ -18,6 +18,7 @@ import {
   uploadBytes,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { euro as eurFmt, escapeHtml as escapeHtmlAttribute } from './utils.js';
 
 const suppliersListEl = document.getElementById("suppliersList");
 const grandTotalEl = document.getElementById("grandTotal");
@@ -496,10 +497,6 @@ let ordersHistory = {}; // { supplierId: { name, orders: [] } }
 let hasSyncedInvoicesToSpese = false;
 let syncAllInvoicesPromise = null;
 
-function eurFmt(n){
-  return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(n)||0);
-}
-
 // ── Sync tutte le fatture di tutti i fornitori → spese ──────────────────
 async function syncAllInvoicesToSpese(){
   // Usa i dati già caricati in ordersHistory
@@ -607,10 +604,6 @@ async function loadOrdersHistory(){
     console.warn('loadOrdersHistory',e);
     if(list) list.innerHTML='<div style="color:#dc2626;padding:8px">Errore caricamento storico fatture.</div>';
   }
-}
-
-function escapeHtmlAttribute(v){
-  return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function sanitizeExternalUrl(rawUrl){
