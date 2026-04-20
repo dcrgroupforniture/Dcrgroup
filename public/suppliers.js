@@ -27,6 +27,7 @@ const searchInput = document.getElementById("searchInput");
 const newSupplierBtn = document.getElementById("newSupplierBtn");
 
 let suppliersCache = [];
+let supplierTotalsFromInvoices = new Map();
 
 function eur(n){
   const v = parseEuroLike(n);
@@ -51,13 +52,20 @@ function getInvoiceAmount(inv){
   return Number(inv?.totalWithVat || inv?.total || inv?.importo || inv?.amount || 0);
 }
 
+function getSupplierTotalValue(s){
+  if(s?.id && supplierTotalsFromInvoices.has(s.id)){
+    return supplierTotalsFromInvoices.get(s.id) || 0;
+  }
+  return parseEuroLike(s?.total);
+}
+
 function render(list){
   suppliersListEl.innerHTML = "";
 
   let grand = 0;
 
   list.forEach((s) => {
-    const total = parseEuroLike(s.total);
+    const total = getSupplierTotalValue(s);
     grand += total;
 
     const row = document.createElement("div");
@@ -178,7 +186,7 @@ async function openSupplierDetail(s) {
 
   // Invoice rows
   const invoiceRows = invoices.slice(0, 30).map(i => {
-    const amount = Number(i.total || i.amount || 0);
+    const amount = getInvoiceAmount(i);
     const desc = i.description || (i.invoiceNumber ? `Fattura #${i.invoiceNumber}` : 'Fattura');
     const dateStr = fmtDate(i.date || i.invoiceDate || i.dateISO || '');
     const dueStr = fmtDate(i.dueDate || i.invoiceDueDate || '');
@@ -250,7 +258,7 @@ async function openSupplierDetail(s) {
         ${invoiceRows || '<div class="sdp-no-data">Nessuna fattura trovata per questo fornitore</div>'}
       </div>
       <div class="sdp-actions">
-        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}" class="sdp-btn sdp-btn-primary">➕ Aggiungi fattura</a>
+        <a href="supplier.html?supplierId=${encodeURIComponent(s.id)}&openInvoice=1" class="sdp-btn sdp-btn-primary">➕ Aggiungi fattura</a>
       </div>
     </div>
   `;
@@ -333,7 +341,7 @@ function renderSuppliersChart(list){
     wrap.style.maxHeight = wrap.style.height;
   }
   const labels = list.map(s=>String(s.name||'Senza nome'));
-  const values = list.map(s=>parseEuroLike(s.total));
+  const values = list.map(s=>getSupplierTotalValue(s));
   if(suppliersChart) { try{suppliersChart.destroy();}catch(_){} }
   if(window.ChartDataLabels) Chart.register(ChartDataLabels);
   suppliersChart = new Chart(canvas.getContext('2d'), {
@@ -515,6 +523,7 @@ async function loadOrdersHistory(){
       ? suppliersCache.map(s => ({ id: s.id, data: s }))
       : (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
     ordersHistory = {};
+    supplierTotalsFromInvoices = new Map();
     await Promise.all(supplierEntries.map(async (supplierEntry) => {
       const supplierData = supplierEntry.data || {};
       const name = String(supplierData.name || 'Senza nome');
@@ -527,6 +536,7 @@ async function loadOrdersHistory(){
           return db_.localeCompare(da);
         });
       const totalFromInvoices = orders.reduce((sum, inv) => sum + getInvoiceAmount(inv), 0);
+      supplierTotalsFromInvoices.set(supplierEntry.id, totalFromInvoices);
       ordersHistory[supplierEntry.id] = { name, orders };
 
       const idx = suppliersCache.findIndex(s => s.id === supplierEntry.id);

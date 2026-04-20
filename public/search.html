@@ -231,7 +231,7 @@
     function link(type, item) {
       if (type === 'client')   return `client.html?id=${encodeURIComponent(item.id)}`;
       if (type === 'order')    return `order.html?id=${encodeURIComponent(item.id)}`;
-      if (type === 'supplier') return `supplier.html?id=${encodeURIComponent(item.id)}`;
+      if (type === 'supplier') return `supplier.html?supplierId=${encodeURIComponent(item.id)}`;
       if (type === 'income')   return `incassi.html`;
       if (type === 'expense')  return `spese.html`;
       if (type === 'deadline') return `scadenze.html`;

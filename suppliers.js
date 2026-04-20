@@ -22,6 +22,7 @@ const searchInput = document.getElementById("searchInput");
 const newSupplierBtn = document.getElementById("newSupplierBtn");
 
 let suppliersCache = [];
+let supplierTotalsFromInvoices = new Map();
 
 function eur(n){
   const v = parseEuroLike(n);
@@ -42,13 +43,20 @@ function normalize(s){
   return (s || "").toString().trim().toLowerCase();
 }
 
+function getSupplierTotalValue(s){
+  if(s?.id && supplierTotalsFromInvoices.has(s.id)){
+    return supplierTotalsFromInvoices.get(s.id) || 0;
+  }
+  return parseEuroLike(s?.total);
+}
+
 function render(list){
   suppliersListEl.innerHTML = "";
 
   let grand = 0;
 
   list.forEach((s) => {
-    const total = parseEuroLike(s.total);
+    const total = getSupplierTotalValue(s);
     grand += total;
 
     const row = document.createElement("div");
@@ -158,7 +166,7 @@ function renderSuppliersChart(list){
     wrap.style.maxHeight = wrap.style.height;
   }
   const labels = list.map(s=>String(s.name||'Senza nome'));
-  const values = list.map(s=>parseEuroLike(s.total));
+  const values = list.map(s=>getSupplierTotalValue(s));
   if(suppliersChart) { try{suppliersChart.destroy();}catch(_){} }
   suppliersChart = new Chart(canvas.getContext('2d'), {
     type:'bar',
@@ -253,6 +261,7 @@ async function loadOrdersHistory(){
   try{
     const snap = await getDocs(collection(db,'suppliers'));
     ordersHistory = {};
+    supplierTotalsFromInvoices = new Map();
     await Promise.all(snap.docs.map(async suppDoc => {
       const name = String(suppDoc.data().name||'Senza nome');
       const ordersSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
@@ -263,8 +272,11 @@ async function loadOrdersHistory(){
           const dateB = b.dateISO || b.invoiceDate || b.date || '';
           return da < dateB ? 1 : da > dateB ? -1 : 0;
         });
+      const totalFromInvoices = orders.reduce((sum, inv) => sum + Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0), 0);
+      supplierTotalsFromInvoices.set(suppDoc.id, totalFromInvoices);
       ordersHistory[suppDoc.id] = { name, orders };
     }));
+    if(suppliersCache.length) applyFilter();
     renderOrdersHistory();
     populateSupplierSelect();
   }catch(e){
