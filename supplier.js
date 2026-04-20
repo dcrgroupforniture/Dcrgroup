@@ -111,6 +111,7 @@ function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); ret
 function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
 function getInvoiceDueDateIso(inv){ return String(inv?.dueDate || inv?.invoiceDueDate || ""); }
+function escapeAttr(v){ return String(v ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 const MOBILE_BREAKPOINT = 640;
 
@@ -436,7 +437,7 @@ function renderInvoiceTable(){
       <!-- inv.total is the VAT-inclusive total for new invoices; inv.amount is kept for backward compatibility with old invoices that only stored the base amount -->
       <span class="status-pill ${statusCls}">${statusLabel}</span>
       <div class="inv-actions-cell">
-        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${inv.photoUrl}">📷</button>` : ""}
+        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${escapeAttr(inv.photoUrl)}">📷</button>` : ""}
         <button class="act-btn" title="Modifica" data-edit="${inv.id}">✏️</button>
         ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay="${inv.id}">✅</button>` : ""}
         <button class="act-btn del-btn" title="Elimina" data-del="${inv.id}">🗑️</button>
@@ -767,7 +768,7 @@ async function loadOrders(){
       const totale = invTotal(inv);
       const numLabel = inv.invoiceNumber ? `Fattura #${inv.invoiceNumber}` : "Fattura";
       const photoBtn = inv.photoUrl
-        ? `<br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${inv.photoUrl}" title="Visualizza foto fattura">📷 Vedi foto</button>`
+        ? `<br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${escapeAttr(inv.photoUrl)}" title="Visualizza foto fattura">📷 Vedi foto</button>`
         : "";
 
       row.innerHTML = `

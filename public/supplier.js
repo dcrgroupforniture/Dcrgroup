@@ -108,8 +108,9 @@ function eur(n){ return new Intl.NumberFormat("it-IT",{style:"currency",currency
 function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
-function invTotal(inv){ return Number(inv.total || inv.amount || 0); }
+function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
+function escapeAttr(v){ return String(v ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 // ── Spese sync ────────────────────────────────────────
 async function getSupplierName(){
@@ -126,7 +127,7 @@ async function getSupplierName(){
 async function syncInvoiceToSpese(invId, inv, supplierName){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
-  const amount = Number(inv.total || inv.amount || 0);
+  const amount = invTotal(inv);
   const date = getInvoiceDateIso(inv);
   if(!date) return;
   const note = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
@@ -476,7 +477,7 @@ function renderInvoiceTable(){
       <!-- inv.total is the VAT-inclusive total for new invoices; inv.amount is kept for backward compatibility with old invoices that only stored the base amount -->
       <span class="status-pill ${statusCls}">${statusLabel}</span>
       <div class="inv-actions-cell">
-        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${inv.photoUrl}">📷</button>` : ""}
+        ${inv.photoUrl ? `<button class="act-btn photo-btn-sm" title="Visualizza foto" data-photo="${escapeAttr(inv.photoUrl)}">📷</button>` : ""}
         <button class="act-btn" title="Modifica" data-edit="${inv.id}">✏️</button>
         ${statusCls !== "pagata" ? `<button class="act-btn pay-btn" title="Segna come pagata" data-pay="${inv.id}">✅</button>` : ""}
         <button class="act-btn del-btn" title="Elimina" data-del="${inv.id}">🗑️</button>
@@ -834,7 +835,7 @@ async function loadOrders(){
         <div class="order-items">
           <strong>🧾 ${numLabel.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</strong>
           ${inv.description ? `<br>${inv.description.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}` : ""}
-          ${inv.photoUrl ? `<br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${inv.photoUrl}" title="Visualizza foto fattura">📷 Vedi foto</button>` : ""}
+          ${inv.photoUrl ? `<br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${escapeAttr(inv.photoUrl)}" title="Visualizza foto fattura">📷 Vedi foto</button>` : ""}
           <div class="order-items-status" style="display:none;margin-top:4px;">
             <span class="status-pill ${statusCls}">${statusLabel}</span>
           </div>
