@@ -205,7 +205,7 @@ function renderPaymentsUI() {
     const item = document.createElement('div');
     item.className = 'payment-item';
     const checkLabel = (String(pay.method).toLowerCase() === 'assegno' && pay.checkDueDate)
-      ? `Scad. assegno ${fmtDateLocal(pay.checkDueDate)}`
+      ? `Scadenza assegno ${fmtDateLocal(pay.checkDueDate)}`
       : '';
     const sub = [pay.type, fmtDateLocal(pay.date), checkLabel, pay.reference].filter(Boolean).join(' • ');
     item.innerHTML = `

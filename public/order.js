@@ -163,12 +163,11 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       if(amt <= 0) continue;
       const methodNorm = String(pay.method || '').trim().toLowerCase();
       const isCheck = methodNorm === 'assegno';
-      const paymentDate = isCheck && pay.checkDueDate ? toDateKey(pay.checkDueDate) : toDateKey(pay.date);
-      const dateForIncasso = paymentDate || dayKey;
+      const effectiveIncassoDate = (isCheck && pay.checkDueDate ? toDateKey(pay.checkDueDate) : toDateKey(pay.date)) || dayKey;
       const payKind = isCheck ? "assegno" : (pay.type || "acconto");
       const incassoId = `${orderId}__pay_${i}`;
       await setDoc(doc(db, "incassi", incassoId), {
-        date: dateForIncasso,
+        date: effectiveIncassoDate,
         source: "ordine",
         orderId,
         clientId: clientId || null,
@@ -177,7 +176,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
         paymentType: payKind,
         amount: amt,
         method: pay.method || null,
-        checkDueDate: isCheck ? (pay.checkDueDate || dateForIncasso) : null,
+        checkDueDate: isCheck ? (pay.checkDueDate || effectiveIncassoDate) : null,
         reference: pay.reference || null,
         note: `${clientName || 'Cliente'} • ${euro(amt)} • ${payKind}`,
         updatedAt: new Date()
@@ -1524,4 +1523,3 @@ async function ensureClientIdFromOrder(){
     // ignoriamo: se non riusciamo, useremo fallback su lista clienti
   }
 }
-

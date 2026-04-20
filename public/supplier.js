@@ -113,9 +113,9 @@ const storage = getStorage();
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
 function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
 function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
-function getInvoicePaymentMethod(inv){ return String(inv?.paymentMethod || "bonifico").toLowerCase(); }
+function getInvoicePaymentMethodNormalized(inv){ return String(inv?.paymentMethod || "bonifico").toLowerCase(); }
 function getInvoiceEffectivePaymentDate(inv){
-  const method = getInvoicePaymentMethod(inv);
+  const method = getInvoicePaymentMethodNormalized(inv);
   const checkDue = String(inv?.checkDueDate || "").trim();
   if(method === "assegno" && checkDue) return checkDue;
   return String(inv?.dueDate || inv?.date || inv?.invoiceDate || inv?.dateISO || "").trim();
@@ -139,9 +139,10 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
   const amount = invTotal(inv);
   const date = getInvoiceEffectivePaymentDate(inv);
   if(!date) return;
-  const method = getInvoicePaymentMethod(inv);
-  const noteParts = [supplierName, inv.description || inv.invoiceNumber, method === "assegno" ? "Assegno" : ""].filter(Boolean);
-  const note = noteParts.join(" – ");
+  const method = getInvoicePaymentMethodNormalized(inv);
+  const noteParts = [supplierName, inv.description || inv.invoiceNumber].filter(Boolean);
+  if(method === "assegno") noteParts.push("Assegno");
+  const note = noteParts.join(" • ");
   try{
     await setDoc(doc(db,"expenses",speseId),{
       date,
@@ -168,7 +169,7 @@ async function syncInvoiceToScadenze(invId, inv, supplierName){
   const scadenzaId = `supplier_invoice_${supplierId}_${invId}`;
   const amount = invTotal(inv);
   const date = getInvoiceEffectivePaymentDate(inv);
-  const method = getInvoicePaymentMethod(inv);
+  const method = getInvoicePaymentMethodNormalized(inv);
   const noteParts = [`Fattura fornitore ${supplierName || "Fornitore"}`];
   if(inv.invoiceNumber) noteParts.push(`#${inv.invoiceNumber}`);
   if(inv.description) noteParts.push(inv.description);
