@@ -1,6 +1,7 @@
 // fatture.js — Fatture (Invoices) module for DCR GROUP
 import { firestoreService as fs } from './services/firestoreService.js';
 import { euro, todayISO, escapeHtml, fmtDate } from './utils.js';
+import { toCSV, downloadCSV } from './services/exportService.js';
 import { auth } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
@@ -46,6 +47,7 @@ const METODO_LABELS = {
 // ── State ──────────────────────────────────────────────────────────────────
 
 let fatture   = [];
+let filteredFatture = [];
 let pagamenti = [];
 let clienti   = [];
 let mandanti  = [];
@@ -163,6 +165,10 @@ function setupFilters() {
     if (el) el.addEventListener('input', applyFilters);
   });
   if (btnNewFattura) btnNewFattura.addEventListener('click', () => openEditor());
+
+  // M3-C: CSV export
+  const btnCSV = document.getElementById('btnExportFattureCSV');
+  if (btnCSV) btnCSV.addEventListener('click', exportFattureCSV);
 }
 
 function applyFilters() {
@@ -185,7 +191,7 @@ function applyFilters() {
   });
 
   renderFattureTable(filtered);
-}
+  filteredFatture = filtered;
 
 // ── Load Data ──────────────────────────────────────────────────────────────
 
@@ -339,6 +345,7 @@ function renderFattureTable(list) {
           <button class="fatture-btn fatture-btn-sm" onclick="window._fattEdit('${escapeHtml(f.id)}')">✏️ Modifica</button>
           ${['bozza','emessa','inviata','parziale','scaduta'].includes(f.stato) ? `<button class="fatture-btn fatture-btn-sm fatture-btn-primary" onclick="window._fattPaga('${escapeHtml(f.id)}')">💰 Pagamento</button>` : ''}
           <button class="fatture-btn fatture-btn-sm" onclick="window._fattStampa('${escapeHtml(f.id)}')">🖨️ Stampa</button>
+          ${f.stato !== 'bozza' ? `<button class="fatture-btn fatture-btn-sm" onclick="window._fattXML('${escapeHtml(f.id)}')">📄 XML SdI</button>` : ''}
           ${f.stato === 'bozza' ? `<button class="fatture-btn fatture-btn-sm fatture-btn-danger" onclick="window._fattDelete('${escapeHtml(f.id)}')">🗑️</button>` : ''}
         </div>
       </td>
@@ -753,6 +760,24 @@ async function saveFattura(targetStato) {
     }
 
     await loadFatture();
+
+    // M3-A: generate rate automatiche when emessa + nRate > 1 + dataScadenza
+    if (targetStato === 'emessa' && nRate > 1 && dataScadenza) {
+      try {
+        const rateCount = await generateRate({
+          fatturaId: currentFattId,
+          clienteId,
+          clienteNome: fd.get('snapRagioneSociale') || '',
+          totale,
+          nRate,
+          dataScadenza,
+        });
+        showToast(`Generate ${rateCount} rate per questa fattura`);
+      } catch (rateErr) {
+        console.warn('generateRate error', rateErr);
+      }
+    }
+
     closeEditor();
   } catch (e) {
     console.error('saveFattura error:', e);
@@ -760,7 +785,149 @@ async function saveFattura(targetStato) {
   }
 }
 
-// ── Annulla Fattura ────────────────────────────────────────────────────────
+// ── Rate automatiche (M3-A) ────────────────────────────────────────────────
+
+async function generateRate({ fatturaId, clienteId, clienteNome, totale, nRate, dataScadenza }) {
+  const baseImporto = Math.round((totale / nRate) * 100) / 100;
+  const tasks = [];
+  for (let i = 1; i <= nRate; i++) {
+    const scadDate = new Date(dataScadenza);
+    // Advance by (i-1) calendar months, clamping to end-of-month
+    scadDate.setMonth(scadDate.getMonth() + (i - 1));
+    const dataScadenzaRata = scadDate.toISOString().slice(0, 10);
+    const isLast = i === nRate;
+    const importoRata = isLast
+      ? Math.round((totale - baseImporto * (nRate - 1)) * 100) / 100
+      : baseImporto;
+    tasks.push(fs.add('scadenzeFinance', {
+      fatturaId,
+      clienteId,
+      clienteNome,
+      importoRata,
+      numeroPer: `${i}/${nRate}`,
+      dataScadenzaRata,
+      stato: 'aperta',
+      createdAt: new Date().toISOString(),
+    }));
+  }
+  await Promise.all(tasks);
+  return nRate;
+}
+
+// ── Toast helper ───────────────────────────────────────────────────────────
+
+function showToast(msg, duration = 3000) {
+  let toast = document.getElementById('fatt-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'fatt-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:opacity .3s;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.style.opacity = '0'; }, duration);
+}
+
+// ── Export CSV (M3-C) ──────────────────────────────────────────────────────
+
+function exportFattureCSV() {
+  const headers = ['Numero','Tipo','Data Emissione','Data Scadenza','Cliente','Mandante','Imponibile','Totale IVA','Totale','Totale Pagato','Stato'];
+  const fields  = ['numero','tipo','dataEmissione','dataScadenza','clienteLabel','mandanteLabel','imponibile','totaleIVA','totale','totalePagato','stato'];
+  const rows = filteredFatture.map(f => {
+    const cl = clienti.find(c => c.id === f.clienteId);
+    const mn = mandanti.find(m => m.id === f.mandanteId);
+    return {
+      ...f,
+      clienteLabel: f.snapRagioneSociale || (cl ? (cl.ragioneSociale || cl.nome || '') : ''),
+      mandanteLabel: mn ? (mn.nome || mn.ragioneSociale || '') : '',
+    };
+  });
+  downloadCSV(toCSV(headers, fields, rows), `fatture_${todayISO()}`);
+}
+
+// ── XML SdI (M3-D) ────────────────────────────────────────────────────────
+
+function generateFatturaPA(fattura) {
+  const esc = (v) => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const tipo = (fattura.tipo === 'nota_credito') ? 'TD04' : 'TD01';
+  const righeXml = (fattura.righe || []).map((r, i) => `
+    <DettaglioLinee>
+      <NumeroLinea>${i + 1}</NumeroLinea>
+      <Descrizione>${esc(r.descrizione || r.codice || 'Servizio')}</Descrizione>
+      <Quantita>${Number(r.qta || r.quantita || 1).toFixed(2)}</Quantita>
+      <PrezzoUnitario>${Number(r.prezzoUnit || r.prezzoUnitario || 0).toFixed(2)}</PrezzoUnitario>
+      <AliquotaIVA>${Number(r.aliquotaIVA || 22).toFixed(2)}</AliquotaIVA>
+      <PrezzoTotale>${Number(r.totaleRiga || 0).toFixed(2)}</PrezzoTotale>
+    </DettaglioLinee>`).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<p:FatturaElettronica versione="FPR12" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FatturaElettronicaHeader>
+    <DatiTrasmissione>
+      <IdTrasmittente><IdPaese>IT</IdPaese><IdCodice>00000000000</IdCodice></IdTrasmittente>
+      <ProgressivoInvio>1</ProgressivoInvio>
+      <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+      <CodiceDestinatario>${esc(fattura.snapSdi || '0000000')}</CodiceDestinatario>
+    </DatiTrasmissione>
+    <CedentePrestatore>
+      <DatiAnagrafici>
+        <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>00000000000</IdCodice></IdFiscaleIVA>
+        <Anagrafica><Denominazione>DCR GROUP</Denominazione></Anagrafica>
+        <RegimeFiscale>RF01</RegimeFiscale>
+      </DatiAnagrafici>
+      <Sede><Indirizzo>Via Placeholder 1</Indirizzo><CAP>00100</CAP><Comune>Roma</Comune><Provincia>RM</Provincia><Nazione>IT</Nazione></Sede>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+      <DatiAnagrafici>
+        <IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>${esc(fattura.snapPartitaIVA || '00000000000')}</IdCodice></IdFiscaleIVA>
+        <Anagrafica><Denominazione>${esc(fattura.snapRagioneSociale || '')}</Denominazione></Anagrafica>
+      </DatiAnagrafici>
+      <Sede><Indirizzo>${esc(fattura.snapIndirizzo || 'N/D')}</Indirizzo><CAP>00000</CAP><Comune>N/D</Comune><Nazione>IT</Nazione></Sede>
+    </CessionarioCommittente>
+  </FatturaElettronicaHeader>
+  <FatturaElettronicaBody>
+    <DatiGenerali>
+      <DatiGeneraliDocumento>
+        <TipoDocumento>${tipo}</TipoDocumento>
+        <Divisa>EUR</Divisa>
+        <Data>${esc(fattura.dataEmissione || '')}</Data>
+        <Numero>${esc(fattura.numero || '')}</Numero>
+        <ImportoTotaleDocumento>${Number(fattura.totale || 0).toFixed(2)}</ImportoTotaleDocumento>
+      </DatiGeneraliDocumento>
+    </DatiGenerali>
+    <DatiBeniServizi>${righeXml}
+      <DatiRiepilogo>
+        <AliquotaIVA>22.00</AliquotaIVA>
+        <ImponibileImporto>${Number(fattura.imponibile || 0).toFixed(2)}</ImponibileImporto>
+        <Imposta>${Number(fattura.totaleIVA || 0).toFixed(2)}</Imposta>
+      </DatiRiepilogo>
+    </DatiBeniServizi>
+    <DatiPagamento>
+      <CondizioniPagamento>TP01</CondizioniPagamento>
+      <DettaglioPagamento>
+        <ModalitaPagamento>MP05</ModalitaPagamento>
+        <DataScadenzaPagamento>${esc(fattura.dataScadenza || fattura.dataEmissione || '')}</DataScadenzaPagamento>
+        <ImportoPagamento>${Number(fattura.totale || 0).toFixed(2)}</ImportoPagamento>
+      </DettaglioPagamento>
+    </DatiPagamento>
+  </FatturaElettronicaBody>
+</p:FatturaElettronica>`;
+}
+
+function downloadFatturaXML(fattura) {
+  const xml = generateFatturaPA(fattura);
+  const blob = new Blob([xml], { type: 'application/xml;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `FatturaPA_${(fattura.numero || fattura.id || 'doc').replace(/\//g, '-')}.xml`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
 
 async function annullaFattura() {
   if (!currentFattId) return;
@@ -1014,4 +1181,9 @@ window._fattStampa = (id) => {
 
 window._fattDelete = (id) => {
   deleteFattura(id);
+};
+
+window._fattXML = (id) => {
+  const f = fatture.find(x => x.id === id);
+  if (f) downloadFatturaXML(f);
 };

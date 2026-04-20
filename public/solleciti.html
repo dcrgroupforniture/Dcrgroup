@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solleciti — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420"/>
+  <link rel="stylesheet" href="mobile.css?v=20260420"/>
+  <link rel="stylesheet" href="solleciti.css?v=20260420"/>
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">📧 Solleciti</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="scadenze.html">SCADENZE</option>
+      <option value="clients.html">CLIENTI</option>
+    </select>
+  </header>
+
+  <main class="solleciti-wrap">
+    <!-- KPI Strip -->
+    <section class="sol-kpi-strip">
+      <div class="sol-kpi-card"><div class="sol-kpi-label">Pre-scadenza (7gg)</div><div class="sol-kpi-value" id="kpiPreScad">0</div></div>
+      <div class="sol-kpi-card"><div class="sol-kpi-label">Scadute</div><div class="sol-kpi-value" id="kpiScadute">0</div></div>
+      <div class="sol-kpi-card"><div class="sol-kpi-label">Esposto Totale</div><div class="sol-kpi-value" id="kpiEsposto">—</div></div>
+    </section>
+
+    <!-- Filter -->
+    <div class="sol-filter-bar">
+      <label style="font-size:13px;font-weight:700">Giorni scadenza:</label>
+      <input type="number" id="filterGiorni" class="sol-input" value="7" min="1" max="90" style="width:80px"/>
+      <input type="search" id="filterCliente" class="sol-input" placeholder="Filtra cliente…"/>
+    </div>
+
+    <!-- Pre-scadenza -->
+    <div class="sol-section">
+      <div class="sol-section-title green">⚡ Pre-scadenza (entro <span id="labelGiorni">7</span> giorni)</div>
+      <div class="sol-table-wrap">
+        <table class="sol-table">
+          <thead><tr><th>Numero</th><th>Cliente</th><th>Importo Residuo</th><th>Scadenza</th><th>Giorni</th><th>Azione</th></tr></thead>
+          <tbody id="bodyPreScad"></tbody>
+        </table>
+        <div class="sol-empty" id="emptyPreScad">Nessuna fattura in pre-scadenza.</div>
+      </div>
+    </div>
+
+    <!-- Post-scadenza -->
+    <div class="sol-section">
+      <div class="sol-section-title">🔴 Post-scadenza (scadute)</div>
+      <div class="sol-table-wrap">
+        <table class="sol-table">
+          <thead><tr><th>Numero</th><th>Cliente</th><th>Importo Residuo</th><th>Scadenza</th><th>Giorni Scaduta</th><th>Azione</th></tr></thead>
+          <tbody id="bodyPostScad"></tbody>
+        </table>
+        <div class="sol-empty" id="emptyPostScad">Nessuna fattura scaduta.</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./solleciti.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>

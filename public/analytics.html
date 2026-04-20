@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Analitica — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420"/>
+  <link rel="stylesheet" href="mobile.css?v=20260420"/>
+  <link rel="stylesheet" href="analytics.css?v=20260420"/>
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page">
+  <header class="top-bar">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+    <span class="page-title">📊 Dashboard Analitica</span>
+    <select id="quickNav" class="quick-nav">
+      <option value="">Vai a…</option>
+      <option value="index.html">HOME</option>
+      <option value="fatture.html">FATTURE</option>
+      <option value="statistiche.html">STATISTICHE</option>
+      <option value="clients.html">CLIENTI</option>
+    </select>
+  </header>
+
+  <main class="analytics-wrap">
+    <!-- KPI Strip -->
+    <section class="an-kpi-strip">
+      <div class="an-kpi-card"><div class="an-kpi-label">Fatturato Anno</div><div class="an-kpi-value" id="kpiFatturato">—</div></div>
+      <div class="an-kpi-card"><div class="an-kpi-label">Incassato Anno</div><div class="an-kpi-value" id="kpiIncassato">—</div></div>
+      <div class="an-kpi-card"><div class="an-kpi-label">Da Incassare</div><div class="an-kpi-value" id="kpiDaIncassare">—</div></div>
+      <div class="an-kpi-card"><div class="an-kpi-label">Clienti Attivi</div><div class="an-kpi-value" id="kpiClientiAttivi">—</div></div>
+    </section>
+
+    <!-- Filters -->
+    <div class="an-filter-bar">
+      <label style="font-size:13px;font-weight:700">Anno:</label>
+      <select id="filterAnno" class="an-select"></select>
+      <label style="font-size:13px;font-weight:700">Mese:</label>
+      <select id="filterMese" class="an-select">
+        <option value="">Tutti</option>
+        <option value="01">Gennaio</option><option value="02">Febbraio</option>
+        <option value="03">Marzo</option><option value="04">Aprile</option>
+        <option value="05">Maggio</option><option value="06">Giugno</option>
+        <option value="07">Luglio</option><option value="08">Agosto</option>
+        <option value="09">Settembre</option><option value="10">Ottobre</option>
+        <option value="11">Novembre</option><option value="12">Dicembre</option>
+      </select>
+      <button class="an-btn an-btn-primary" id="btnApplyFilter">Aggiorna</button>
+    </div>
+
+    <!-- Per Cliente -->
+    <div class="an-section">
+      <div class="an-section-title">
+        👥 Per Cliente
+        <div class="an-export-btns">
+          <button class="an-btn" id="btnCsvCliente">⬇ CSV</button>
+          <button class="an-btn an-btn-pdf" id="btnPdfCliente">🖨️ PDF</button>
+        </div>
+      </div>
+      <div class="an-table-wrap">
+        <div class="an-loading" id="loadingCliente">Caricamento…</div>
+        <table class="an-table" id="tableCliente" style="display:none">
+          <thead><tr><th>Cliente</th><th>N° Fatture</th><th>Fatturato</th><th>Incassato</th><th>Da Incassare</th></tr></thead>
+          <tbody id="bodyCliente"></tbody>
+        </table>
+        <div class="an-empty" id="emptyCliente" style="display:none">Nessun dato.</div>
+      </div>
+    </div>
+
+    <!-- Per Mandante -->
+    <div class="an-section">
+      <div class="an-section-title">
+        🏢 Per Mandante
+        <div class="an-export-btns">
+          <button class="an-btn" id="btnCsvMandante">⬇ CSV</button>
+          <button class="an-btn an-btn-pdf" id="btnPdfMandante">🖨️ PDF</button>
+        </div>
+      </div>
+      <div class="an-table-wrap">
+        <div class="an-loading" id="loadingMandante">Caricamento…</div>
+        <table class="an-table" id="tableMandante" style="display:none">
+          <thead><tr><th>Mandante</th><th>N° Fatture</th><th>Fatturato</th><th>Incassato</th><th>Da Incassare</th></tr></thead>
+          <tbody id="bodyMandante"></tbody>
+        </table>
+        <div class="an-empty" id="emptyMandante" style="display:none">Nessun dato.</div>
+      </div>
+    </div>
+
+    <!-- Per Periodo -->
+    <div class="an-section">
+      <div class="an-section-title">
+        📅 Per Periodo (mensile)
+        <div class="an-export-btns">
+          <button class="an-btn" id="btnCsvPeriodo">⬇ CSV</button>
+          <button class="an-btn an-btn-pdf" id="btnPdfPeriodo">🖨️ PDF</button>
+        </div>
+      </div>
+      <div class="an-table-wrap">
+        <div class="an-loading" id="loadingPeriodo">Caricamento…</div>
+        <table class="an-table" id="tablePeriodo" style="display:none">
+          <thead><tr><th>Mese</th><th>Fatture Emesse</th><th>Fatturato</th><th>Incassato</th></tr></thead>
+          <tbody id="bodyPeriodo"></tbody>
+        </table>
+        <div class="an-empty" id="emptyPeriodo" style="display:none">Nessun dato.</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./analytics.js?v=20260420"></script>
+  <script type="module" src="/nav.js?v=20260420"></script>
+  <script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+/* solleciti.css */
+:root { --sol-primary: #dc2626; --sol-border: #e2e8f0; }
+
+.solleciti-wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+.sol-kpi-strip { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.sol-kpi-card {
+  background: #fff; border: 1px solid var(--sol-border);
+  border-radius: 10px; padding: 14px 22px; min-width: 140px; flex: 1;
+}
+.sol-kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .06em; }
+.sol-kpi-value { font-size: 26px; font-weight: 800; color: var(--sol-primary); }
+
+.sol-section { margin-bottom: 28px; }
+.sol-section-title {
+  font-size: 15px; font-weight: 800; color: #1e293b;
+  border-left: 4px solid var(--sol-primary); padding-left: 10px;
+  margin-bottom: 12px;
+}
+.sol-section-title.green { border-color: #f97316; }
+
+.sol-table-wrap { background: #fff; border: 1px solid var(--sol-border); border-radius: 10px; overflow: auto; }
+.sol-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.sol-table th { background: #f8fafc; padding: 9px 12px; text-align: left; font-size: 12px; font-weight: 700; color: #475569; border-bottom: 1px solid var(--sol-border); text-transform: uppercase; }
+.sol-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.sol-table tr:last-child td { border-bottom: none; }
+.sol-empty { text-align: center; padding: 24px; color: #94a3b8; }
+
+.sol-btn { padding: 7px 14px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.sol-btn-sm { padding: 4px 10px; font-size: 12px; }
+.sol-btn-primary { background: var(--sol-primary); color: #fff; }
+.sol-btn-warn    { background: #f97316; color: #fff; }
+
+.sol-filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.sol-input, .sol-select { border: 1px solid var(--sol-border); border-radius: 7px; padding: 7px 12px; font-size: 14px; background: #fff; }
+
+.sol-overdue { color: #dc2626; font-weight: 700; }
+.sol-soon    { color: #f97316; font-weight: 700; }
+
+#sol-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: #fff; padding: 10px 22px;
+  border-radius: 8px; font-size: 14px; z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3); transition: opacity .3s;
+}

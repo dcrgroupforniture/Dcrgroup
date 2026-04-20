@@ -36,6 +36,8 @@
       <div class="sidebar-head">
         <div class="sidebar-title">Clienti</div>
         <button id="newClientBtn" class="btn btn-primary btn-sm">+ Nuovo</button>
+        <button id="btnImportClientiCSV" class="btn btn-sm" title="Importa CSV">📂 CSV</button>
+        <input type="file" id="importClientiFile" accept=".csv" style="display:none"/>
       </div>
 
       <div class="sidebar-search">
@@ -219,9 +221,78 @@
 
   <script type="module">
     import { exportClienti } from './services/exportService.js';
+    import { firestoreService as fs } from './services/firestoreService.js';
+    import { todayISO } from './utils.js';
+
     document.getElementById('btnExportClienti')?.addEventListener('click', () => {
       if (!window._exportClientiData || window._exportClientiData.length === 0) { alert('Nessun dato da esportare.'); return; }
       exportClienti(window._exportClientiData);
+    });
+
+    // M2-E: CSV Import for clienti
+    function parseCSV(text) {
+      const sep = text.indexOf(';') > text.indexOf(',') ? ';' : ',';
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+      return lines.slice(1).map(line => {
+        const vals = line.split(sep).map(v => v.trim().replace(/^"|"$/g,''));
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+        return obj;
+      }).filter(r => Object.values(r).some(v => v));
+    }
+
+    function normalizeClienteRow(r) {
+      return {
+        ragioneSociale: r.ragionesociale || r.nome || r.name || '',
+        partitaIVA:     r.partitaiva || r.piva || r.partita_iva || '',
+        email:          r.email || '',
+        telefono:       r.telefono || r.phone || r.tel || '',
+        indirizzo:      r.indirizzo || r.address || '',
+        citta:          r.citta || r.city || '',
+        cap:            r.cap || r.zip || '',
+        provincia:      r.provincia || r.prov || '',
+        importedAt:     todayISO(),
+      };
+    }
+
+    document.getElementById('btnImportClientiCSV')?.addEventListener('click', () => {
+      document.getElementById('importClientiFile')?.click();
+    });
+
+    document.getElementById('importClientiFile')?.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const rows = parseCSV(text);
+      if (!rows.length) { alert('Nessun dato trovato nel CSV.'); return; }
+      // Load existing clients once to avoid N+1 Firestore queries
+      let existingClienti = [];
+      try { existingClienti = await fs.getAll('clienti'); } catch (_) {}
+      let saved = 0, errors = 0;
+      for (const row of rows) {
+        const data = normalizeClienteRow(row);
+        if (!data.ragioneSociale) continue;
+        try {
+          // Try merge by partitaIVA using the pre-loaded list
+          if (data.partitaIVA) {
+            const normalizedPIVA = data.partitaIVA.replace(/\s/g, '');
+            const found = existingClienti.find(c => (c.partitaIVA || '').replace(/\s/g,'') === normalizedPIVA);
+            if (found) { await fs.update('clienti', found.id, data); saved++; continue; }
+          }
+          const newId = await fs.add('clienti', { ...data, createdAt: new Date().toISOString() });
+          // Keep cache in sync so later rows in the same batch can also match
+          existingClienti.push({ id: newId, ...data });
+          saved++;
+        } catch (err) {
+          console.error('Import cliente error', err);
+          errors++;
+        }
+      }
+      e.target.value = '';
+      alert(`Import completato: ${saved} clienti salvati${errors ? ', ' + errors + ' errori' : ''}.`);
+      location.reload();
     });
   </script>
 

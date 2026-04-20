@@ -41,6 +41,10 @@
           <h1 class="listini-title">Listini</h1>
           <p class="listini-sub">Cerca un prodotto in tutti i listini oppure seleziona un listino da aprire.</p>
         </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button id="btnImportListiniCSV" class="catalog-btn secondary">📂 Importa CSV</button>
+          <input type="file" id="importListiniFile" accept=".csv" style="display:none"/>
+        </div>
       </div>
 
 
@@ -105,5 +109,54 @@
   <script type="module" src="/nav.js?v=20260420"></script>
   <script src="scripts/dashboard-menu.js?v=20260420"></script>
   <script src="listini.js" type="module"></script>
+  <script type="module">
+    import { firestoreService as fs } from './services/firestoreService.js';
+    import { todayISO } from './utils.js';
+
+    function parseCSV(text) {
+      const sep = text.indexOf(';') > text.indexOf(',') ? ';' : ',';
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+      return lines.slice(1).map(line => {
+        const vals = line.split(sep).map(v => v.trim().replace(/^"|"$/g,''));
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+        return obj;
+      }).filter(r => Object.values(r).some(v => v));
+    }
+
+    document.getElementById('btnImportListiniCSV')?.addEventListener('click', () => {
+      document.getElementById('importListiniFile')?.click();
+    });
+
+    document.getElementById('importListiniFile')?.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const rows = parseCSV(text);
+      if (!rows.length) { alert('Nessun dato trovato nel CSV.'); return; }
+      const listino = file.name.replace(/\.csv$/i,'');
+      let saved = 0, errors = 0;
+      for (const r of rows) {
+        const codice      = r.codice || r.code || r.cod || '';
+        const descrizione = r.descrizione || r.description || r.desc || r.nome || r.name || '';
+        const prezzo      = Number(r.prezzo || r.price || r.prezzo_unita || r.importo || 0);
+        if (!codice && !descrizione) continue;
+        try {
+          await fs.add('listiniItems', {
+            codice, descrizione, prezzo, listino,
+            importedAt: todayISO(),
+          });
+          saved++;
+        } catch (err) {
+          console.error('Import listino error', err);
+          errors++;
+        }
+      }
+      e.target.value = '';
+      alert(`Import completato: ${saved} articoli salvati${errors ? ', ' + errors + ' errori' : ''}.`);
+    });
+  </script>
 </body>
 </html>
