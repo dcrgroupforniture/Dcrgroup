@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mandanti — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260420" />
+  <link rel="stylesheet" href="mobile.css?v=20260420" />
+  <link rel="stylesheet" href="mandanti.css?v=20260420" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page mand-page">
+
+<header class="top-bar">
+  <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+  <span class="page-title">Mandanti</span>
+  <select id="quickNav" class="quick-nav">
+    <option value="">Vai a…</option>
+    <option value="index.html">HOME</option>
+    <option value="clients.html">CLIENTI</option>
+    <option value="suppliers.html">FORNITORI</option>
+    <option value="listini.html">LISTINI</option>
+    <option value="ordini-clienti.html">ORDINI CLIENTI</option>
+    <option value="incassi.html">INCASSI</option>
+    <option value="spese.html">SPESE</option>
+    <option value="scadenze.html">SCADENZE</option>
+    <option value="agenda.html">AGENDA</option>
+    <option value="statistiche.html">STATISTICHE</option>
+    <option value="finanze.html">FINANZE</option>
+    <option value="mandanti.html" selected>MANDANTI</option>
+    <option value="crm.html">CRM</option>
+    <option value="offerte.html">OFFERTE</option>
+    <option value="fatture.html">FATTURE</option>
+    <option value="mailing.html">MAILING</option>
+  </select>
+</header>
+
+<main class="mand-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="mand-sidebar">
+    <div class="mand-sidebar-header">
+      <input type="search" id="mandSearch" class="mand-search" placeholder="Cerca mandante…" autocomplete="off"/>
+      <button class="mand-btn mand-btn-primary" id="btnNewMand">＋ Nuovo</button>
+    </div>
+    <div class="mand-list" id="mandList">
+      <div class="mand-empty-state" id="mandEmptyState">Nessun mandante. Clicca "+ Nuovo" per aggiungere.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <section class="mand-content" id="mandContent">
+    <div class="mand-no-selection" id="mandNoSelection">
+      <p>Seleziona un mandante dalla lista oppure creane uno nuovo.</p>
+    </div>
+
+    <div id="mandDetail" style="display:none">
+      <div class="mand-detail-header">
+        <div>
+          <h2 class="mand-detail-title" id="mandDetailTitle">—</h2>
+          <span class="mand-item-badge" id="mandDetailBadge">—</span>
+        </div>
+        <div class="mand-detail-actions">
+          <button class="mand-btn mand-btn-danger mand-btn-sm" id="btnDeleteMand">Elimina</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <nav class="mand-tabs" role="tablist">
+        <button class="mand-tab active" role="tab" data-tab="anagrafica">Anagrafica</button>
+        <button class="mand-tab" role="tab" data-tab="contatti">Contatti</button>
+        <button class="mand-tab" role="tab" data-tab="linee">Linee Prodotto</button>
+        <button class="mand-tab" role="tab" data-tab="budget">Budget</button>
+      </nav>
+
+      <!-- TAB: ANAGRAFICA -->
+      <div class="mand-panel" id="tabAnagrafica">
+        <form id="formAnagrafica" class="mand-form-grid" autocomplete="off">
+          <div class="mand-field">
+            <label>Ragione Sociale *</label>
+            <input type="text" name="ragioneSociale" required placeholder="Es. Alfa SpA"/>
+          </div>
+          <div class="mand-field">
+            <label>Nome Commerciale</label>
+            <input type="text" name="nomeCommerciale" placeholder="Es. Alfa"/>
+          </div>
+          <div class="mand-field">
+            <label>Partita IVA</label>
+            <input type="text" name="partitaIVA" placeholder="IT12345678901"/>
+          </div>
+          <div class="mand-field">
+            <label>Codice Fiscale</label>
+            <input type="text" name="codiceFiscale" placeholder="RSSMRA80A01H501U"/>
+          </div>
+          <div class="mand-field">
+            <label>Telefono</label>
+            <input type="tel" name="telefono" placeholder="+39 02 1234567"/>
+          </div>
+          <div class="mand-field">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="info@azienda.it"/>
+          </div>
+          <div class="mand-field">
+            <label>Sito Web</label>
+            <input type="url" name="sitoWeb" placeholder="https://www.azienda.it"/>
+          </div>
+          <div class="mand-field">
+            <label>Stato</label>
+            <select name="stato">
+              <option value="attivo">Attivo</option>
+              <option value="non_attivo">Non Attivo</option>
+            </select>
+          </div>
+          <div class="mand-section-title" style="grid-column:1/-1">Indirizzo</div>
+          <div class="mand-field">
+            <label>Via</label>
+            <input type="text" name="via" placeholder="Via Roma"/>
+          </div>
+          <div class="mand-field">
+            <label>Numero</label>
+            <input type="text" name="numero" placeholder="1"/>
+          </div>
+          <div class="mand-field">
+            <label>Città</label>
+            <input type="text" name="citta" placeholder="Milano"/>
+          </div>
+          <div class="mand-field">
+            <label>CAP</label>
+            <input type="text" name="cap" placeholder="20100"/>
+          </div>
+          <div class="mand-field">
+            <label>Provincia</label>
+            <input type="text" name="provincia" placeholder="MI"/>
+          </div>
+          <div class="mand-field">
+            <label>Nazione</label>
+            <input type="text" name="nazione" value="Italia" placeholder="Italia"/>
+          </div>
+          <div class="mand-field" style="grid-column:1/-1">
+            <label>Note</label>
+            <textarea name="note" rows="3" placeholder="Note libere…"></textarea>
+          </div>
+          <div style="grid-column:1/-1">
+            <button type="submit" class="mand-btn mand-btn-primary">Salva Anagrafica</button>
+            <span class="mand-save-status" id="anagraficaStatus"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- TAB: CONTATTI -->
+      <div class="mand-panel" id="tabContatti" style="display:none">
+        <div class="mand-panel-toolbar">
+          <button class="mand-btn mand-btn-primary mand-btn-sm" id="btnAddContatto">＋ Aggiungi Contatto</button>
+        </div>
+        <table class="mand-table" id="contattiTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Cognome</th>
+              <th>Ruolo</th>
+              <th>Telefono</th>
+              <th>Email</th>
+              <th>Principale</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="contattiBody"></tbody>
+        </table>
+        <div class="mand-empty-state" id="contattiEmpty">Nessun contatto. Clicca "+ Aggiungi Contatto".</div>
+      </div>
+
+      <!-- TAB: LINEE PRODOTTO -->
+      <div class="mand-panel" id="tabLinee" style="display:none">
+        <div class="mand-panel-toolbar">
+          <button class="mand-btn mand-btn-primary mand-btn-sm" id="btnAddLinea">＋ Aggiungi Linea</button>
+        </div>
+        <table class="mand-table" id="lineeTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Descrizione</th>
+              <th>Stato</th>
+              <th>Ordine</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="lineeBody"></tbody>
+        </table>
+        <div class="mand-empty-state" id="lineeEmpty">Nessuna linea prodotto.</div>
+      </div>
+
+      <!-- TAB: BUDGET -->
+      <div class="mand-panel" id="tabBudget" style="display:none">
+        <div class="mand-panel-toolbar">
+          <label>Anno:
+            <select id="budgetAnno"></select>
+          </label>
+          <button class="mand-btn mand-btn-primary mand-btn-sm" id="btnSaveBudget">Salva Budget</button>
+        </div>
+        <div class="mand-kpi-strip" id="budgetKpi">
+          <div class="mand-kpi-card">
+            <div class="mand-kpi-label">Totale Annuale</div>
+            <div class="mand-kpi-value" id="kpiBudgetTot">—</div>
+          </div>
+          <div class="mand-kpi-card">
+            <div class="mand-kpi-label">Media Mensile</div>
+            <div class="mand-kpi-value" id="kpiBudgetMedia">—</div>
+          </div>
+        </div>
+        <div class="mand-budget-grid" id="budgetGrid"></div>
+        <div class="mand-field" style="margin-top:16px">
+          <label>Note Budget</label>
+          <textarea id="budgetNote" rows="2" placeholder="Note budget…"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /#mandDetail -->
+  </section>
+
+</main>
+
+<!-- MODAL: CONTATTO -->
+<div class="mand-modal-overlay" id="modalContatto" style="display:none">
+  <div class="mand-modal">
+    <div class="mand-modal-header">
+      <h3 id="modalContattoTitle">Contatto</h3>
+      <button class="mand-modal-close" id="closeModalContatto">×</button>
+    </div>
+    <form id="formContatto" class="mand-form-grid" autocomplete="off">
+      <input type="hidden" name="id"/>
+      <div class="mand-field"><label>Nome *</label><input type="text" name="nome" required/></div>
+      <div class="mand-field"><label>Cognome *</label><input type="text" name="cognome" required/></div>
+      <div class="mand-field"><label>Ruolo</label><input type="text" name="ruolo" placeholder="Es. Responsabile vendite"/></div>
+      <div class="mand-field"><label>Telefono</label><input type="tel" name="telefono"/></div>
+      <div class="mand-field" style="grid-column:1/-1"><label>Email</label><input type="email" name="email"/></div>
+      <div class="mand-field" style="grid-column:1/-1"><label>Note</label><textarea name="note" rows="2"></textarea></div>
+      <div class="mand-field" style="grid-column:1/-1">
+        <label><input type="checkbox" name="principale"/> Contatto Principale</label>
+      </div>
+      <div style="grid-column:1/-1">
+        <button type="submit" class="mand-btn mand-btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: LINEA -->
+<div class="mand-modal-overlay" id="modalLinea" style="display:none">
+  <div class="mand-modal">
+    <div class="mand-modal-header">
+      <h3 id="modalLineaTitle">Linea Prodotto</h3>
+      <button class="mand-modal-close" id="closeModalLinea">×</button>
+    </div>
+    <form id="formLinea" class="mand-form-grid" autocomplete="off">
+      <input type="hidden" name="id"/>
+      <div class="mand-field"><label>Nome *</label><input type="text" name="nome" required/></div>
+      <div class="mand-field">
+        <label>Stato</label>
+        <select name="stato">
+          <option value="attiva">Attiva</option>
+          <option value="non_attiva">Non Attiva</option>
+        </select>
+      </div>
+      <div class="mand-field" style="grid-column:1/-1"><label>Descrizione</label><textarea name="descrizione" rows="2"></textarea></div>
+      <div class="mand-field"><label>Ordine</label><input type="number" name="ordine" value="0" min="0"/></div>
+      <div style="grid-column:1/-1">
+        <button type="submit" class="mand-btn mand-btn-primary">Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="./mandanti.js?v=20260420"></script>
+<script type="module" src="/nav.js?v=20260420"></script>
+<script src="scripts/dashboard-menu.js?v=20260420"></script>
+</body>
+</html>
