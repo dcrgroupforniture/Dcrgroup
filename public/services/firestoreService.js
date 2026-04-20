@@ -99,8 +99,12 @@ async function safeGetCollectionDoc(colName, docId) {
 
 function mergeById(baseList = [], extraList = []) {
   const map = new Map();
-  baseList.forEach((item) => map.set(item.id, { ...item }));
+  baseList.forEach((item) => {
+    if (!item || !item.id) return;
+    map.set(item.id, { ...item });
+  });
   extraList.forEach((item) => {
+    if (!item || !item.id) return;
     const prev = map.get(item.id) || {};
     map.set(item.id, { ...prev, ...item });
   });
@@ -228,7 +232,8 @@ export const firestoreService = {
       if (twin) {
         try {
           await updateDoc(doc(db, twin, docId), normalizeForCollection(twin, normalized));
-        } catch {
+        } catch (e) {
+          log("update twin fallback to set", colName, twin, docId, normalizeError(e));
           await setDoc(
             doc(db, twin, docId),
             normalizeForCollection(twin, normalized),
@@ -248,7 +253,11 @@ export const firestoreService = {
       await deleteDoc(doc(db, colName, docId));
       const twin = twinCollection(colName);
       if (twin) {
-        try { await deleteDoc(doc(db, twin, docId)); } catch {}
+        try {
+          await deleteDoc(doc(db, twin, docId));
+        } catch (e) {
+          log("remove twin failed", twin, docId, normalizeError(e));
+        }
       }
       return docId;
     } catch (e) {

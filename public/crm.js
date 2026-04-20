@@ -10,6 +10,7 @@ let attivita  = [];
 let clienti   = [];
 let mandanti  = [];
 let currentUser = null;
+const DEFAULT_AGENDA_START_TIME = '09:00';
 
 // ── DOM refs ───────────────────────────────────────────────────────────────
 
@@ -366,11 +367,12 @@ async function addToAgenda(attivitaId) {
   const a = attivita.find(x => x.id === attivitaId);
   if (!a) return;
   try {
-    const data = a.data || todayISO();
-    const ora = a.ora || '09:00';
+    const activityDate = a.data || todayISO();
+    const ora = a.ora || DEFAULT_AGENDA_START_TIME;
     const durata = Math.max(Number(a.durata) || 60, 15);
-    let start = new Date(`${data}T${ora}:00`);
-    if (Number.isNaN(start.getTime())) start = new Date(`${data}T09:00:00`);
+    let start = new Date(`${activityDate}T${ora}:00`);
+    if (Number.isNaN(start.getTime())) start = new Date(`${activityDate}T${DEFAULT_AGENDA_START_TIME}:00`);
+    if (Number.isNaN(start.getTime())) start = new Date();
     const end = new Date(start.getTime() + (durata * 60 * 1000));
     await fs.add('agendaEvents', {
       title: `[CRM] ${a.tipo || 'attività'} - ${a.clienteNome || 'Cliente'}`,
@@ -379,7 +381,7 @@ async function addToAgenda(attivitaId) {
       end: end.toISOString(),
       allDay: false,
       color: '#14b8a6',
-      date: data,
+      date: activityDate,
       crmAttivitaId: attivitaId,
       clienteId: a.clienteId || '',
       clienteNome: a.clienteNome || '',
