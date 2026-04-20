@@ -21,8 +21,9 @@
   padding: 12px 14px;
   border-bottom: 1px solid #e5e7eb;
   display: grid;
-  grid-template-columns: 1fr 120px 100px;
+  grid-template-columns: minmax(0,1fr) 120px 100px;
   align-items: center;
+  gap: 10px;
 }
 
 .product-row:hover {
@@ -44,6 +45,24 @@
   color: #1f4fd8;
 }
 
+@media (max-width: 640px){
+  .product-row{
+    grid-template-columns: minmax(0,1fr) auto;
+    grid-template-areas:
+      "name price"
+      "format format";
+    gap: 4px 8px;
+    padding: 10px 12px;
+  }
+  .product-name{grid-area:name;}
+  .product-price{grid-area:price;}
+  .product-format{
+    grid-area:format;
+    text-align:left;
+    font-size:12px;
+  }
+}
+
 /* ── Dark mode (storico listini) ── */
 :root:not(.theme-light) body {
   background: #0f172a;
@@ -59,10 +78,11 @@
   border-bottom-color: rgba(255,255,255,.12);
 }
 :root:not(.theme-light) .product-row {
-  background: #1e293b;
+  background: #162032;
   border-bottom-color: rgba(255,255,255,.08);
   color: #e2e8f0;
 }
 :root:not(.theme-light) .product-row:hover { background: #1e3a5f; }
-:root:not(.theme-light) .product-format { color: #94a3b8; }
+:root:not(.theme-light) .product-name { color: #f8fafc; }
+:root:not(.theme-light) .product-format { color: #cbd5e1; }
 :root:not(.theme-light) .product-price { color: #93c5fd; }

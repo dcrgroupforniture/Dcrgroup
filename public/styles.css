@@ -947,3 +947,38 @@ html,body{overflow-x:hidden;}
 :root:not(.theme-light) .alert-success { background: rgba(22,163,74,.15) !important; color: #86efac !important; border-color: rgba(22,163,74,.30) !important; }
 :root:not(.theme-light) .alert-warning { background: rgba(245,158,11,.15) !important; color: #fcd34d !important; border-color: rgba(245,158,11,.30) !important; }
 :root:not(.theme-light) .alert-danger { background: rgba(239,68,68,.15) !important; color: #fca5a5 !important; border-color: rgba(239,68,68,.30) !important; }
+
+/* =========================
+   GLOBAL POPUP + BUTTON UNIFORMITY
+========================= */
+:where(.btn,.primary-btn,.ghost-btn,.menu-button,.scad-btn,.catalog-btn):not(.icon-btn):not(.small-btn){
+  min-height: 44px;
+  line-height: 1.2;
+}
+
+:where(.actions-row,.invoice-actions,.modal-actions,.scad-modal-foot-right,.catalog-import-actions,.history-row-actions){
+  gap: 10px;
+}
+
+.modal,
+.scad-modal{
+  width: min(560px, calc(100vw - 24px));
+  max-width: 100%;
+}
+.modal-body,
+.scad-modal-body{
+  min-width: 0;
+}
+.modal-body .field,
+.scad-field{
+  min-width: 0;
+}
+
+@media (max-width: 640px){
+  .modal-actions .btn,
+  .invoice-actions > button,
+  .scad-modal-foot-right > .scad-btn{
+    width: 100%;
+    justify-content: center;
+  }
+}

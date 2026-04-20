@@ -106,8 +106,36 @@
 }
 .invoice-form-head span:first-child{display:block;font-size:15px;font-weight:900;}
 .invoice-form-sub{font-size:11px;opacity:.80;margin-top:2px;}
-.invoice-form-grid{padding:16px 20px 0;}
-.invoice-actions{display:flex;gap:10px;padding:16px 20px;border-top:1px solid #f1f5f9;margin-top:16px;}
+.invoice-form-grid{
+  padding:16px 20px 0;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.invoice-form-grid .form-group{min-width:0;}
+.invoice-form-grid .form-group input,
+.invoice-form-grid .form-group select,
+.invoice-form-grid .form-group textarea{
+  min-height:44px;
+  line-height:1.25;
+}
+.invoice-form-grid .form-group textarea{
+  min-height:88px;
+}
+.invoice-actions{
+  display:flex;
+  gap:10px;
+  padding:16px 20px;
+  border-top:1px solid #f1f5f9;
+  margin-top:16px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.invoice-actions > .primary-btn,
+.invoice-actions > .ghost-btn{
+  min-height:44px;
+}
 
 /* photo upload */
 .photo-upload-area{
@@ -227,6 +255,7 @@
 
 /* ── RESPONSIVE ───────────────────────────────── */
 @media(max-width:760px){
+  .invoice-form-grid{grid-template-columns:1fr;}
   .inv-table-head,.inv-row{
     grid-template-columns:80px 1fr 76px 76px;
   }
@@ -256,6 +285,10 @@
 
 @media(max-width:480px){
   .supplier-main{padding:14px 12px;}
+  .invoice-form-grid{padding:14px 14px 0;gap:10px;}
+  .invoice-actions{padding:12px 14px;gap:8px;}
+  .invoice-actions > .primary-btn,
+  .invoice-actions > .ghost-btn{flex:1 1 100%;justify-content:center;}
   .inv-filter-bar{gap:6px;}
   .filter-pill{padding:5px 10px;font-size:10px;}
   /* invoice table: tighter columns on very small phones */
@@ -441,4 +474,3 @@
 :root:not(.theme-light) .photo-modal-box { background: #1e293b !important; color: #e2e8f0; }
 :root:not(.theme-light) .photo-modal-title { color: #f1f5f9 !important; border-bottom-color: rgba(255,255,255,.10) !important; }
 :root:not(.theme-light) .photo-modal-close { background: rgba(255,255,255,.08) !important; color: #e2e8f0 !important; }
-
