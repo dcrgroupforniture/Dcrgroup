@@ -55,7 +55,7 @@
 .mailing-wrap {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 16px 48px;
+  padding: calc(84px + env(safe-area-inset-top)) 16px 48px;
 }
 
 /* ── KPI Strip ───────────────────────────────────────────── */

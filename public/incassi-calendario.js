@@ -85,6 +85,7 @@ function renderAutoEntries(entries = []){
 
 function closePopup(){
   popup.classList.remove('show');
+  document.body.classList.remove('incassi-modal-open');
   popupAutoTotal = 0;
   delete popup.dataset.day;
 }
@@ -181,6 +182,7 @@ async function openPopup(day){
   }
   renderAutoEntries(allEntries);
   computeAutoAmount();
+  document.body.classList.add('incassi-modal-open');
   popup.classList.add('show');
 }
 closeBtn?.addEventListener('click', closePopup);
@@ -259,4 +261,3 @@ function waitForAuth() {
 waitForAuth().then(() => {
   loadClients().then(renderMonth).catch((e) => { console.error(e); alert('Errore caricamento calendario incassi.'); });
 });
-

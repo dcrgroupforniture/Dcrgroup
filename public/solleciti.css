@@ -1,7 +1,11 @@
 /* solleciti.css */
 :root { --sol-primary: #dc2626; --sol-border: #e2e8f0; }
 
-.solleciti-wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.solleciti-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: calc(84px + env(safe-area-inset-top)) 16px 24px;
+}
 
 .sol-kpi-strip { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .sol-kpi-card {
@@ -42,4 +46,31 @@
   background: #1e293b; color: #fff; padding: 10px 22px;
   border-radius: 8px; font-size: 14px; z-index: 9999;
   box-shadow: 0 4px 12px rgba(0,0,0,.3); transition: opacity .3s;
+}
+
+/* Night mode readability */
+:root:not(.theme-light) .solleciti-wrap { color: #e2e8f0; }
+:root:not(.theme-light) .sol-kpi-card,
+:root:not(.theme-light) .sol-table-wrap {
+  background: #1e293b;
+  border-color: rgba(255,255,255,.14);
+}
+:root:not(.theme-light) .sol-kpi-label,
+:root:not(.theme-light) .sol-empty { color: #94a3b8; }
+:root:not(.theme-light) .sol-kpi-value { color: #fca5a5; }
+:root:not(.theme-light) .sol-section-title { color: #f1f5f9; }
+:root:not(.theme-light) .sol-input,
+:root:not(.theme-light) .sol-select {
+  background: #0f172a;
+  color: #f1f5f9;
+  border-color: rgba(255,255,255,.20);
+}
+:root:not(.theme-light) .sol-table th {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+  border-bottom-color: rgba(255,255,255,.16) !important;
+}
+:root:not(.theme-light) .sol-table td {
+  color: #e2e8f0 !important;
+  border-bottom-color: rgba(255,255,255,.08) !important;
 }
