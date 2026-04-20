@@ -161,19 +161,25 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       const pay = payments[i];
       const amt = Number(pay.amount) || 0;
       if(amt <= 0) continue;
+      const methodNorm = String(pay.method || '').trim().toLowerCase();
+      const isCheck = methodNorm === 'assegno';
+      const paymentDate = isCheck && pay.checkDueDate ? toDateKey(pay.checkDueDate) : toDateKey(pay.date);
+      const dateForIncasso = paymentDate || dayKey;
+      const payKind = isCheck ? "assegno" : (pay.type || "acconto");
       const incassoId = `${orderId}__pay_${i}`;
       await setDoc(doc(db, "incassi", incassoId), {
-        date: pay.date || dayKey,
+        date: dateForIncasso,
         source: "ordine",
         orderId,
         clientId: clientId || null,
         clientName: clientName || null,
-        kind: pay.type || "acconto",
-        paymentType: pay.type || "acconto",
+        kind: payKind,
+        paymentType: payKind,
         amount: amt,
         method: pay.method || null,
+        checkDueDate: isCheck ? (pay.checkDueDate || dateForIncasso) : null,
         reference: pay.reference || null,
-        note: `${clientName || 'Cliente'} • ${euro(amt)} • ${pay.type || 'acconto'}`,
+        note: `${clientName || 'Cliente'} • ${euro(amt)} • ${payKind}`,
         updatedAt: new Date()
       }, { merge: true });
     }
@@ -1518,5 +1524,4 @@ async function ensureClientIdFromOrder(){
     // ignoriamo: se non riusciamo, useremo fallback su lista clienti
   }
 }
-
 

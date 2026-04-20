@@ -205,6 +205,20 @@
           <option value="pagata">Pagata</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Modalità pagamento</label>
+        <select id="invoicePaymentMethod">
+          <option value="bonifico">Bonifico</option>
+          <option value="contanti">Contanti</option>
+          <option value="carta_di_credito">Carta di credito</option>
+          <option value="assegno">Assegno</option>
+          <option value="altro">Altro</option>
+        </select>
+      </div>
+      <div class="form-group" id="invoiceCheckDueGroup" style="display:none">
+        <label>Scadenza assegno</label>
+        <input type="date" id="invoiceCheckDueDate">
+      </div>
       <div class="form-group full-col">
         <label>Note</label>
         <textarea id="invoiceNotes" placeholder="Note aggiuntive…" rows="2"></textarea>

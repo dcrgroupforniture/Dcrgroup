@@ -519,16 +519,16 @@ header::after{
 
 .dashnav-btn{margin-left:auto;
   display:inline-flex; align-items:center; gap:8px;
-  padding:10px 12px; border-radius:14px;
-  border:1px solid rgba(15,23,42,.12);
-  background:#fff; color:var(--text-dark);
-  box-shadow: 0 10px 25px rgba(2,6,23,.08);
+  padding:8px 11px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.12); color:#fff;
+  box-shadow:none;
   font-weight:800;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
 }
-.dashnav-btn-ico{display:inline-flex; width:28px; height:28px; align-items:center; justify-content:center; border-radius:10px; background:rgba(37,99,235,.12); color:#2563eb;}
+ .dashnav-btn-ico{display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center; border-radius:8px; background:rgba(255,255,255,.2); color:#fff;}
 .dashnav-overlay{position:fixed; inset:0; background:rgba(2,6,23,.35); display:none; z-index:9999; padding:16px;}
 .dashnav-overlay.open{display:flex; align-items:center; justify-content:center;}
 .dashnav-panel{width:min(720px, 100%); max-height:min(86vh,900px); background:#fff; border-radius:20px; box-shadow: 0 20px 55px rgba(2,6,23,.35); overflow:auto;}

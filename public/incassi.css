@@ -392,6 +392,44 @@ textarea{min-height:120px;resize:none}
   .auto-entry-amt{font-size:18px;text-align:left}
 }
 
+/* Popup “Restante da incassare” – contrasto migliorato */
+.incassi-popup .popup-box{background:#ffffff;color:#0f172a;}
+.incassi-popup .popup-title{color:#0f172a;}
+.incassi-popup .lbl{color:#334155;}
+.incassi-popup .hint{color:#475569;}
+.incassi-popup .popup-actions{background:#fff;}
+:root:not(.theme-light) .incassi-popup .popup-box{
+  background:#0f172a;
+  border-color:rgba(255,255,255,.14);
+  color:#e2e8f0;
+}
+:root:not(.theme-light) .incassi-popup .popup-title{color:#f8fafc;}
+:root:not(.theme-light) .incassi-popup .lbl{color:#cbd5e1;}
+:root:not(.theme-light) .incassi-popup .hint{color:#94a3b8;}
+:root:not(.theme-light) .incassi-popup input,
+:root:not(.theme-light) .incassi-popup textarea{
+  background:#111f36;
+  border-color:rgba(255,255,255,.20);
+  color:#f8fafc;
+}
+:root:not(.theme-light) .incassi-popup .popup-actions{
+  background:#0f172a;
+  border-top-color:rgba(255,255,255,.14);
+}
+:root:not(.theme-light) .incassi-popup .auto-box{
+  background:linear-gradient(180deg,#17243b 0%,#132139 100%);
+  border-color:rgba(147,197,253,.28);
+}
+:root:not(.theme-light) .incassi-popup .auto-box-title{color:#f8fafc;}
+:root:not(.theme-light) .incassi-popup .auto-summary{color:#cbd5e1;}
+:root:not(.theme-light) .incassi-popup .auto-entry{
+  background:#0f172a;
+  border-color:rgba(255,255,255,.12);
+}
+:root:not(.theme-light) .incassi-popup .auto-entry-name{color:#f8fafc;}
+:root:not(.theme-light) .incassi-popup .auto-entry-meta{color:#cbd5e1;}
+:root:not(.theme-light) .incassi-popup .auto-entry-amt{color:#f8fafc;}
+
 /* ── Dark mode overrides – incassi.html ── */
 :root:not(.theme-light) {
   --ink: #e2e8f0;

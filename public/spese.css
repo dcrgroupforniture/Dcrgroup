@@ -349,6 +349,8 @@ body.sp-page {
   background: var(--sp-card2);
   color: var(--sp-text);
 }
+.sp-cat-carburante { background: rgba(59,130,246,.18); color: #93c5fd; }
+.sp-cat-pranzo     { background: rgba(245,158,11,.18); color: #fcd34d; }
 .sp-cat-prodotti    { background: rgba(59,130,246,.18);  color: #93c5fd; }
 .sp-cat-attrezzatura{ background: rgba(139,92,246,.18);  color: #c4b5fd; }
 .sp-cat-servizi     { background: rgba(6,182,212,.18);   color: #67e8f9; }

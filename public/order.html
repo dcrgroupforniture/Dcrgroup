@@ -163,11 +163,13 @@
           <input id="residualAmount" type="number" step="0.01" />
 
           <select id="paymentMethod">
+            <option value="Assegno">Assegno</option>
             <option value="Contanti">Contanti</option>
             <option value="Bonifico Bancario" selected>Bonifico Bancario</option>
             <option value="Carta">Carta</option>
             <option value="Altro">Altro</option>
           </select>
+          <input id="checkDueDate" type="date" />
           <input id="iban" type="text" placeholder="MT103-4934-ABCD" />
           <input id="isCash" type="checkbox" />
           <input id="isTransfer" type="checkbox" />
@@ -281,11 +283,17 @@
       <div class="row mt">
         <label class="muted small">Metodo</label>
         <select id="paymentMethodModal" class="select">
+          <option value="Assegno">Assegno</option>
           <option value="Contanti">Contanti</option>
           <option value="Bonifico Bancario" selected>Bonifico Bancario</option>
           <option value="Carta">Carta</option>
           <option value="Altro">Altro</option>
         </select>
+      </div>
+
+      <div class="row mt hidden" id="checkDueDateWrap">
+        <label class="muted small">Scadenza assegno (se postdatato)</label>
+        <input id="checkDueDateModal" type="date" class="input" />
       </div>
 
       <div class="row mt">
@@ -321,23 +329,36 @@
     const ps = byId("paymentStatus");
     const da = byId("depositAmount");
     const pm = byId("paymentMethod");
+    const cd = byId("checkDueDate");
     const ib = byId("iban");
 
     const psM = byId("paymentStatusModal");
     const daM = byId("depositAmountModal");
     const pmM = byId("paymentMethodModal");
+    const cdM = byId("checkDueDateModal");
+    const cdWrap = byId("checkDueDateWrap");
     const ibM = byId("ibanModal");
+
+    function syncCheckDueVisibility() {
+      if (!cdWrap || !pmM) return;
+      const isCheck = String(pmM.value || "").toLowerCase() === "assegno";
+      cdWrap.classList.toggle("hidden", !isCheck);
+      if (!isCheck && cdM) cdM.value = "";
+    }
 
     function syncToModal() {
       if (psM && ps) psM.value = ps.value;
       if (daM && da) daM.value = da.value || "";
       if (pmM && pm) pmM.value = pm.value;
+      if (cdM && cd) cdM.value = cd.value || "";
       if (ibM && ib) ibM.value = ib.value || "";
+      syncCheckDueVisibility();
     }
     function syncFromModal() {
       if (ps && psM) ps.value = psM.value;
       if (da && daM) da.value = daM.value || "";
       if (pm && pmM) pm.value = pmM.value;
+      if (cd && cdM) cd.value = cdM.value || "";
       if (ib && ibM) ib.value = ibM.value || "";
 
       // trigger ricalcoli
@@ -351,6 +372,7 @@
     // quando apro il modal, copia i valori
     const btn = byId("registerPaymentBtn");
     btn?.addEventListener("click", syncToModal);
+    pmM?.addEventListener("change", syncCheckDueVisibility);
 
     // quando applico, copia dal modal ai campi reali
     byId("paymentModalApply")?.addEventListener("click", syncFromModal);
