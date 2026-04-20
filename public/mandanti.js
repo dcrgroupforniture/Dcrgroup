@@ -526,7 +526,7 @@ function buildBudgetGrid(mesiValues) {
     const val = mesiValues ? (mesiValues[key] ?? 0) : 0;
     cell.innerHTML = `
       <label>${escapeHtml(MESI_LABEL[i])}</label>
-      <input type="number" id="budget_${escapeHtml(key)}" min="0" step="0.01" value="${Number(val).toFixed(2)}" placeholder="0,00"/>
+      <input type="number" id="budget_${escapeHtml(key)}" min="0" step="0.01" value="${Number(val).toFixed(2)}" placeholder="0.00"/>
     `;
     grid.appendChild(cell);
   });
