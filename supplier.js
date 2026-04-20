@@ -21,7 +21,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const params = new URLSearchParams(window.location.search);
-let supplierId = params.get("supplierId") || null;
+const requestedSupplierId = params.get("supplierId") || params.get("id") || null;
+const shouldOpenInvoiceForm = params.get("openInvoice") === "1";
+let supplierId = (requestedSupplierId && requestedSupplierId !== "undefined" && requestedSupplierId !== "null")
+  ? requestedSupplierId
+  : null;
 
 // ── DOM refs ─────────────────────────────────────────
 const supplierNameTitle   = document.getElementById("supplierNameTitle");
@@ -104,7 +108,9 @@ function eur(n){ return new Intl.NumberFormat("it-IT",{style:"currency",currency
 function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
 function formatDate(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
 function daysDiff(isoDate){ const t=new Date(isoDate+" 00:00:00").getTime(); return Math.round((t-Date.now())/(1000*60*60*24)); }
-function invTotal(inv){ return Number(inv.total || inv.amount || 0); }
+function invTotal(inv){ return Number(inv.totalWithVat || inv.total || inv.importo || inv.amount || 0); }
+function getInvoiceDateIso(inv){ return String(inv?.date || inv?.invoiceDate || inv?.dateISO || ""); }
+function getInvoiceDueDateIso(inv){ return String(inv?.dueDate || inv?.invoiceDueDate || ""); }
 
 const MOBILE_BREAKPOINT = 640;
 
@@ -410,19 +416,21 @@ function renderInvoiceTable(){
 
   filtered.forEach(inv => {
     const { label: statusLabel, cls: statusCls } = getStatusInfo(inv);
-    const dueCls = getDueCls(inv.dueDate);
-    const dueText = inv.dueDate ? formatDate(inv.dueDate) : "—";
+    const invoiceDate = getInvoiceDateIso(inv);
+    const dueDate = getInvoiceDueDateIso(inv);
+    const dueCls = getDueCls(dueDate);
+    const dueText = dueDate ? formatDate(dueDate) : "—";
 
     const row = document.createElement("div");
     row.className = "inv-row";
     row.innerHTML = `
       <span class="inv-num">${inv.invoiceNumber ? `#${inv.invoiceNumber}` : "—"}</span>
       <div class="inv-info">
-        <div class="inv-desc">${inv.description || "Fattura del "+formatDate(inv.date)}</div>
+        <div class="inv-desc">${inv.description || "Fattura del "+formatDate(invoiceDate)}</div>
         <div class="inv-supplier-sub">${inv.category ? `📂 ${inv.category}` : ""}</div>
         <div class="inv-status-mobile"><span class="status-pill ${statusCls}">${statusLabel}</span></div>
       </div>
-      <span class="inv-date">${formatDate(inv.date)}</span>
+      <span class="inv-date">${formatDate(invoiceDate)}</span>
       <span class="inv-due ${dueCls}">${dueText}</span>
       <span class="inv-amt">${eur(invTotal(inv))}</span>
       <!-- inv.total is the VAT-inclusive total for new invoices; inv.amount is kept for backward compatibility with old invoices that only stored the base amount -->
@@ -489,8 +497,8 @@ function startEdit(inv){
   existingPhotoUrl = inv.photoUrl || null;
   if(invoiceFormTitle) invoiceFormTitle.textContent = "✏️ Modifica fattura";
   invoiceNumberInput.value  = inv.invoiceNumber || "";
-  invoiceDateInput.value    = inv.date || todayISO();
-  invoiceDueDateInput.value = inv.dueDate || "";
+  invoiceDateInput.value    = getInvoiceDateIso(inv) || todayISO();
+  invoiceDueDateInput.value = getInvoiceDueDateIso(inv) || "";
   invoiceAmountInput.value  = inv.amount || ""; // base amount (imponibile); total is recalculated via computeInvoiceTotal()
   invoiceVatInput.value     = String(inv.vat ?? 22);
   invoiceDescInput.value    = inv.description || "";
@@ -517,20 +525,21 @@ async function loadInvoices(){
   if(!supplierId){ return; }
 
   const ref = collection(db, "suppliers", supplierId, "invoices");
-  const q   = query(ref, orderBy("date","desc"));
   let snap;
-  try { snap = await getDocs(q); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
+  try { snap = await getDocs(ref); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
 
   const currentYear = new Date().getFullYear().toString();
-  let totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
+  let totalAll = 0, totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
   const urgent = [];
 
-  allInvoices = [];
-  snap.forEach(docSnap => {
-    const inv = { id: docSnap.id, ...docSnap.data() };
-    allInvoices.push(inv);
+  allInvoices = snap.docs
+    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+    .sort((a, b) => getInvoiceDateIso(b).localeCompare(getInvoiceDateIso(a)));
+
+  allInvoices.forEach(inv => {
     const amount = invTotal(inv);
-    if((inv.date||"").startsWith(currentYear)){
+    totalAll += amount;
+    if(getInvoiceDateIso(inv).startsWith(currentYear)){
       totalYear += amount; countYear++;
     }
     const { cls } = getStatusInfo(inv);
@@ -568,7 +577,7 @@ async function loadInvoices(){
       row.innerHTML = `
         <div class="scad-info">
           <div class="scad-supplier">${inv.description || (inv.invoiceNumber ? `#${inv.invoiceNumber}` : "Fattura")}</div>
-          <div class="scad-detail">${inv.invoiceNumber ? `Fattura #${inv.invoiceNumber} · ` : ""}${formatDate(inv.date)}</div>
+          <div class="scad-detail">${inv.invoiceNumber ? `Fattura #${inv.invoiceNumber} · ` : ""}${formatDate(getInvoiceDateIso(inv))}</div>
         </div>
         <div class="scad-right">
           <div class="scad-due ${dueCls}">${dueLabel}</div>
@@ -581,7 +590,7 @@ async function loadInvoices(){
   }
 
   // update supplier total
-  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalYear }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
+  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
 
   renderInvoiceTable();
 }
@@ -590,6 +599,7 @@ async function loadInvoices(){
 await loadSupplier();
 await loadInvoices();
 await loadOrders();
+if(shouldOpenInvoiceForm && supplierId){ resetForm(); openForm(); }
 
 // ── Toggle storico ordini ─────────────────────────────
 toggleOrdersBtn?.addEventListener("click", () => {
@@ -661,20 +671,17 @@ async function loadOrders(){
   ordersHistorySection.style.display = "block";
 
   const ordersRef  = collection(db, "suppliers", supplierId, "orders");
-  const invRef     = collection(db, "suppliers", supplierId, "invoices");
   const ordersQ    = query(ordersRef, orderBy("data", "desc"));
-  const invQ       = query(invRef, orderBy("date", "desc"));
-
-  let ordersSnap, invSnap;
+  let ordersSnap;
   try {
-    [ordersSnap, invSnap] = await Promise.all([getDocs(ordersQ), getDocs(invQ)]);
+    ordersSnap = await getDocs(ordersQ);
   } catch(e){
     console.warn("Storico non caricato:", e);
     ordersEmptyState?.classList.remove("hidden");
     return;
   }
 
-  // Build combined entries list (orders + invoices with photo)
+  // Build combined entries list (orders + invoices)
   const entries = [];
 
   ordersSnap.forEach(docSnap => {
@@ -683,11 +690,10 @@ async function loadOrders(){
     entries.push({ id: docSnap.id, type: "order", dateVal, data: o });
   });
 
-  invSnap.forEach(docSnap => {
-    const inv = docSnap.data();
-    if(!inv.photoUrl) return; // only photo-invoices appear in orders history
-    const dateVal = inv.date ? new Date(inv.date + "T00:00:00") : null;
-    entries.push({ id: docSnap.id, type: "invoice", dateVal, data: inv });
+  allInvoices.forEach(inv => {
+    const invDate = getInvoiceDateIso(inv);
+    const dateVal = invDate ? new Date(invDate + "T00:00:00") : null;
+    entries.push({ id: inv.id, type: "invoice", dateVal, data: inv });
   });
 
   // Sort descending by date
@@ -760,13 +766,16 @@ async function loadOrders(){
       const { label: statusLabel, cls: statusCls } = getStatusInfo(inv);
       const totale = invTotal(inv);
       const numLabel = inv.invoiceNumber ? `Fattura #${inv.invoiceNumber}` : "Fattura";
+      const photoBtn = inv.photoUrl
+        ? `<br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${inv.photoUrl}" title="Visualizza foto fattura">📷 Vedi foto</button>`
+        : "";
 
       row.innerHTML = `
         <span class="order-date">${dateStr}</span>
         <div class="order-items">
           <strong>🧾 ${numLabel.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</strong>
           ${inv.description ? `<br>${inv.description.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}` : ""}
-          <br><button class="act-btn photo-btn-sm" style="margin-top:4px;width:auto;padding:0 8px;height:26px;font-size:11px;" data-photo="${inv.photoUrl}" title="Visualizza foto fattura">📷 Vedi foto</button>
+          ${photoBtn}
           <div class="order-items-status" style="display:none;margin-top:4px;">
             <span class="status-pill ${statusCls}">${statusLabel}</span>
           </div>

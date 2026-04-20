@@ -21,7 +21,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const params = new URLSearchParams(window.location.search);
-let supplierId = params.get("supplierId") || null;
+const requestedSupplierId = params.get("supplierId") || params.get("id") || null;
+const shouldOpenInvoiceForm = params.get("openInvoice") === "1";
+let supplierId = (requestedSupplierId && requestedSupplierId !== "undefined" && requestedSupplierId !== "null")
+  ? requestedSupplierId
+  : null;
 
 // ── DOM refs ─────────────────────────────────────────
 const supplierNameTitle   = document.getElementById("supplierNameTitle");
@@ -647,6 +651,7 @@ async function reloadInvoiceSections(){
 await loadSupplier();
 await loadInvoices();
 await loadOrders();
+if(shouldOpenInvoiceForm && supplierId){ resetForm(); openForm(); }
 
 // Hide orders section on new-supplier page (no supplierId in URL)
 if(!supplierId && ordersHistorySection) ordersHistorySection.style.display = 'none';
