@@ -1482,7 +1482,7 @@
         }
       });
       calendar.render();
-      setTimeout(()=>calendar?.updateSize(), 80);
+      requestAnimationFrame(() => requestAnimationFrame(() => calendar?.updateSize()));
     }
 
     function updateCalendarMobileLayout(){

@@ -71,6 +71,10 @@ function applyHomeIconTheme(theme){
   document.body.classList.toggle('icons-animated', isAnimated);
   if(!iconThemeToggle) return;
   iconThemeToggle.setAttribute('aria-pressed', isAnimated ? 'true' : 'false');
+  iconThemeToggle.setAttribute(
+    'aria-label',
+    isAnimated ? 'Passa alle icone statiche' : 'Passa alle icone animate'
+  );
   iconThemeToggle.textContent = isAnimated ? '🧊 Icone statiche' : '✨ Icone animate';
 }
 

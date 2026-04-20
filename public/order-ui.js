@@ -25,6 +25,7 @@ function fmtDateLocal(isoStr) {
   if (!isoStr) return '';
   try { return new Date(isoStr + 'T00:00:00').toLocaleDateString('it-IT'); } catch { return isoStr; }
 }
+const CHECK_METHOD = 'assegno';
 
 // ====================================
 // STATE
@@ -87,7 +88,7 @@ const checkDueDateWrapEl = qs('checkDueDateWrap');
 const checkDueDateModalEl = qs('checkDueDateModal');
 
 function syncCheckDueDateVisibility() {
-  const isCheck = String(paymentMethodModalEl?.value || '').toLowerCase() === 'assegno';
+  const isCheck = String(paymentMethodModalEl?.value || '').toLowerCase() === CHECK_METHOD;
   checkDueDateWrapEl?.classList.toggle('hidden', !isCheck);
   if (!isCheck && checkDueDateModalEl) checkDueDateModalEl.value = '';
 }
@@ -214,7 +215,7 @@ function renderPaymentsUI() {
   payments.forEach((pay, idx) => {
     const item = document.createElement('div');
     item.className = 'payment-item';
-    const checkLabel = (String(pay.method).toLowerCase() === 'assegno' && pay.checkDueDate)
+    const checkLabel = (String(pay.method).toLowerCase() === CHECK_METHOD && pay.checkDueDate)
       ? `Scadenza assegno ${fmtDateLocal(pay.checkDueDate)}`
       : '';
     const sub = [pay.type, fmtDateLocal(pay.date), checkLabel, pay.reference].filter(Boolean).join(' • ');
