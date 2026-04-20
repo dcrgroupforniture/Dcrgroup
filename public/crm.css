@@ -20,6 +20,10 @@
   --crm-row-hover:    rgba(20,184,166,.08);
   --crm-overlay:      rgba(0,0,0,.65);
   --crm-modal-bg:     #112233;
+  --crm-timeline-bg:  #1e293b;
+  --crm-timeline-border: rgba(255,255,255,.12);
+  --crm-timeline-text: #e2e8f0;
+  --crm-timeline-muted:#94a3b8;
 }
 
 :root.theme-light {
@@ -38,6 +42,10 @@
   --crm-row-hover:    rgba(20,184,166,.06);
   --crm-overlay:      rgba(0,0,0,.45);
   --crm-modal-bg:     #ffffff;
+  --crm-timeline-bg:  #f8fafc;
+  --crm-timeline-border: #e2e8f0;
+  --crm-timeline-text: #1e293b;
+  --crm-timeline-muted:#64748b;
 }
 
 /* ── Page Base ── */
@@ -401,22 +409,22 @@ body.crm-page {
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--crm-muted);
   border-bottom: 3px solid transparent;
   margin-bottom: -2px;
   border-radius: 4px 4px 0 0;
   transition: color .2s, border-color .2s;
 }
 .crm-tab.active {
-  color: #14b8a6;
-  border-bottom-color: #14b8a6;
+  color: var(--crm-brand);
+  border-bottom-color: var(--crm-brand);
   background: rgba(20,184,166,.06);
 }
 
 /* ── Timeline (M2-B) ── */
 .crm-timeline-wrap {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--crm-timeline-bg);
+  border: 1px solid var(--crm-timeline-border);
   border-radius: 10px;
   margin: 16px;
   padding: 16px;
@@ -436,12 +444,12 @@ body.crm-page {
 }
 .crm-timeline-dot {
   width: 10px; height: 10px;
-  background: #14b8a6;
+  background: var(--crm-brand);
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 5px;
 }
 .crm-timeline-content { flex: 1; }
-.crm-timeline-date { font-size: 12px; color: #64748b; }
-.crm-timeline-desc { font-size: 14px; color: #1e293b; }
-.crm-timeline-user { font-size: 11px; color: #94a3b8; }
+.crm-timeline-date { font-size: 12px; color: var(--crm-timeline-muted); }
+.crm-timeline-desc { font-size: 14px; color: var(--crm-timeline-text); }
+.crm-timeline-user { font-size: 11px; color: var(--crm-timeline-muted); }

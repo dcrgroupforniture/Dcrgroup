@@ -10,6 +10,7 @@ let attivita  = [];
 let clienti   = [];
 let mandanti  = [];
 let currentUser = null;
+const DEFAULT_AGENDA_START_TIME = '09:00';
 
 // ── DOM refs ───────────────────────────────────────────────────────────────
 
@@ -62,15 +63,26 @@ async function init() {
 // ── Data loading ───────────────────────────────────────────────────────────
 
 async function loadAttivita() {
+  let loaded = false;
   try {
     const q = fs.col('crmAttivita');
     const { query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
     const sorted = query(q, orderBy('data', 'desc'));
     attivita = await fs.getAllFromQuery(sorted, { name: 'crmAttivita' });
-  } catch {
-    attivita = await fs.getAll('crmAttivita');
-    attivita.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+    loaded = true;
+  } catch (e) {
+    console.warn('[crm] loadAttivita query failed, fallback to getAll', e);
   }
+  if (!loaded) {
+    try {
+      attivita = await fs.getAll('crmAttivita');
+      loaded = true;
+    } catch (e) {
+      console.error('[crm] loadAttivita getAll failed', e);
+      attivita = [];
+    }
+  }
+  attivita.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
   applyFilters();
 }
 
@@ -355,10 +367,24 @@ async function addToAgenda(attivitaId) {
   const a = attivita.find(x => x.id === attivitaId);
   if (!a) return;
   try {
-    await fs.add('agenda', {
+    const activityDate = a.data || todayISO();
+    const ora = a.ora || DEFAULT_AGENDA_START_TIME;
+    const durata = Math.max(Number(a.durata) || 60, 15);
+    let start = new Date(`${activityDate}T${ora}:00`);
+    if (Number.isNaN(start.getTime())) start = new Date(`${activityDate}T${DEFAULT_AGENDA_START_TIME}:00`);
+    if (Number.isNaN(start.getTime())) start = new Date();
+    const end = new Date(start.getTime() + (durata * 60 * 1000));
+    await fs.add('agendaEvents', {
       title: `[CRM] ${a.tipo || 'attività'} - ${a.clienteNome || 'Cliente'}`,
-      date: a.data || todayISO(),
+      type: 'crm',
+      start: start.toISOString(),
+      end: end.toISOString(),
+      allDay: false,
+      color: '#14b8a6',
+      date: activityDate,
       crmAttivitaId: attivitaId,
+      clienteId: a.clienteId || '',
+      clienteNome: a.clienteNome || '',
       createdAt: new Date().toISOString(),
     });
     showCrmToast('Evento aggiunto all\'Agenda');

@@ -156,6 +156,63 @@ service cloud.firestore {
       allow read, create, update, delete: if isStaff();
     }
 
+    // Nuovi moduli gestionali (legacy + nuova UI)
+    match /clienti/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /mandanti/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /budget/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /crmAttivita/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /trattative/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /offerte/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /fatture/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /pagamenti/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /mailingCampaigns/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /mailingLogs/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /sconti/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /solleciti/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /listiniItems/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /scadenzeFinance/{docId} {
+      allow read, create, update, delete: if isStaff();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
