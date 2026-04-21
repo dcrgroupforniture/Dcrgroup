@@ -409,6 +409,27 @@ service cloud.firestore {
       allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
+    // ─── Audit Log ────────────────────────────────────────────────────────────
+
+    match /auditLog/{docId} {
+      // Staff can write (create only) their own company's audit entries.
+      allow create: if isStaff() && writingToOwnCompany();
+      // Managers and above can read their company's audit entries.
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      // Nobody can update or delete audit entries.
+      allow update, delete: if false;
+    }
+
+    // ─── Companies (multi-tenant registry) ───────────────────────────────────
+
+    match /companies/{companyId} {
+      // Only admins can manage company records.
+      allow read:   if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if false;  // Hard delete disabled — use soft delete (isDeleted flag)
+    }
+
     // ─── Counters ────────────────────────────────────────────────────────────
 
     match /counters/{docId} {

@@ -24,6 +24,7 @@ import {
   writeBatch,
   serverTimestamp,
 } from "../firebase.js";
+import { logAudit, setAuditTenantContext } from "./auditService.js";
 
 const DEBUG = (() => {
   try {
@@ -46,6 +47,8 @@ let _tenantContext = null;
  */
 function setTenantContext(ctx) {
   _tenantContext = ctx && ctx.companyId ? ctx : null;
+  // Also propagate to auditService so it can record uid/email.
+  if (ctx) setAuditTenantContext({ companyId: ctx.companyId, uid: ctx.uid, email: ctx.email });
   log("setTenantContext", _tenantContext);
 }
 
@@ -281,6 +284,7 @@ export const firestoreService = {
           { merge: true }
         );
       }
+      logAudit({ action: 'add', colName, docId: ref.id, data: normalized });
       return ref.id;
     } catch (e) {
       throw normalizeError(e);
@@ -301,6 +305,7 @@ export const firestoreService = {
           { merge }
         );
       }
+      logAudit({ action: 'set', colName, docId, data: normalized });
       return docId;
     } catch (e) {
       throw normalizeError(e);
@@ -326,6 +331,7 @@ export const firestoreService = {
           );
         }
       }
+      logAudit({ action: 'update', colName, docId, data: normalized });
       return docId;
     } catch (e) {
       throw normalizeError(e);
@@ -344,6 +350,7 @@ export const firestoreService = {
           log("remove twin failed", twin, docId, normalizeError(e));
         }
       }
+      logAudit({ action: 'delete', colName, docId });
       return docId;
     } catch (e) {
       throw normalizeError(e);

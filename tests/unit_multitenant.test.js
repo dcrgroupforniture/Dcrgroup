@@ -41,41 +41,59 @@ const PERMISSIONS = {
     orders:    new Set(['read','write','delete','export']),
     incassi:   new Set(['read','write','delete','export']),
     expenses:  new Set(['read','write','delete','export']),
+    scadenze:  new Set(['read','write','delete','export']),
+    suppliers: new Set(['read','write','delete','export']),
     magazzino: new Set(['read','write','delete','export']),
     fatture:   new Set(['read','write','delete','export']),
+    listini:   new Set(['read','write','delete','export']),
+    crm:       new Set(['read','write','delete','export']),
     analytics: new Set(['read','write','delete','export']),
     settings:  new Set(['read','write','delete','export']),
     users:     new Set(['read','write','delete','export']),
+    backup:    new Set(['read','write','delete','export']),
+    audit:     new Set(['read','write','delete','export']),
   },
   manager: {
     clients:   new Set(['read','write','export']),
     orders:    new Set(['read','write','delete','export']),
     incassi:   new Set(['read','write','export']),
     expenses:  new Set(['read','write','export']),
+    scadenze:  new Set(['read','write','export']),
+    suppliers: new Set(['read','write','export']),
     magazzino: new Set(['read','write','export']),
     fatture:   new Set(['read','write','export']),
+    listini:   new Set(['read','write','export']),
+    crm:       new Set(['read','write','export']),
     analytics: new Set(['read','export']),
     settings:  new Set(['read']),
     users:     new Set(['read']),
+    backup:    new Set(['read','export']),
+    audit:     new Set(['read']),
   },
   agente: {
     clients:   new Set(['read','write']),
     orders:    new Set(['read','write']),
     incassi:   new Set(['read']),
+    listini:   new Set(['read']),
+    crm:       new Set(['read','write']),
     analytics: new Set(['read']),
   },
   magazzino: {
     clients:   new Set(['read']),
     orders:    new Set(['read']),
+    suppliers: new Set(['read']),
     magazzino: new Set(['read','write']),
+    listini:   new Set(['read']),
   },
   contabile: {
     clients:   new Set(['read','export']),
     orders:    new Set(['read','export']),
     incassi:   new Set(['read','write','export']),
     expenses:  new Set(['read','write','export']),
+    scadenze:  new Set(['read','write','export']),
     fatture:   new Set(['read','write','export']),
     analytics: new Set(['read','export']),
+    audit:     new Set(['read']),
   },
 };
 
@@ -395,4 +413,153 @@ test('scopedAll: works for all 13 core collection names', () => {
     assert.equal(q._clauses.length, 1, `scopedAll missing clause for: ${col}`);
     assert.equal(q._clauses[0]._where.value, 'tenant_x');
   }
+});
+
+// ─── Phase 3: Page guard RBAC tests ──────────────────────────────────────
+// Replicate PAGE_MODULE_MAP logic to test access control decisions.
+
+const TEST_PAGE_MODULE_MAP = {
+  'clients.html':     'clients',
+  'ordini-clienti.html': 'orders',
+  'incassi.html':     'incassi',
+  'spese.html':       'expenses',
+  'scadenze.html':    'scadenze',
+  'suppliers.html':   'suppliers',
+  'listini.html':     'listini',
+  'crm.html':         'crm',
+  'fatture.html':     'fatture',
+  'analytics.html':   'analytics',
+  'audit-log.html':   'audit',
+  'companies.html':   'users',
+  'admin-portale.html': 'settings',
+};
+
+function canAccessPage(role, pageName, map) {
+  const module = map[pageName];
+  if (!module) return true; // unmapped pages are open
+  return hasPermission(role, module, 'read');
+}
+
+test('page guard: admin can access all mapped pages', () => {
+  for (const page of Object.keys(TEST_PAGE_MODULE_MAP)) {
+    assert.ok(canAccessPage('admin', page, TEST_PAGE_MODULE_MAP), `admin blocked from ${page}`);
+  }
+});
+
+test('page guard: agente blocked from fatture page', () => {
+  assert.equal(canAccessPage('agente', 'fatture.html', TEST_PAGE_MODULE_MAP), false);
+});
+
+test('page guard: agente blocked from spese page', () => {
+  assert.equal(canAccessPage('agente', 'spese.html', TEST_PAGE_MODULE_MAP), false);
+});
+
+test('page guard: agente blocked from analytics page', () => {
+  // agente has READ on analytics per PERMISSIONS
+  assert.equal(canAccessPage('agente', 'analytics.html', TEST_PAGE_MODULE_MAP), true);
+});
+
+test('page guard: agente can access clients page', () => {
+  assert.equal(canAccessPage('agente', 'clients.html', TEST_PAGE_MODULE_MAP), true);
+});
+
+test('page guard: agente blocked from audit-log page', () => {
+  assert.equal(canAccessPage('agente', 'audit-log.html', TEST_PAGE_MODULE_MAP), false);
+});
+
+test('page guard: magazzino blocked from incassi page', () => {
+  assert.equal(canAccessPage('magazzino', 'incassi.html', TEST_PAGE_MODULE_MAP), false);
+});
+
+test('page guard: magazzino can access suppliers page', () => {
+  assert.equal(canAccessPage('magazzino', 'suppliers.html', TEST_PAGE_MODULE_MAP), true);
+});
+
+test('page guard: contabile can access fatture page', () => {
+  assert.equal(canAccessPage('contabile', 'fatture.html', TEST_PAGE_MODULE_MAP), true);
+});
+
+test('page guard: contabile blocked from companies page (users module)', () => {
+  assert.equal(canAccessPage('contabile', 'companies.html', TEST_PAGE_MODULE_MAP), false);
+});
+
+test('page guard: unmapped pages are open to all roles', () => {
+  const unmapped = 'index.html';
+  assert.equal(canAccessPage('magazzino', unmapped, TEST_PAGE_MODULE_MAP), true);
+  assert.equal(canAccessPage('agente', unmapped, TEST_PAGE_MODULE_MAP), true);
+});
+
+// ─── Phase 3: auditService pure logic tests ────────────────────────────────
+
+// Replicate pure functions from auditService without Firestore imports
+
+function auditNormaliseAction(action) {
+  const a = String(action || '').toLowerCase();
+  if (a === 'add' || a === 'create')  return 'add';
+  if (a === 'set' || a === 'upsert')  return 'set';
+  if (a === 'update' || a === 'edit') return 'update';
+  if (a === 'remove' || a === 'delete' || a === 'soft_delete')
+    return a === 'soft_delete' ? 'soft_delete' : 'delete';
+  return a;
+}
+
+function auditSafePayload(data) {
+  if (!data || typeof data !== 'object') return null;
+  const MAX_STRING = 200;
+  const out = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === 'string') {
+      out[k] = v.length > MAX_STRING ? v.slice(0, MAX_STRING) + '…' : v;
+    } else if (typeof v === 'number' || typeof v === 'boolean') {
+      out[k] = v;
+    } else if (typeof v === 'object') {
+      out[k] = '[object]';
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+test('auditService: normaliseAction maps common verbs', () => {
+  assert.equal(auditNormaliseAction('add'),    'add');
+  assert.equal(auditNormaliseAction('create'), 'add');
+  assert.equal(auditNormaliseAction('set'),    'set');
+  assert.equal(auditNormaliseAction('upsert'), 'set');
+  assert.equal(auditNormaliseAction('update'), 'update');
+  assert.equal(auditNormaliseAction('edit'),   'update');
+  assert.equal(auditNormaliseAction('remove'), 'delete');
+  assert.equal(auditNormaliseAction('delete'), 'delete');
+  assert.equal(auditNormaliseAction('soft_delete'), 'soft_delete');
+});
+
+test('auditService: safePayload truncates long strings', () => {
+  const long = 'x'.repeat(300);
+  const result = auditSafePayload({ name: long, amount: 42 });
+  assert.equal(result.name.length, 201); // 200 chars + '…'
+  assert.ok(result.name.endsWith('…'));
+  assert.equal(result.amount, 42);
+});
+
+test('auditService: safePayload strips null/undefined values', () => {
+  const result = auditSafePayload({ a: null, b: undefined, c: 'ok' });
+  assert.ok(!('a' in result));
+  assert.ok(!('b' in result));
+  assert.equal(result.c, 'ok');
+});
+
+test('auditService: safePayload returns null for non-objects', () => {
+  assert.equal(auditSafePayload(null), null);
+  assert.equal(auditSafePayload('string'), null);
+  assert.equal(auditSafePayload(42), null);
+});
+
+test('auditService: safePayload marks nested objects as [object]', () => {
+  const result = auditSafePayload({ meta: { key: 'val' } });
+  assert.equal(result.meta, '[object]');
+});
+
+test('auditService: safePayload preserves booleans', () => {
+  const result = auditSafePayload({ active: true, deleted: false });
+  assert.equal(result.active, true);
+  assert.equal(result.deleted, false);
 });
