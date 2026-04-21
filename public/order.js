@@ -54,6 +54,7 @@ import {
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 
 // ===============================
 // INCASSI: sync automatico da ordine
@@ -1016,9 +1017,9 @@ saveBtn.addEventListener("click", async () => {
       await syncDeadlinesToScadenze(savedOrderId, deadlinesArr);
     }catch(e){ console.warn("syncDeadlinesToScadenze failed:", e); }
 
-    // \u{1F514} Evento agenda per l'ordine
+    // 🔔 Evento agenda per l'ordine
     try{
-      await addDoc(collection(db, "agendaEvents"), {
+      await fs.add("agendaEvents", {
         title: "Ordine cliente",
         start: createdAtDate,
         end: createdAtDate,
@@ -1026,11 +1027,11 @@ saveBtn.addEventListener("click", async () => {
       });
     }catch(e){ console.warn("agendaEvents add fail (order)", e); }
 
-    // \u{1F514} Evento agenda per ogni scadenza
+    // 🔔 Evento agenda per ogni scadenza
     try{
       for(const due of deadlinesArr){
         if(due.date){
-          await addDoc(collection(db, "agendaEvents"), {
+          await fs.add("agendaEvents", {
             title: "Scadenza ordine",
             start: new Date(due.date),
             end: new Date(due.date),
@@ -1216,7 +1217,7 @@ if(registerIncassoBtn){
       try{
         for(const due of deadlinesArr){
           if(due.date){
-            await addDoc(collection(db, 'agendaEvents'), {
+            await fs.add('agendaEvents', {
               title: 'Scadenza ordine',
               start: new Date(due.date),
               end: new Date(due.date),

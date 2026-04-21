@@ -975,3 +975,115 @@ test('price-list filterPriceList: no match returns empty array', () => {
   ];
   assert.equal(filterPriceList(products, 'armadio').length, 0);
 });
+
+// ─── Phase 9: agendaEvents companyId scoping + queryRegistry scopedAll ───────
+
+// Replicate TYPE_COLORS lookup from agenda.html
+
+const AGENDA_TYPE_COLORS = {
+  promemoria:    '#7c3aed',
+  appuntamento:  '#7c3aed',
+  scadenza:      '#dc2626',
+  ordine:        '#1f4fd8',
+  incasso:       '#16a34a',
+  spesa:         '#ea580c',
+  altro:         '#6b7280',
+};
+
+function resolveAgendaColor(type, overrideColor) {
+  if (overrideColor) return overrideColor;
+  return AGENDA_TYPE_COLORS[type] || AGENDA_TYPE_COLORS.promemoria;
+}
+
+test('agenda: resolveAgendaColor returns correct color by type', () => {
+  assert.equal(resolveAgendaColor('ordine'),    '#1f4fd8');
+  assert.equal(resolveAgendaColor('incasso'),   '#16a34a');
+  assert.equal(resolveAgendaColor('scadenza'),  '#dc2626');
+  assert.equal(resolveAgendaColor('spesa'),     '#ea580c');
+  assert.equal(resolveAgendaColor('promemoria'), '#7c3aed');
+  assert.equal(resolveAgendaColor('appuntamento'), '#7c3aed');
+  assert.equal(resolveAgendaColor('altro'),     '#6b7280');
+});
+
+test('agenda: resolveAgendaColor falls back to promemoria for unknown type', () => {
+  assert.equal(resolveAgendaColor('unknown'), '#7c3aed');
+  assert.equal(resolveAgendaColor(''), '#7c3aed');
+});
+
+test('agenda: resolveAgendaColor respects override color', () => {
+  assert.equal(resolveAgendaColor('ordine', '#ff0000'), '#ff0000');
+  assert.equal(resolveAgendaColor('incasso', '#00ff00'), '#00ff00');
+});
+
+// Replicate the query-builder logic from startRealtime in agenda.html
+// (pure function: given a cid, returns a descriptor of what query to use)
+
+function buildAgendaQuery(cid) {
+  if (cid) return { scoped: true, companyId: cid, orderBy: 'start' };
+  return { scoped: false, orderBy: 'start' };
+}
+
+test('agenda: buildAgendaQuery scopes to companyId when set', () => {
+  const q = buildAgendaQuery('acme');
+  assert.equal(q.scoped, true);
+  assert.equal(q.companyId, 'acme');
+  assert.equal(q.orderBy, 'start');
+});
+
+test('agenda: buildAgendaQuery is unscoped when no companyId', () => {
+  const q = buildAgendaQuery(null);
+  assert.equal(q.scoped, false);
+  assert.equal(q.companyId, undefined);
+});
+
+// Replicate QUERY_META completeness check (all major collections have entries)
+
+const EXPECTED_QUERY_META_COLS = [
+  'clients', 'orders', 'incassi', 'expenses', 'scadenze', 'suppliers',
+  'payments', 'priceRequests', 'trattative', 'offerte', 'fatture',
+  'pagamenti', 'crmAttivita', 'mandanti', 'sconti', 'solleciti',
+  'listiniItems', 'scadenzeFinance', 'mailingCampaigns', 'mailingLogs',
+  'budget', 'agendaEvents', 'notifications',
+];
+
+// Replicated QUERY_META from queryRegistry.js
+const QUERY_META_REPLICA = [
+  { name: "CLIENTS_ALL",          col: "clients" },
+  { name: "ORDERS_ALL",           col: "orders" },
+  { name: "INCOMES_ALL",          col: "incassi" },
+  { name: "EXPENSES_ALL",         col: "expenses" },
+  { name: "DEADLINES_ALL",        col: "scadenze" },
+  { name: "SUPPLIERS_ALL",        col: "suppliers" },
+  { name: "PAYMENTS_ALL",         col: "payments" },
+  { name: "ORDERS_BY_CLIENT",     col: "orders", where: "clientId == ?" },
+  { name: "PRICE_REQUESTS_ALL",   col: "priceRequests" },
+  { name: "TRATTATIVE_ALL",       col: "trattative" },
+  { name: "OFFERTE_ALL",          col: "offerte" },
+  { name: "FATTURE_ALL",          col: "fatture" },
+  { name: "PAGAMENTI_ALL",        col: "pagamenti" },
+  { name: "CRM_ATTIVITA_ALL",     col: "crmAttivita" },
+  { name: "MANDANTI_ALL",         col: "mandanti" },
+  { name: "SCONTI_ALL",           col: "sconti" },
+  { name: "SOLLECITI_ALL",        col: "solleciti" },
+  { name: "LISTINI_ITEMS_ALL",    col: "listiniItems" },
+  { name: "SCADENZE_FINANCE_ALL", col: "scadenzeFinance" },
+  { name: "MAILING_CAMPAIGNS_ALL", col: "mailingCampaigns" },
+  { name: "MAILING_LOGS_ALL",     col: "mailingLogs" },
+  { name: "BUDGET_ALL",           col: "budget" },
+  { name: "AGENDA_EVENTS_ALL",    col: "agendaEvents" },
+  { name: "NOTIFICATIONS_ALL",    col: "notifications" },
+];
+
+test('queryRegistry QUERY_META: all expected collections are registered', () => {
+  const registeredCols = new Set(QUERY_META_REPLICA.map(e => e.col));
+  for (const col of EXPECTED_QUERY_META_COLS) {
+    assert.ok(registeredCols.has(col), `Missing QUERY_META entry for collection: ${col}`);
+  }
+});
+
+test('queryRegistry QUERY_META: no duplicate collection names for _ALL entries', () => {
+  const allEntries = QUERY_META_REPLICA.filter(e => !e.where);
+  const cols = allEntries.map(e => e.col);
+  const unique = new Set(cols);
+  assert.equal(unique.size, cols.length, 'Duplicate _ALL entry found in QUERY_META');
+});

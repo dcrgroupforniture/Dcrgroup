@@ -7,6 +7,7 @@ import {
   signOut,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { escapeHtml, todayISO } from './utils.js';
+import { firestoreService as fs } from './services/firestoreService.js';
 
 // ---- Helpers ----
 const qs = (sel, root=document) => root.querySelector(sel);
@@ -571,7 +572,7 @@ function openModal(){
       const end = addMinutes(start, duration);
 
       await waitForAuth();
-      await addDoc(collection(db, 'agendaEvents'), {
+      await fs.add('agendaEvents', {
         title: String(spec.title).trim(),
         start,
         end,

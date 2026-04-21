@@ -46,6 +46,8 @@ export const QUERY = {
   MAILING_CAMPAIGNS_ALL: scopedAll("mailingCampaigns"),
   MAILING_LOGS_ALL:     scopedAll("mailingLogs"),
   BUDGET_ALL:           scopedAll("budget"),
+  AGENDA_EVENTS_ALL:    scopedAll("agendaEvents"),
+  NOTIFICATIONS_ALL:    scopedAll("notifications"),
 
   // ─── Filtered queries (auto-scope company when active) ────────────────────
   ORDERS_BY_CLIENT: (clientId) => {
@@ -105,6 +107,8 @@ export const QUERY = {
       MAILING_CAMPAIGNS_ALL: byCol("mailingCampaigns"),
       MAILING_LOGS_ALL:     byCol("mailingLogs"),
       BUDGET_ALL:           byCol("budget"),
+      AGENDA_EVENTS_ALL:    byCol("agendaEvents"),
+      NOTIFICATIONS_ALL:    byCol("notifications"),
       ORDERS_BY_CLIENT: (clientId) => QUERY.ORDERS_BY_CLIENT_AND_COMPANY(clientId, companyId),
     };
   },
@@ -133,4 +137,6 @@ export const QUERY_META = [
   { name: "MAILING_CAMPAIGNS_ALL", col: "mailingCampaigns" },
   { name: "MAILING_LOGS_ALL",     col: "mailingLogs" },
   { name: "BUDGET_ALL",           col: "budget" },
+  { name: "AGENDA_EVENTS_ALL",    col: "agendaEvents" },
+  { name: "NOTIFICATIONS_ALL",    col: "notifications" },
 ];
