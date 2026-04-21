@@ -85,5 +85,10 @@ export function logAudit({ action, colName, docId = null, data = null } = {}) {
   };
 
   // Fire and forget — never block the caller.
-  addDoc(collection(db, COL), entry).catch(() => {/* silent */});
+  addDoc(collection(db, COL), entry).catch((err) => {
+    // Log in development to aid debugging; silent in production.
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn('[auditService] log failed:', err && (err.message || err));
+    }
+  });
 }

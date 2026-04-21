@@ -315,9 +315,9 @@ document.getElementById('btnExport').addEventListener('click', async () => {
     try {
       const supplierDocs = backup.collections['suppliers'] || [];
       const invoicesAll = [];
-      for (const suppDoc of supplierDocs) {
-        const invSnap = await getDocs(collection(db, 'suppliers', suppDoc.id, 'invoices'));
-        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: suppDoc.id, ...d.data() }));
+      for (const supplier of supplierDocs) {
+        const invSnap = await getDocs(collection(db, 'suppliers', supplier.id, 'invoices'));
+        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: supplier.id, ...d.data() }));
       }
       backup.collections['supplierInvoices'] = invoicesAll;
     } catch (e) {
