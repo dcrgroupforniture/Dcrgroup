@@ -866,6 +866,7 @@
 
   <script type="module">
     import { db } from "./firebase.js";
+    import { firestoreService as fs } from "./services/firestoreService.js";
     import {
       collection, addDoc, updateDoc, deleteDoc, doc,
       onSnapshot, query, orderBy, getDocs
@@ -964,10 +965,9 @@
     async function loadClientMaps(){
       clientsById=new Map();clientsByNormName=new Map();
       try{
-        const snap=await getDocs(collection(db,'clients'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          const name=String(data.name||data.nome||'').trim();
+        const docs=await fs.getAllByCompany('clients');
+        docs.forEach(d=>{
+          const name=String(d.name||d.nome||'').trim();
           if(!name) return;
           clientsById.set(d.id,name);
           const key=normName(name);
@@ -1083,50 +1083,46 @@
       let incassiMese=0, scadenzeMese=0, fatturatoMese=0, speseMese=0, fornitoreMese=0;
 
       try{
-        const snap=await getDocs(collection(db,'incassi'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const iso=data.dateISO||dateISO(data.date||data.createdAt)||d.id;
-          if(isSameMonth(iso,y,m)) incassiMese+=resolveAmount(data,['amount','total','importo']);
+        const docs=await fs.getAllByCompany('incassi');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const iso=d.dateISO||dateISO(d.date||d.createdAt)||d.id;
+          if(isSameMonth(iso,y,m)) incassiMese+=resolveAmount(d,['amount','total','importo']);
         });
       }catch(e){console.warn('kpi incassi',e);}
 
       try{
-        const snap=await getDocs(collection(db,'scadenze'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const iso=data.dateISO||d.id;
-          if(isSameMonth(iso,y,m)) scadenzeMese+=resolveAmount(data,['amount','importo']);
+        const docs=await fs.getAllByCompany('scadenze');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const iso=d.dateISO||d.id;
+          if(isSameMonth(iso,y,m)) scadenzeMese+=resolveAmount(d,['amount','importo']);
         });
       }catch(e){console.warn('kpi scadenze',e);}
 
       try{
-        const snap=await getDocs(collection(db,'orders'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const dt=extractDate(data,d.id);
+        const docs=await fs.getAllByCompany('orders');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const dt=extractDate(d,d.id);
           const iso=dt?dt.toISOString().slice(0,10):null;
-          if(isSameMonth(iso,y,m)) fatturatoMese+=resolveAmount(data,['total','grandTotal','importo']);
+          if(isSameMonth(iso,y,m)) fatturatoMese+=resolveAmount(d,['total','grandTotal','importo']);
         });
       }catch(e){console.warn('kpi orders',e);}
 
       try{
-        const snap=await getDocs(collection(db,'expenses'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const iso=data.dateISO||dateISO(data.date||data.createdAt)||d.id;
-          if(isSameMonth(iso,y,m)) speseMese+=resolveAmount(data,['amount','importo']);
+        const docs=await fs.getAllByCompany('expenses');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const iso=d.dateISO||dateISO(d.date||d.createdAt)||d.id;
+          if(isSameMonth(iso,y,m)) speseMese+=resolveAmount(d,['amount','importo']);
         });
       }catch(e){console.warn('kpi spese',e);}
 
       // KPI Ordini Fornitori: somma fatture inserite nel mese in ordini fornitori
       try{
-        const suppSnap=await getDocs(collection(db,'suppliers'));
-        await Promise.all(suppSnap.docs.map(async suppDoc=>{
+        const suppDocs=await fs.getAllByCompany('suppliers');
+        await Promise.all(suppDocs.map(async suppDoc=>{
           try{
             const invSnap=await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
             invSnap.forEach(d=>{
@@ -1295,59 +1291,55 @@
       };
 
       try{
-        const snap=await getDocs(collection(db,'orders'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const client=resolveClientName(data,'Cliente');
-          const amount=resolveAmount(data,['total','grandTotal','importo']);
-          const dt=extractDate(data,d.id);
+        const docs=await fs.getAllByCompany('orders');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const client=resolveClientName(d,'Cliente');
+          const amount=resolveAmount(d,['total','grandTotal','importo']);
+          const dt=extractDate(d,d.id);
           const title=`🔵 Ordine · ${client} · ${eur(amount)}`;
-          const extra={...data,resolvedClientName:client,resolvedAmount:amount};
+          const extra={...d,resolvedClientName:client,resolvedAmount:amount};
           orderMap.set(d.id,extra);
           pushEvt(`ord_${d.id}`,title,dt,'ordine',extra);
         });
       }catch(e){console.warn('agenda orders',e);}
 
       try{
-        const snap=await getDocs(collection(db,'incassi'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const dt=extractDate(data,d.id);
-          const linkedOrder=data.orderId?orderMap.get(String(data.orderId)):null;
-          const client=resolveClientName({...(linkedOrder||{}),...data},linkedOrder?.resolvedClientName||'Cliente');
-          const amount=resolveAmount(data,['amount','total','importo'])||linkedOrder?.resolvedAmount||0;
+        const docs=await fs.getAllByCompany('incassi');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const dt=extractDate(d,d.id);
+          const linkedOrder=d.orderId?orderMap.get(String(d.orderId)):null;
+          const client=resolveClientName({...(linkedOrder||{}),...d},linkedOrder?.resolvedClientName||'Cliente');
+          const amount=resolveAmount(d,['amount','total','importo'])||linkedOrder?.resolvedAmount||0;
           const title=`🟢 Incasso · ${client} · ${eur(amount)}`;
-          pushEvt(`inc_${d.id}`,title,dt,'incasso',{...data,resolvedClientName:client,resolvedAmount:amount,linkedOrder});
+          pushEvt(`inc_${d.id}`,title,dt,'incasso',{...d,resolvedClientName:client,resolvedAmount:amount,linkedOrder});
         });
       }catch(e){console.warn('agenda incassi',e);}
 
       try{
-        const snap=await getDocs(collection(db,'expenses'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const dt=extractDate(data,d.id);
-          const amount=resolveAmount(data,['amount','importo']);
-          const cat=String(data.category||data.categoria||'Spesa').trim();
-          const note=String(data.note||'').trim();
+        const docs=await fs.getAllByCompany('expenses');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const dt=extractDate(d,d.id);
+          const amount=resolveAmount(d,['amount','importo']);
+          const cat=String(d.category||d.categoria||'Spesa').trim();
+          const note=String(d.note||'').trim();
           const title=`🟠 Spesa · ${cat}${note?` · ${note.slice(0,30)}`:''}${amount?` · ${eur(amount)}`:''}`;
-          pushEvt(`spe_${d.id}`,title,dt,'spesa',{...data,resolvedAmount:amount});
+          pushEvt(`spe_${d.id}`,title,dt,'spesa',{...d,resolvedAmount:amount});
         });
       }catch(e){console.warn('agenda spese',e);}
 
       try{
-        const snap=await getDocs(collection(db,'scadenze'));
-        snap.forEach(d=>{
-          const data=d.data()||{};
-          if(data.isDeleted) return;
-          const iso=data.dateISO||d.id;
+        const docs=await fs.getAllByCompany('scadenze');
+        docs.forEach(d=>{
+          if(d.isDeleted) return;
+          const iso=d.dateISO||d.id;
           const dt=iso?new Date(iso+'T00:00:00'):null;
-          const amount=resolveAmount(data,['amount','importo']);
-          const note=String(data.note||'').trim();
+          const amount=resolveAmount(d,['amount','importo']);
+          const note=String(d.note||'').trim();
           const title=`🔴 Scadenza${note?` · ${note.slice(0,40)}`:''}${amount?` · ${eur(amount)}`:''}`;
-          pushEvt(`sca_${d.id}`,title,dt,'scadenza',{...data,resolvedAmount:amount});
+          pushEvt(`sca_${d.id}`,title,dt,'scadenza',{...d,resolvedAmount:amount});
         });
       }catch(e){console.warn('agenda scadenze',e);}
 

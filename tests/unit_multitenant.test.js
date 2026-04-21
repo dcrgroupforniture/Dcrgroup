@@ -721,3 +721,79 @@ test('notificationService: buildNotifications with only upcoming deadline', () =
   assert.equal(result.notifications[0].id, 'scadenze_upcoming');
   assert.equal(result.notifications[0].severity, 'warning');
 });
+
+// ─── Phase 5: agenda KPI month-filter pure logic tests ──────────────────────
+
+// Replicate the pure functions used in agenda.html's loadKPIs / loadExternalEvents
+
+function isSameMonthAgenda(iso, y, m) {
+  if (!iso) return false;
+  const d = new Date(iso + 'T00:00:00');
+  return d.getFullYear() === y && d.getMonth() === m;
+}
+
+function resolveAmountAgenda(d, keys) {
+  for (const k of keys) {
+    const v = Number(d[k]);
+    if (Number.isFinite(v) && v > 0) return v;
+  }
+  return 0;
+}
+
+function kpiFromDocs(docs, { y, m }) {
+  let total = 0;
+  docs.forEach(d => {
+    if (d.isDeleted) return;
+    const iso = d.dateISO || d.id;
+    if (isSameMonthAgenda(iso, y, m)) total += resolveAmountAgenda(d, ['amount', 'importo']);
+  });
+  return total;
+}
+
+const YEAR = 2026;
+const MONTH = 3; // April = index 3 (getMonth() is 0-based)
+
+test('agenda kpi: sums incassi for current month only', () => {
+  const docs = [
+    { id: 'a', dateISO: '2026-04-10', amount: 100, isDeleted: false },
+    { id: 'b', dateISO: '2026-04-25', amount: 200, isDeleted: false },
+    { id: 'c', dateISO: '2026-03-15', amount: 500, isDeleted: false }, // different month
+    { id: 'd', dateISO: '2026-04-05', amount: 50,  isDeleted: true  }, // deleted
+  ];
+  assert.equal(kpiFromDocs(docs, { y: YEAR, m: MONTH }), 300);
+});
+
+test('agenda kpi: empty docs gives zero', () => {
+  assert.equal(kpiFromDocs([], { y: YEAR, m: MONTH }), 0);
+});
+
+test('agenda kpi: falls back to d.id when dateISO missing', () => {
+  const docs = [
+    { id: '2026-04-12', amount: 150, isDeleted: false }, // id used as date
+    { id: '2026-05-01', amount: 999, isDeleted: false }, // id in different month
+  ];
+  assert.equal(kpiFromDocs(docs, { y: YEAR, m: MONTH }), 150);
+});
+
+test('agenda kpi: uses importo when amount is absent', () => {
+  const docs = [
+    { id: 'x', dateISO: '2026-04-20', importo: 400, isDeleted: false },
+  ];
+  assert.equal(kpiFromDocs(docs, { y: YEAR, m: MONTH }), 400);
+});
+
+test('agenda: isSameMonthAgenda handles edge dates', () => {
+  assert.ok(isSameMonthAgenda('2026-04-01', 2026, 3));
+  assert.ok(isSameMonthAgenda('2026-04-30', 2026, 3));
+  assert.ok(!isSameMonthAgenda('2026-05-01', 2026, 3));
+  assert.ok(!isSameMonthAgenda('2026-03-31', 2026, 3));
+  assert.ok(!isSameMonthAgenda(null, 2026, 3));
+  assert.ok(!isSameMonthAgenda('', 2026, 3));
+});
+
+test('agenda: resolveAmountAgenda picks first valid positive key', () => {
+  assert.equal(resolveAmountAgenda({ amount: 0, importo: 200 }, ['amount', 'importo']), 200);
+  assert.equal(resolveAmountAgenda({ amount: 100 }, ['amount', 'importo']), 100);
+  assert.equal(resolveAmountAgenda({ }, ['amount', 'importo']), 0);
+  assert.equal(resolveAmountAgenda({ amount: -5, importo: 300 }, ['amount', 'importo']), 300);
+});

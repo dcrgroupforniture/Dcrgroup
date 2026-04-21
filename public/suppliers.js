@@ -1,4 +1,5 @@
 import { db } from "./firebase.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection,
   getDocs,
@@ -310,8 +311,8 @@ const markAllSuppliersInvoicesPaidBtn = document.getElementById("markAllSupplier
 markAllSuppliersInvoicesPaidBtn?.addEventListener("click", async () => {
   if(!confirm("Segna TUTTE le fatture di TUTTI i fornitori come pagate?")) return;
   try {
-    const suppSnap = await getDocs(collection(db, "suppliers"));
-    const invRefs = suppSnap.docs.map(suppDoc =>
+    const suppDocs = await fs.getAllByCompany('suppliers');
+    const invRefs = suppDocs.map(suppDoc =>
       collection(db, "suppliers", suppDoc.id, "invoices")
     );
     const invSnaps = await Promise.all(invRefs.map(ref => getDocs(ref)));
@@ -570,7 +571,8 @@ async function loadOrdersHistory(){
     if(suppliersCache.length){
       supplierEntries = suppliersCache.map(s => ({ id: s.id, data: s }));
     } else {
-      supplierEntries = (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
+      const suppDocs = await fs.getAllByCompany('suppliers');
+      supplierEntries = suppDocs.map(d => ({ id: d.id, data: d }));
     }
     suppliersCache = supplierEntries.map(({ id, data }) => ({ id, ...data }));
     ordersHistory = {};
