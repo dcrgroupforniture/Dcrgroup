@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "definitivo-dcr-group"
+    "default": "definitivo-dcr-group",
+    "test": "dcrgroup-crm-test"
   },
   "targets": {},
   "etags": {}
