@@ -965,8 +965,8 @@
     async function loadClientMaps(){
       clientsById=new Map();clientsByNormName=new Map();
       try{
-        const docs=await fs.getAllByCompany('clients');
-        docs.forEach(d=>{
+        const clientDocs=await fs.getAllByCompany('clients');
+        clientDocs.forEach(d=>{
           const name=String(d.name||d.nome||'').trim();
           if(!name) return;
           clientsById.set(d.id,name);
