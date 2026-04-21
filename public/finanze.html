@@ -287,6 +287,7 @@
 
 <script type="module">
   import { db } from "./firebase.js";
+  import { firestoreService as fs } from "./services/firestoreService.js";
   import {
     collection, getDocs, query, orderBy, limit, where
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -387,12 +388,11 @@
 
     // Spese
     try{
-      const snap = await getDocs(collection(db,'spese'));
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        const dateKey = String(data.date||data.dateISO||d.id||'').slice(0,10);
+      const speseDocs = await fs.getAllByCompany('expenses');
+      speseDocs.forEach(d=>{
+        const dateKey = String(d.date||d.dateISO||d.id||'').slice(0,10);
         if(!dateKey) return;
-        const amount = Number(data.amount||0);
+        const amount = Number(d.amount||0);
         if(dateKey.startsWith(ymStr)) speseMese+=amount;
         if(dateKey.startsWith(String(y))) speseAnno+=amount;
       });
@@ -400,8 +400,8 @@
 
     // Ordini Fornitori
     try{
-      const suppSnap = await getDocs(collection(db,'suppliers'));
-      for(const suppDoc of suppSnap.docs){
+      const suppDocsKpi = await fs.getAllByCompany('suppliers');
+      for(const suppDoc of suppDocsKpi){
         const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
         invSnap.forEach(d=>{
           const data=d.data()||{};
@@ -416,13 +416,12 @@
 
     // Scadenze
     try{
-      const snap = await getDocs(collection(db,'scadenze'));
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        if(data.isDeleted) return;
-        const dateKey = String(data.dateISO||d.id||'').slice(0,10);
+      const scadDocsKpi = await fs.getAllByCompany('scadenze');
+      scadDocsKpi.forEach(d=>{
+        if(d.isDeleted) return;
+        const dateKey = String(d.dateISO||d.id||'').slice(0,10);
         if(!dateKey) return;
-        const amount = Number(data.amount||data.importo||0);
+        const amount = Number(d.amount||d.importo||0);
         if(dateKey.startsWith(ymStr)) scadenzeMese+=amount;
       });
     }catch(e){console.warn('finanze scadenze',e);}
@@ -450,12 +449,11 @@
     const today = todayISO();
     const in30 = new Date(Date.now()+30*24*60*60*1000).toISOString().slice(0,10);
     try{
-      const snap2 = await getDocs(collection(db,'scadenze'));
+      const scad2Docs = await fs.getAllByCompany('scadenze');
       let cnt=0;
-      snap2.forEach(d=>{
-        const data=d.data()||{};
-        if(data.isDeleted) return;
-        const dk=String(data.dateISO||d.id||'').slice(0,10);
+      scad2Docs.forEach(d=>{
+        if(d.isDeleted) return;
+        const dk=String(d.dateISO||d.id||'').slice(0,10);
         if(dk>=today&&dk<=in30) cnt++;
       });
       document.getElementById('kpiScadenzeNextSub').textContent=`Prossimi 30gg: ${cnt}`;
@@ -477,20 +475,19 @@
 
     // Spese
     try{
-      const snap = await getDocs(collection(db,'spese'));
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        const dateKey = String(data.date||data.dateISO||d.id||'').slice(0,10);
+      const speseDocsYear = await fs.getAllByCompany('expenses');
+      speseDocsYear.forEach(d=>{
+        const dateKey = String(d.date||d.dateISO||d.id||'').slice(0,10);
         if(!dateKey.startsWith(String(y))) return;
         const m=parseInt(dateKey.slice(5,7))-1;
-        if(m>=0&&m<12) speseByMonth[m]+=Number(data.amount||0);
+        if(m>=0&&m<12) speseByMonth[m]+=Number(d.amount||0);
       });
     }catch(e){}
 
     // Fornitori
     try{
-      const suppSnap = await getDocs(collection(db,'suppliers'));
-      for(const suppDoc of suppSnap.docs){
+      const suppDocsYear = await fs.getAllByCompany('suppliers');
+      for(const suppDoc of suppDocsYear){
         const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
         invSnap.forEach(d=>{
           const data=d.data()||{};
@@ -604,18 +601,17 @@
     const today = todayISO();
     const in90 = new Date(Date.now()+90*24*60*60*1000).toISOString().slice(0,10);
     try{
-      const snap = await getDocs(collection(db,'scadenze'));
+      const scadenzeDocs = await fs.getAllByCompany('scadenze');
       const items = [];
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        if(data.isDeleted) return;
-        const dateKey = String(data.dateISO||d.id||'').slice(0,10);
+      scadenzeDocs.forEach(d=>{
+        if(d.isDeleted) return;
+        const dateKey = String(d.dateISO||d.id||'').slice(0,10);
         if(!dateKey||dateKey<today||dateKey>in90) return;
         items.push({
           date:dateKey,
-          note:String(data.note||data.description||'Scadenza').slice(0,50),
-          amount:Number(data.amount||data.importo||0),
-          paid:data.paid||false
+          note:String(d.note||d.description||'Scadenza').slice(0,50),
+          amount:Number(d.amount||d.importo||0),
+          paid:d.paid||false
         });
       });
       items.sort((a,b)=>a.date.localeCompare(b.date));
@@ -659,14 +655,13 @@
     const el = document.getElementById('incassiTable');
     if(!el) return;
     try{
-      const snap = await getDocs(collection(db,'incassi'));
+      const incassiDocs = await fs.getAllByCompany('incassi');
       const items = [];
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        const dateKey = String(data.date||data.dateISO||d.id||'').slice(0,10);
-        const amount = Number(data.amount||0);
+      incassiDocs.forEach(d=>{
+        const dateKey = String(d.date||d.dateISO||d.id||'').slice(0,10);
+        const amount = Number(d.amount||0);
         if(!dateKey||!amount) return;
-        const note = String(data.note||data.entries?.map(e=>e.clientName||'').filter(Boolean).join(', ')||'Incasso').slice(0,40);
+        const note = String(d.note||d.entries?.map(e=>e.clientName||'').filter(Boolean).join(', ')||'Incasso').slice(0,40);
         items.push({ date:dateKey, note, amount });
       });
       items.sort((a,b)=>b.date.localeCompare(a.date));
@@ -689,15 +684,14 @@
     const el = document.getElementById('speseTable');
     if(!el) return;
     try{
-      const snap = await getDocs(collection(db,'spese'));
+      const speseDocsRecent = await fs.getAllByCompany('expenses');
       const items = [];
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        const dateKey = String(data.date||data.dateISO||d.id||'').slice(0,10);
-        const amount = Number(data.amount||0);
+      speseDocsRecent.forEach(d=>{
+        const dateKey = String(d.date||d.dateISO||d.id||'').slice(0,10);
+        const amount = Number(d.amount||0);
         if(!dateKey||!amount) return;
-        const note = String(data.note||data.category||data.categoria||'Spesa').slice(0,40);
-        const source = data.source==='supplier_invoice'?'📦':'💸';
+        const note = String(d.note||d.category||d.categoria||'Spesa').slice(0,40);
+        const source = d.source==='supplier_invoice'?'📦':'💸';
         items.push({ date:dateKey, note, amount, source });
       });
       items.sort((a,b)=>b.date.localeCompare(a.date));
@@ -720,10 +714,10 @@
     const el = document.getElementById('fornitoriTable');
     if(!el) return;
     try{
-      const suppSnap = await getDocs(collection(db,'suppliers'));
+      const suppDocsForni = await fs.getAllByCompany('suppliers');
       const items = [];
-      for(const suppDoc of suppSnap.docs){
-        const name = String(suppDoc.data().name||'Fornitore');
+      for(const suppDoc of suppDocsForni){
+        const name = String(suppDoc.name||'Fornitore');
         const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
         invSnap.forEach(d=>{
           const data=d.data()||{};
@@ -766,15 +760,14 @@
     const today = todayISO();
     const in90 = new Date(Date.now()+90*24*60*60*1000).toISOString().slice(0,10);
     try{
-      const snap = await getDocs(collection(db,'scadenze'));
+      const prevScadDocs = await fs.getAllByCompany('scadenze');
       const items = [];
-      snap.forEach(d=>{
-        const data=d.data()||{};
-        if(data.isDeleted||data.paid) return;
-        const dateKey = String(data.dateISO||d.id||'').slice(0,10);
+      prevScadDocs.forEach(d=>{
+        if(d.isDeleted||d.paid) return;
+        const dateKey = String(d.dateISO||d.id||'').slice(0,10);
         if(!dateKey||dateKey<today||dateKey>in90) return;
-        const amount = Number(data.amount||data.importo||0);
-        items.push({ date:dateKey, note:String(data.note||'Scadenza').slice(0,50), amount });
+        const amount = Number(d.amount||d.importo||0);
+        items.push({ date:dateKey, note:String(d.note||'Scadenza').slice(0,50), amount });
       });
       items.sort((a,b)=>a.date.localeCompare(b.date));
 

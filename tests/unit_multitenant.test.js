@@ -797,3 +797,78 @@ test('agenda: resolveAmountAgenda picks first valid positive key', () => {
   assert.equal(resolveAmountAgenda({ }, ['amount', 'importo']), 0);
   assert.equal(resolveAmountAgenda({ amount: -5, importo: 300 }, ['amount', 'importo']), 300);
 });
+
+// ─── Phase 6: finanze.html pure KPI logic tests ─────────────────────────────
+
+// Replicate the pure date-filter logic used in finanze.html KPIs
+
+function finanzeKpiFromDocs(docs, { ymStr, y }) {
+  let speseMese = 0, speseAnno = 0;
+  docs.forEach(d => {
+    const dateKey = String(d.date || d.dateISO || d.id || '').slice(0, 10);
+    if (!dateKey) return;
+    const amount = Number(d.amount || 0);
+    if (dateKey.startsWith(ymStr)) speseMese += amount;
+    if (dateKey.startsWith(String(y))) speseAnno += amount;
+  });
+  return { speseMese, speseAnno };
+}
+
+test('finanze kpi: sums spese by month and by year', () => {
+  const docs = [
+    { id: 'a', dateISO: '2026-04-10', amount: 100 },
+    { id: 'b', date: '2026-04-25', amount: 200 },
+    { id: 'c', dateISO: '2026-03-15', amount: 500 }, // different month, same year
+    { id: 'd', dateISO: '2025-04-05', amount: 999 }, // different year
+  ];
+  const { speseMese, speseAnno } = finanzeKpiFromDocs(docs, { ymStr: '2026-04', y: 2026 });
+  assert.equal(speseMese, 300);
+  assert.equal(speseAnno, 800); // 100+200+500
+});
+
+test('finanze kpi: empty docs gives zeros', () => {
+  const { speseMese, speseAnno } = finanzeKpiFromDocs([], { ymStr: '2026-04', y: 2026 });
+  assert.equal(speseMese, 0);
+  assert.equal(speseAnno, 0);
+});
+
+// Replicate scadenze filter in loadScadenze / loadPrevisione
+
+function finanzeFilterScadenze(docs, { today, cutoff }) {
+  return docs
+    .filter(d => {
+      if (d.isDeleted || d.paid) return false;
+      const dk = String(d.dateISO || d.id || '').slice(0, 10);
+      return dk && dk >= today && dk <= cutoff;
+    })
+    .map(d => ({
+      date: String(d.dateISO || d.id || '').slice(0, 10),
+      amount: Number(d.amount || d.importo || 0),
+      note: String(d.note || 'Scadenza').slice(0, 50),
+    }));
+}
+
+test('finanze scadenze: filters to date window only', () => {
+  const today = '2026-04-21';
+  const cutoff = '2026-07-21'; // +90 days
+  const docs = [
+    { id: '2026-04-21', amount: 100, isDeleted: false, paid: false }, // today, included
+    { id: '2026-06-01', amount: 200, isDeleted: false, paid: false }, // in window
+    { id: '2026-04-20', amount: 999, isDeleted: false, paid: false }, // before today
+    { id: '2026-07-22', amount: 999, isDeleted: false, paid: false }, // after cutoff
+    { id: '2026-05-10', amount: 50,  isDeleted: true,  paid: false }, // deleted
+    { id: '2026-05-15', amount: 75,  isDeleted: false, paid: true  }, // paid
+  ];
+  const result = finanzeFilterScadenze(docs, { today, cutoff });
+  assert.equal(result.length, 2);
+  assert.equal(result.reduce((s, x) => s + x.amount, 0), 300);
+});
+
+test('finanze scadenze: uses dateISO over id', () => {
+  const docs = [
+    { id: 'wrong', dateISO: '2026-04-22', amount: 100, isDeleted: false, paid: false },
+  ];
+  const result = finanzeFilterScadenze(docs, { today: '2026-04-21', cutoff: '2026-07-21' });
+  assert.equal(result.length, 1);
+  assert.equal(result[0].date, '2026-04-22');
+});

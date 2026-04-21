@@ -1,6 +1,7 @@
 // Preventivo semplice (offline) con esportazione PDF/Immagine e invio WhatsApp.
 
 import { db } from "./firebase.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection, doc, getDoc, setDoc, runTransaction, addDoc, serverTimestamp,
   query, orderBy, limit, getDocs, deleteDoc
@@ -126,11 +127,10 @@ function mapQuoteRowsToOrderRows(rows){
 async function resolveClientForQuote(clientName){
   const wanted = normalizeText(clientName);
   if (!wanted) return null;
-  const snap = await getDocs(collection(db, "clients"));
+  const clientDocs = await fs.getAllByCompany('clients');
   let fallback = null;
-  for (const d of snap.docs){
-    const data = d.data() || {};
-    const candidate = String(data.name || data.nome || data.ragioneSociale || data.businessName || "").trim();
+  for (const d of clientDocs){
+    const candidate = String(d.name || d.nome || d.ragioneSociale || d.businessName || "").trim();
     if (!candidate) continue;
     const n = normalizeText(candidate);
     if (n === wanted) return { id: d.id, name: candidate };
