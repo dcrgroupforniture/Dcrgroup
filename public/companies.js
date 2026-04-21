@@ -249,8 +249,8 @@ async function saveCompany(e) {
   const id   = document.getElementById('fCompId').value.trim();
   const name = document.getElementById('fCompName').value.trim();
   if (!id || !name) { showFormError('ID e Nome sono obbligatori.'); return; }
-  if (!isEditing && !/^[a-z0-9_]+$/.test(id)) {
-    showFormError('ID: solo minuscolo, numeri e underscore (es. mycompany_srl).');
+  if (!isEditing && !/^[a-z][a-z0-9_]*$/.test(id)) {
+    showFormError('ID: inizia con lettera minuscola, poi solo minuscolo, numeri e underscore (es. mycompany_srl).');
     return;
   }
 

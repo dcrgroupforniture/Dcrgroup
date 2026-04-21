@@ -85,7 +85,7 @@
       <form id="compFormEl" class="comp-form" autocomplete="off">
         <div class="comp-form-row">
           <label for="fCompId">ID Azienda <span class="comp-req">*</span></label>
-          <input type="text" id="fCompId" name="id" placeholder="es. mycompany_srl" required pattern="[a-z0-9_]+" maxlength="64"/>
+          <input type="text" id="fCompId" name="id" placeholder="es. mycompany_srl" required pattern="[a-z][a-z0-9_]*" maxlength="64"/>
           <small>Solo minuscolo, numeri e underscore. Non modificabile dopo la creazione.</small>
         </div>
         <div class="comp-form-row">
