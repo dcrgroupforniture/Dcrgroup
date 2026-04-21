@@ -4,9 +4,6 @@ import {
   collection,
   getDocs,
   doc,
-  addDoc,
-  setDoc,
-  deleteDoc,
   query,
   orderBy,
   onSnapshot,
@@ -692,8 +689,7 @@ function renderOrdersHistory(){
       btn.disabled = true;
       btn.textContent = '…';
       try{
-        const invoicesRef = collection(db,'suppliers',suppId,'invoices');
-        await deleteDoc(doc(invoicesRef, invId));
+        await fs.removeSubDoc('suppliers', suppId, 'invoices', invId);
         await loadOrdersHistory();
       }catch(err){
         console.error('Errore eliminazione fattura:', err);

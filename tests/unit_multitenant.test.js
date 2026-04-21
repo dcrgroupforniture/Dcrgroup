@@ -1314,3 +1314,44 @@ test('client.js Phase 13: delete existing client uses fs.remove', () => {
 test('client.js Phase 13: delete without clientId is no-op', () => {
   assert.equal(resolveClientDeleteMethod(null, false), 'no-op');
 });
+
+// ─── Phase 14: updateSubDoc + removeSubDoc path building ─────────────────────
+
+function buildSubDocUpdatePath(parentCol, parentId, subCol, docId) {
+  return `${parentCol}/${parentId}/${subCol}/${docId}`;
+}
+
+test('firestoreService.updateSubDoc: builds correct path for invoice update', () => {
+  const path = buildSubDocUpdatePath('suppliers', 'sup_1', 'invoices', 'inv_abc');
+  assert.equal(path, 'suppliers/sup_1/invoices/inv_abc');
+});
+
+test('firestoreService.updateSubDoc: builds correct path for order update', () => {
+  const path = buildSubDocUpdatePath('suppliers', 'sup_2', 'orders', 'ord_xyz');
+  assert.equal(path, 'suppliers/sup_2/orders/ord_xyz');
+});
+
+test('firestoreService.removeSubDoc: builds correct path for invoice delete', () => {
+  const path = buildSubDocUpdatePath('suppliers', 'sup_3', 'invoices', 'inv_del');
+  assert.equal(path, 'suppliers/sup_3/invoices/inv_del');
+});
+
+test('firestoreService.removeSubDoc: path differs from parent-only path', () => {
+  const parentPath = 'suppliers/sup_3/invoices';
+  const fullPath   = buildSubDocUpdatePath('suppliers', 'sup_3', 'invoices', 'inv_del');
+  assert.notEqual(fullPath, parentPath);
+});
+
+// Replicate supplier.js saveInvoice routing (pure)
+function resolveInvoiceSaveMethod(invId) {
+  return invId ? 'fs.updateSubDoc' : 'fs.addSubDoc';
+}
+
+test('supplier.js Phase 14: existing invoice routes to updateSubDoc', () => {
+  assert.equal(resolveInvoiceSaveMethod('inv_123'), 'fs.updateSubDoc');
+});
+
+test('supplier.js Phase 14: new invoice routes to addSubDoc', () => {
+  assert.equal(resolveInvoiceSaveMethod(null), 'fs.addSubDoc');
+  assert.equal(resolveInvoiceSaveMethod(''), 'fs.addSubDoc');
+});

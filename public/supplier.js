@@ -3,9 +3,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  addDoc,
-  deleteDoc,
   collection,
   getDocs,
   query,
@@ -452,14 +449,12 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     updatedAt:     new Date().toISOString()
   };
 
-  const ref = collection(db, "suppliers", supplierId, "invoices");
   let invId = editingInvoiceId;
 
   if(invId){
-    await updateDoc(doc(ref, invId), payload);
+    await fs.updateSubDoc("suppliers", supplierId, "invoices", invId, payload);
   } else {
-    const newRef = await addDoc(ref, { ...payload, createdAt: new Date().toISOString() });
-    invId = newRef.id;
+    invId = await fs.addSubDoc("suppliers", supplierId, "invoices", { ...payload, createdAt: new Date().toISOString() });
   }
 
   // upload photo if present
@@ -467,7 +462,7 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     try {
       const url = await uploadPhotoFile(supplierId, invId);
       payload.photoUrl = url;
-      await updateDoc(doc(ref, invId), { photoUrl: url });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", invId, { photoUrl: url });
     } catch(e){ console.warn("Foto non caricata:", e); }
   }
 
@@ -565,13 +560,13 @@ function renderInvoiceTable(){
     row.querySelector("[data-pay]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Segna questa fattura come pagata?")) return;
-      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", inv.id, { status:"pagata" });
       await loadInvoices();
     });
     row.querySelector("[data-del]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
-      await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await fs.removeSubDoc("suppliers", supplierId, "invoices", inv.id);
       await removeInvoiceFromSpese(inv.id);
       await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
@@ -583,13 +578,13 @@ function renderInvoiceTable(){
     row.querySelector("[data-pay-m]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Segna questa fattura come pagata?")) return;
-      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", inv.id, { status:"pagata" });
       await loadInvoices();
     });
     row.querySelector("[data-del-m]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
-      await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await fs.removeSubDoc("suppliers", supplierId, "invoices", inv.id);
       await removeInvoiceFromSpese(inv.id);
       await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
@@ -891,7 +886,7 @@ async function loadOrders(){
       row.querySelector("[data-order-pay]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Segna questo ordine come pagato e saldato?")) return;
-        await updateDoc(doc(ordersRef, entry.id), { pagato: true, saldato: true });
+        await fs.updateSubDoc("suppliers", supplierId, "orders", entry.id, { pagato: true, saldato: true });
         await loadOrders();
       });
 
@@ -935,13 +930,13 @@ async function loadOrders(){
       row.querySelector("[data-inv-pay]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Segna questa fattura come pagata?")) return;
-        await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id), { status:"pagata" });
+        await fs.updateSubDoc("suppliers", supplierId, "invoices", entry.id, { status:"pagata" });
         await reloadInvoiceSections();
       });
       row.querySelector("[data-inv-del]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Eliminare questa fattura?")) return;
-        await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id));
+        await fs.removeSubDoc("suppliers", supplierId, "invoices", entry.id);
         await removeInvoiceFromSpese(entry.id);
         await reloadInvoiceSections();
       });

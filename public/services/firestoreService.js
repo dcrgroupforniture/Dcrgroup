@@ -397,6 +397,45 @@ export const firestoreService = {
     }
   },
 
+  /**
+   * Update a document in a subcollection.
+   * Tenant isolation is inherited from the parent document.
+   * Audit-logs the write.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {string} docId         - document id to update
+   * @param {object} data          - fields to merge
+   */
+  async updateSubDoc(parentColName, parentId, subColName, docId, data) {
+    try {
+      log("updateSubDoc", parentColName, parentId, subColName, docId);
+      await updateDoc(doc(db, parentColName, parentId, subColName, docId), data);
+      logAudit({ action: 'update', colName: `${parentColName}/${parentId}/${subColName}`, docId, data });
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Delete a document from a subcollection.
+   * Tenant isolation is inherited from the parent document.
+   * Audit-logs the delete.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {string} docId         - document id to delete
+   */
+  async removeSubDoc(parentColName, parentId, subColName, docId) {
+    try {
+      log("removeSubDoc", parentColName, parentId, subColName, docId);
+      await deleteDoc(doc(db, parentColName, parentId, subColName, docId));
+      logAudit({ action: 'delete', colName: `${parentColName}/${parentId}/${subColName}`, docId });
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
   batch() {
     return writeBatch(db);
   },
