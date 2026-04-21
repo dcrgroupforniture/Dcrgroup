@@ -5,11 +5,13 @@
 // inietta nel firestoreService per le scritture multi-tenant.
 // Phase 3: Page-level RBAC guard — mostra overlay access-denied se il ruolo
 // non ha permesso di lettura sul modulo della pagina corrente.
+// Phase 4: Notification bell badge nel top-bar.
 
 import { auth, db, doc, getDoc } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { firestoreService } from './services/firestoreService.js';
 import { hasPermission, MODULES, ACTIONS } from './services/roleService.js';
+import { fetchNotifications } from './services/notificationService.js';
 
 const LOGIN_PAGE = '/login.html';
 const TIMEOUT_MS = 3000;
@@ -149,6 +151,7 @@ new Promise((resolve) => {
     // Expose tenant info globally for pages that need it.
     window.__tenant = { uid: user.uid, email: user.email, companyId, role };
     _injectCompanyBadge(companyId, role);
+    _injectNotificationBell();
     _enforcePageAccess(role);
     // Dispatch event so other modules know the tenant is ready.
     document.dispatchEvent(new CustomEvent('tenantReady', { detail: { companyId, role, uid: user.uid, email: user.email } }));
@@ -247,3 +250,119 @@ function _injectCompanyBadge(companyId, role) {
   badge.textContent = companyId === DEFAULT_COMPANY_ID ? role : companyId;
   topBar.appendChild(badge);
 }
+
+/**
+ * Injects a 🔔 notification bell button into .top-bar.
+ * Shows a count badge when there are active alerts.
+ * Loads notifications lazily after tenantReady (non-blocking).
+ */
+function _injectNotificationBell() {
+  if (document.getElementById('__notif-bell')) return;
+  const topBar = document.querySelector('.top-bar');
+  if (!topBar) return;
+
+  // Bell button wrapper
+  const wrapper = document.createElement('div');
+  wrapper.id = '__notif-bell';
+  wrapper.style.cssText = 'position:relative;display:inline-flex;align-items:center;flex-shrink:0;cursor:pointer';
+  wrapper.title = 'Notifiche';
+  wrapper.setAttribute('role', 'button');
+  wrapper.setAttribute('tabindex', '0');
+  wrapper.setAttribute('aria-label', 'Notifiche');
+
+  const bell = document.createElement('span');
+  bell.style.cssText = 'font-size:20px;line-height:1;user-select:none';
+  bell.textContent = '🔔';
+
+  const badge = document.createElement('span');
+  badge.id = '__notif-count';
+  badge.style.cssText = [
+    'position:absolute','top:-4px','right:-6px',
+    'min-width:16px','height:16px',
+    'background:#ef4444','color:#fff',
+    'font-size:10px','font-weight:900','line-height:16px',
+    'text-align:center','padding:0 3px',
+    'border-radius:999px',
+    'display:none',
+  ].join(';');
+
+  wrapper.appendChild(bell);
+  wrapper.appendChild(badge);
+  topBar.appendChild(wrapper);
+
+  // Dropdown panel
+  const panel = document.createElement('div');
+  panel.id = '__notif-panel';
+  panel.style.cssText = [
+    'position:fixed','top:calc(60px + env(safe-area-inset-top))','right:12px',
+    'width:320px','max-height:60vh','overflow-y:auto',
+    'background:#1e293b','border:1px solid rgba(255,255,255,.12)',
+    'border-radius:16px','box-shadow:0 8px 32px rgba(0,0,0,.4)',
+    'z-index:9999','display:none','padding:8px',
+  ].join(';');
+  document.body.appendChild(panel);
+
+  // Toggle panel on bell click
+  function togglePanel() {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+  wrapper.addEventListener('click', togglePanel);
+  wrapper.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') togglePanel(); });
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target) && !panel.contains(e.target)) panel.style.display = 'none';
+  });
+
+  // Load and render notifications (non-blocking, after tenant is ready)
+  function loadAndRender() {
+    fetchNotifications().then(({ notifications, count }) => {
+      if (count > 0) {
+        badge.textContent = String(count > 9 ? '9+' : count);
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      panel.innerHTML = '';
+      if (!notifications.length) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'padding:16px;text-align:center;color:#94a3b8;font-size:13px';
+        empty.textContent = '✅ Nessuna notifica attiva';
+        panel.appendChild(empty);
+        return;
+      }
+
+      notifications.forEach(n => {
+        const item = document.createElement('a');
+        item.href = n.link || '#';
+        item.style.cssText = [
+          'display:block','padding:12px 14px','margin-bottom:4px',
+          'border-radius:12px','text-decoration:none',
+          'background:' + (n.severity === 'danger' ? 'rgba(239,68,68,.12)' : 'rgba(245,158,11,.10)'),
+          'border:1px solid ' + (n.severity === 'danger' ? 'rgba(239,68,68,.3)' : 'rgba(245,158,11,.25)'),
+          'cursor:pointer',
+        ].join(';');
+
+        const icon = n.severity === 'danger' ? '🔴' : '🟡';
+        const title = document.createElement('div');
+        title.style.cssText = 'font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:3px';
+        title.textContent = icon + ' ' + n.title;
+
+        const detail = document.createElement('div');
+        detail.style.cssText = 'font-size:12px;color:#94a3b8';
+        detail.textContent = n.detail;
+
+        item.appendChild(title);
+        item.appendChild(detail);
+        panel.appendChild(item);
+      });
+    }).catch(() => {/* silent */});
+  }
+
+  // Load after tenant resolves (or immediately if already ready)
+  if (window.__tenant) {
+    loadAndRender();
+  } else {
+    document.addEventListener('tenantReady', loadAndRender, { once: true });
+  }
+}
+

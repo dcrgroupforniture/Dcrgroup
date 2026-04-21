@@ -563,3 +563,161 @@ test('auditService: safePayload preserves booleans', () => {
   assert.equal(result.active, true);
   assert.equal(result.deleted, false);
 });
+
+// ─── Phase 4: notificationService pure logic tests ──────────────────────────
+
+// Replicate pure functions from notificationService (no Firestore)
+
+function addDays(days, baseISO) {
+  const d = baseISO ? new Date(baseISO + 'T00:00:00') : new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function filterUpcomingDeadlines(deadlines, days, todayISO) {
+  const today = todayISO || new Date().toISOString().slice(0, 10);
+  const limit = addDays(days, today);
+  return (deadlines || []).filter(d =>
+    !d.isDeleted && !d.pagata && d.dateISO >= today && d.dateISO <= limit && (d.amount || 0) > 0
+  );
+}
+
+function filterOverdueDeadlines(deadlines, todayISO) {
+  const today = todayISO || new Date().toISOString().slice(0, 10);
+  return (deadlines || []).filter(d =>
+    !d.isDeleted && !d.pagata && d.dateISO < today && (d.amount || 0) > 0
+  );
+}
+
+function filterOverdueFatture(fatture, todayISO) {
+  const today = todayISO || new Date().toISOString().slice(0, 10);
+  return (fatture || []).filter(f =>
+    f.dataScadenza && f.dataScadenza < today &&
+    !['pagata','annullata','bozza'].includes(f.stato) &&
+    (Number(f.totale || 0) - Number(f.totalePagato || 0)) > 0
+  );
+}
+
+function filterPendingSolleciti(solleciti) {
+  return (solleciti || []).filter(s => s.stato !== 'inviato' && s.stato !== 'annullato');
+}
+
+function buildNotifications({ deadlines = [], fatture = [], solleciti = [], upcomingDays = 7, todayISO } = {}) {
+  const today = todayISO || new Date().toISOString().slice(0, 10);
+  const notifications = [];
+
+  const upcoming = filterUpcomingDeadlines(deadlines, upcomingDays, today);
+  if (upcoming.length > 0) notifications.push({ id: 'scadenze_upcoming', type: 'scadenza', severity: 'warning' });
+
+  const overdue = filterOverdueDeadlines(deadlines, today);
+  if (overdue.length > 0) notifications.push({ id: 'scadenze_overdue', type: 'scadenza', severity: 'danger' });
+
+  const overdueFatt = filterOverdueFatture(fatture, today);
+  if (overdueFatt.length > 0) notifications.push({ id: 'fatture_overdue', type: 'fattura', severity: 'danger' });
+
+  const pending = filterPendingSolleciti(solleciti);
+  if (pending.length > 0) notifications.push({ id: 'solleciti_pending', type: 'sollecito', severity: 'warning' });
+
+  return { notifications, count: notifications.length };
+}
+
+const TODAY = '2026-04-21';
+
+test('notificationService: addDays adds days correctly', () => {
+  assert.equal(addDays(7,  '2026-04-21'), '2026-04-28');
+  assert.equal(addDays(0,  '2026-04-21'), '2026-04-21');
+  assert.equal(addDays(-1, '2026-04-21'), '2026-04-20');
+});
+
+test('notificationService: filterUpcomingDeadlines returns deadlines within window', () => {
+  const ds = [
+    { dateISO: '2026-04-22', amount: 100, pagata: false, isDeleted: false },
+    { dateISO: '2026-04-28', amount: 200, pagata: false, isDeleted: false },
+    { dateISO: '2026-04-29', amount: 50,  pagata: false, isDeleted: false }, // outside 7d
+    { dateISO: '2026-04-20', amount: 100, pagata: false, isDeleted: false }, // past
+    { dateISO: '2026-04-23', amount: 0,   pagata: false, isDeleted: false }, // zero amount
+    { dateISO: '2026-04-23', amount: 100, pagata: true,  isDeleted: false }, // paid
+  ];
+  const result = filterUpcomingDeadlines(ds, 7, TODAY);
+  assert.equal(result.length, 2);
+  assert.ok(result.every(d => d.dateISO <= '2026-04-28'));
+});
+
+test('notificationService: filterOverdueDeadlines returns only past unpaid', () => {
+  const ds = [
+    { dateISO: '2026-04-20', amount: 100, pagata: false, isDeleted: false },
+    { dateISO: '2026-04-21', amount: 100, pagata: false, isDeleted: false }, // today = not overdue
+    { dateISO: '2026-04-19', amount: 100, pagata: true,  isDeleted: false }, // paid
+    { dateISO: '2026-04-18', amount: 100, pagata: false, isDeleted: true  }, // deleted
+  ];
+  const result = filterOverdueDeadlines(ds, TODAY);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].dateISO, '2026-04-20');
+});
+
+test('notificationService: filterOverdueFatture excludes paid/bozza/annullata', () => {
+  const fatture = [
+    { dataScadenza: '2026-04-20', stato: 'emessa',   totale: 500, totalePagato: 0 },
+    { dataScadenza: '2026-04-20', stato: 'pagata',   totale: 500, totalePagato: 500 },
+    { dataScadenza: '2026-04-20', stato: 'bozza',    totale: 100, totalePagato: 0 },
+    { dataScadenza: '2026-04-20', stato: 'annullata', totale: 100, totalePagato: 0 },
+    { dataScadenza: '2026-04-22', stato: 'emessa',   totale: 100, totalePagato: 0 }, // future
+  ];
+  const result = filterOverdueFatture(fatture, TODAY);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].stato, 'emessa');
+});
+
+test('notificationService: filterOverdueFatture includes partially paid', () => {
+  const fatture = [
+    { dataScadenza: '2026-04-20', stato: 'emessa', totale: 500, totalePagato: 200 },
+  ];
+  const result = filterOverdueFatture(fatture, TODAY);
+  assert.equal(result.length, 1);
+});
+
+test('notificationService: filterPendingSolleciti excludes inviato/annullato', () => {
+  const solleciti = [
+    { stato: 'bozza' },
+    { stato: 'inviato' },
+    { stato: 'annullato' },
+    { stato: 'da_inviare' },
+    {},
+  ];
+  const result = filterPendingSolleciti(solleciti);
+  assert.equal(result.length, 3); // bozza, da_inviare, {}
+});
+
+test('notificationService: buildNotifications returns empty when all ok', () => {
+  const result = buildNotifications({ todayISO: TODAY });
+  assert.equal(result.count, 0);
+  assert.deepStrictEqual(result.notifications, []);
+});
+
+test('notificationService: buildNotifications detects all alert types', () => {
+  const deadlines = [
+    { dateISO: '2026-04-22', amount: 100, pagata: false, isDeleted: false }, // upcoming
+    { dateISO: '2026-04-19', amount: 100, pagata: false, isDeleted: false }, // overdue
+  ];
+  const fatture = [
+    { dataScadenza: '2026-04-19', stato: 'emessa', totale: 500, totalePagato: 0 },
+  ];
+  const solleciti = [{ stato: 'bozza' }];
+  const result = buildNotifications({ deadlines, fatture, solleciti, upcomingDays: 7, todayISO: TODAY });
+  assert.equal(result.count, 4);
+  const ids = result.notifications.map(n => n.id);
+  assert.ok(ids.includes('scadenze_upcoming'));
+  assert.ok(ids.includes('scadenze_overdue'));
+  assert.ok(ids.includes('fatture_overdue'));
+  assert.ok(ids.includes('solleciti_pending'));
+});
+
+test('notificationService: buildNotifications with only upcoming deadline', () => {
+  const deadlines = [
+    { dateISO: '2026-04-25', amount: 300, pagata: false, isDeleted: false },
+  ];
+  const result = buildNotifications({ deadlines, todayISO: TODAY });
+  assert.equal(result.count, 1);
+  assert.equal(result.notifications[0].id, 'scadenze_upcoming');
+  assert.equal(result.notifications[0].severity, 'warning');
+});

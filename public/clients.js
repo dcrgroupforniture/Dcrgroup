@@ -609,7 +609,7 @@ async function loadAll(){
 
   // 🔒 SAFE: tutte le letture passano dai services (mai Firestore diretto in UI)
   const [clientsArr, ordersArr] = await Promise.all([
-    fs.getAll('clients'),
+    fs.getAllByCompany('clients'),
     listOrders(),
   ]);
 

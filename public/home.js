@@ -32,7 +32,7 @@ async function loadHomeSummary(){
   }
 
   try{
-    const suppliers = await fs.getAll('suppliers');
+    const suppliers = await fs.getAllByCompany('suppliers');
     const total = suppliers.reduce((s,x)=>s+Number(x.total||0),0);
     if(elForn) elForn.textContent = itMoney(total);
   }catch(err){
