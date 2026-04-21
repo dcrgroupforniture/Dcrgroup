@@ -872,3 +872,106 @@ test('finanze scadenze: uses dateISO over id', () => {
   assert.equal(result.length, 1);
   assert.equal(result[0].date, '2026-04-22');
 });
+
+// ─── Phase 7: admin-portale genPassword + price-list groupByCategory ─────────
+
+// Replicate genPassword logic from admin-portale.html
+
+function genPassword(len = 10) {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  let pwd = '';
+  for (let i = 0; i < len; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
+  return pwd;
+}
+
+test('genPassword: generates string of requested length', () => {
+  assert.equal(genPassword(10).length, 10);
+  assert.equal(genPassword(16).length, 16);
+  assert.equal(genPassword(1).length, 1);
+});
+
+test('genPassword: only uses allowed character set', () => {
+  const allowed = new Set('ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#');
+  for (let i = 0; i < 20; i++) {
+    const pwd = genPassword(20);
+    for (const ch of pwd) assert.ok(allowed.has(ch), `unexpected char: ${ch}`);
+  }
+});
+
+test('genPassword: produces unique passwords', () => {
+  const passwords = new Set(Array.from({ length: 50 }, () => genPassword(10)));
+  assert.ok(passwords.size > 1, 'all passwords were identical');
+});
+
+// Replicate groupByCategory logic from price-list.js
+
+function groupByCategory(data) {
+  const grouped = {};
+  data.forEach(p => {
+    if (!grouped[p.category]) grouped[p.category] = [];
+    grouped[p.category].push(p);
+  });
+  return grouped;
+}
+
+function filterPriceList(products, query) {
+  const q = (query || '').toLowerCase();
+  if (!q) return products;
+  return products.filter(p =>
+    (p.name || '').toLowerCase().includes(q) ||
+    (p.category || '').toLowerCase().includes(q)
+  );
+}
+
+test('price-list groupByCategory: groups products by category', () => {
+  const products = [
+    { name: 'Sedia A', category: 'Sedie', price: 100 },
+    { name: 'Sedia B', category: 'Sedie', price: 150 },
+    { name: 'Tavolo X', category: 'Tavoli', price: 400 },
+  ];
+  const grouped = groupByCategory(products);
+  assert.equal(Object.keys(grouped).length, 2);
+  assert.equal(grouped['Sedie'].length, 2);
+  assert.equal(grouped['Tavoli'].length, 1);
+});
+
+test('price-list groupByCategory: empty list gives empty object', () => {
+  const grouped = groupByCategory([]);
+  assert.equal(Object.keys(grouped).length, 0);
+});
+
+test('price-list filterPriceList: filters by name', () => {
+  const products = [
+    { name: 'Sedia A', category: 'Sedie', price: 100 },
+    { name: 'Tavolo X', category: 'Tavoli', price: 400 },
+  ];
+  const result = filterPriceList(products, 'sedia');
+  assert.equal(result.length, 1);
+  assert.equal(result[0].name, 'Sedia A');
+});
+
+test('price-list filterPriceList: filters by category', () => {
+  const products = [
+    { name: 'Sedia A', category: 'Sedie', price: 100 },
+    { name: 'Tavolo X', category: 'Tavoli', price: 400 },
+  ];
+  const result = filterPriceList(products, 'tavoli');
+  assert.equal(result.length, 1);
+  assert.equal(result[0].name, 'Tavolo X');
+});
+
+test('price-list filterPriceList: empty query returns all', () => {
+  const products = [
+    { name: 'Sedia A', category: 'Sedie', price: 100 },
+    { name: 'Tavolo X', category: 'Tavoli', price: 400 },
+  ];
+  assert.equal(filterPriceList(products, '').length, 2);
+  assert.equal(filterPriceList(products, null).length, 2);
+});
+
+test('price-list filterPriceList: no match returns empty array', () => {
+  const products = [
+    { name: 'Sedia A', category: 'Sedie', price: 100 },
+  ];
+  assert.equal(filterPriceList(products, 'armadio').length, 0);
+});

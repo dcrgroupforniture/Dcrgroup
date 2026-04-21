@@ -352,6 +352,24 @@ service cloud.firestore {
       allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
+    // ─── Portal accounts ─────────────────────────────────────────────────────
+
+    match /portalAccounts/{docId} {
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isManagerOrAbove() && writingToOwnCompany();
+      allow update: if isManagerOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Price list ───────────────────────────────────────────────────────────
+
+    match /priceList/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create: if isManagerOrAbove() && writingToOwnCompany();
+      allow update: if isManagerOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
     // ─── Settings ────────────────────────────────────────────────────────────
 
     match /settings/{docId} {
