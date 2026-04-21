@@ -192,22 +192,35 @@ function _enforcePageAccess(role) {
     'background:#0f172a','color:#f1f5f9',
     'font-family:system-ui,sans-serif','padding:32px','text-align:center',
   ].join(';');
-  overlay.innerHTML = `
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-    </svg>
-    <h2 style="margin:0 0 10px;font-size:24px;font-weight:900">Accesso negato</h2>
-    <p style="color:#94a3b8;margin:0 0 28px;max-width:360px">
-      Il tuo ruolo (<strong style="color:#818cf8">${role}</strong>) non ha i permessi
-      necessari per accedere a questa pagina.
-    </p>
-    <a href="/index.html" style="
-      background:#6366f1;color:#fff;padding:12px 28px;
-      border-radius:12px;font-weight:700;font-size:15px;
-      text-decoration:none;display:inline-block;
-    ">← Torna alla home</a>
-  `;
+
+  // Build overlay using DOM APIs to avoid XSS from role value
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('width', '64'); icon.setAttribute('height', '64');
+  icon.setAttribute('viewBox', '0 0 24 24'); icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', '#ef4444'); icon.setAttribute('stroke-width', '1.5');
+  icon.setAttribute('stroke-linecap', 'round'); icon.setAttribute('stroke-linejoin', 'round');
+  icon.style.marginBottom = '20px';
+  icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>';
+
+  const heading = document.createElement('h2');
+  heading.style.cssText = 'margin:0 0 10px;font-size:24px;font-weight:900';
+  heading.textContent = 'Accesso negato';
+
+  const para = document.createElement('p');
+  para.style.cssText = 'color:#94a3b8;margin:0 0 28px;max-width:360px';
+  para.textContent = 'Il tuo ruolo (';
+  const strong = document.createElement('strong');
+  strong.style.color = '#818cf8';
+  strong.textContent = role; // textContent is safe
+  para.appendChild(strong);
+  para.appendChild(document.createTextNode(') non ha i permessi necessari per accedere a questa pagina.'));
+
+  const link = document.createElement('a');
+  link.href = '/index.html';
+  link.style.cssText = 'background:#6366f1;color:#fff;padding:12px 28px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;display:inline-block';
+  link.textContent = '← Torna alla home';
+
+  overlay.append(icon, heading, para, link);
   document.body.appendChild(overlay);
 }
 

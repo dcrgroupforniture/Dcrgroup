@@ -367,11 +367,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    match /auditLog/{logId} {
-      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
-      allow create: if isStaff() && writingToOwnCompany();
-      allow update, delete: if false;
-    }
+    // auditLog rules are defined below in the Phase 3 section.
 
     // ─── Work notes ──────────────────────────────────────────────────────────
 

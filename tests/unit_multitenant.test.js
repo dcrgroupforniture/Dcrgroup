@@ -454,7 +454,7 @@ test('page guard: agente blocked from spese page', () => {
   assert.equal(canAccessPage('agente', 'spese.html', TEST_PAGE_MODULE_MAP), false);
 });
 
-test('page guard: agente blocked from analytics page', () => {
+test('page guard: agente can access analytics page', () => {
   // agente has READ on analytics per PERMISSIONS
   assert.equal(canAccessPage('agente', 'analytics.html', TEST_PAGE_MODULE_MAP), true);
 });
