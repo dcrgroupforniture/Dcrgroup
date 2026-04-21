@@ -1,11 +1,13 @@
 import { db } from "./firebase.js";
 import { firestoreService as fs } from "./services/firestoreService.js";
+import { getCompanyId } from "./services/tenantService.js";
 import {
   collection,
   getDocs,
   doc,
   query,
   orderBy,
+  where,
   onSnapshot,
   serverTimestamp,
   writeBatch
@@ -93,7 +95,8 @@ function render(list){
 }
 
 async function loadSuppliers(){
-  const q = query(collection(db, "suppliers"), orderBy("name"));
+  const cid = await getCompanyId();
+  const q = query(collection(db, "suppliers"), where("companyId","==",cid), orderBy("name"));
   if(suppliersListEl) suppliersListEl.innerHTML = '<div style="padding:16px;color:#6b7280;font-style:italic;text-align:center;">⏳ Caricamento fornitori…</div>';
   try {
     onSnapshot(q, (snap) => {
