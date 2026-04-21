@@ -900,7 +900,7 @@ test('genPassword: only uses allowed character set', () => {
 
 test('genPassword: produces unique passwords', () => {
   const passwords = new Set(Array.from({ length: 50 }, () => genPassword(10)));
-  assert.ok(passwords.size > 1, 'all passwords were identical');
+  assert.equal(passwords.size, 50, 'all 50 passwords should be unique');
 });
 
 // Replicate groupByCategory logic from price-list.js
