@@ -101,8 +101,9 @@ new Promise((resolve) => {
     firestoreService.setTenantContext({ companyId, role });
     // Expose tenant info globally for pages that need it.
     window.__tenant = { uid: user.uid, email: user.email, companyId, role };
-  }).catch(() => {
+  }).catch((err) => {
     // Firestore unavailable: set default context so writes don't fail.
+    console.warn('[auth-guard] Could not load user profile, using default tenant context.', err);
     firestoreService.setTenantContext({ companyId: DEFAULT_COMPANY_ID, role: 'admin' });
     window.__tenant = { uid: user.uid, email: user.email, companyId: DEFAULT_COMPANY_ID, role: 'admin' };
   });

@@ -16,7 +16,7 @@
 
 import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -273,11 +273,7 @@ async function ensureDefaultCompany(db) {
  */
 function saveMigrationLog() {
   try {
-    import("fs").then(({ mkdirSync }) => {
-      try {
-        mkdirSync(resolve(__dirname, "../tmp"), { recursive: true });
-      } catch {}
-    });
+    mkdirSync(resolve(__dirname, "../tmp"), { recursive: true });
     writeFileSync(LOG_FILE, JSON.stringify(migrationLog, null, 2), "utf8");
     logInfo(`Migration log saved to: ${LOG_FILE}`);
   } catch (err) {

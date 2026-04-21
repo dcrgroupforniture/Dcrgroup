@@ -104,8 +104,8 @@ service cloud.firestore {
       allow read: if request.auth.uid == userId || isAdmin();
       allow create: if request.auth.uid == userId || isAdmin();
       allow update: if (request.auth.uid == userId || isAdmin()) &&
-        // Prevent role self-escalation: only admin can set/change role.
-        (!request.resource.data.keys().hasAny(['role']) || isAdmin());
+        // Prevent privilege escalation: only admin can set/change role or companyId.
+        (!request.resource.data.keys().hasAny(['role', 'companyId']) || isAdmin());
       allow delete: if isAdmin();
     }
 

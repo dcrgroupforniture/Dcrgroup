@@ -58,13 +58,13 @@ function getActiveCompanyId() {
 
 /**
  * Injects companyId into data if a tenant context is active.
- * Always preserves existing companyId (never overwrites data already tagged).
+ * Always returns a new object and preserves existing companyId.
  */
 function injectCompanyId(data = {}) {
   const companyId = getActiveCompanyId();
-  if (!companyId) return data;
+  if (!companyId) return { ...data };
   // Only inject if not already present to avoid overwriting cross-company migrations.
-  if (data.companyId) return data;
+  if (data.companyId) return { ...data };
   return { ...data, companyId };
 }
 
