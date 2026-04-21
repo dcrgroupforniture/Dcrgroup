@@ -7,9 +7,6 @@ import {
   query,
   where,
   orderBy,
-  addDoc,
-  deleteDoc,
-  updateDoc,
   serverTimestamp,
   auth,
 } from './firebase.js';
@@ -404,7 +401,7 @@ async function saveClient(){
 
   try{
     if (clientId && _clientRef) {
-      await updateDoc(_clientRef, payload);
+      await fs.update('clients', clientId, payload);
       alert('✅ Cliente salvato');
       // aggiorna titolo
       els.title.textContent = name;
@@ -435,7 +432,7 @@ async function deleteClientSafe(){
   const ok = confirm('Eliminare il cliente? Operazione irreversibile.');
   if (!ok) return;
   try{
-    await deleteDoc(_clientRef);
+    await fs.remove('clients', clientId);
     alert('✅ Cliente eliminato');
     window.location.href = 'clients.html';
   }catch(e){

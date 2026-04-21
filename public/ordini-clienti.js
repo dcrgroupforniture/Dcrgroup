@@ -4,7 +4,7 @@ import { db } from "./firebase.js";
 import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection, doc, getDoc, setDoc, runTransaction, addDoc, serverTimestamp,
-  query, orderBy, limit, getDocs, deleteDoc
+  query, orderBy, limit, getDocs, deleteDoc, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { todayISO, escapeHtml } from './utils.js';
 
@@ -487,7 +487,10 @@ async function loadHistory(){
   if (!historyBodyEl) return;
   historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Caricamento...</td></tr>`;
   try{
-    const qy = query(collection(db, PREVENTIVI_COLLECTION), orderBy("createdAt","desc"), limit(200));
+    const cid = fs.getActiveCompanyId();
+    const qyConstraints = [orderBy("createdAt","desc"), limit(200)];
+    if (cid) qyConstraints.unshift(where("companyId", "==", cid));
+    const qy = query(collection(db, PREVENTIVI_COLLECTION), ...qyConstraints);
     const snap = await getDocs(qy);
     if (snap.empty){
       historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Nessun preventivo salvato.</td></tr>`;

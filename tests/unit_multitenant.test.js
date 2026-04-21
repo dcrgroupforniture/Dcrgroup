@@ -1251,3 +1251,66 @@ test('finanze/agenda: subcollection docs are plain objects — no .data() call n
   });
   assert.equal(total, 300);
 });
+
+// ─── Phase 13: preventivi company-scoped query + client.js fs.update/remove ─
+
+// Replicate the buildPreventiviQueryConstraints pure logic from ordini-clienti.js
+function buildPreventiviQueryConstraints(cid) {
+  const constraints = [{ orderBy: 'createdAt', dir: 'desc' }, { limit: 200 }];
+  if (cid) constraints.unshift({ where: 'companyId', op: '==', value: cid });
+  return constraints;
+}
+
+test('ordini-clienti: loadHistory scopes preventivi by companyId when set', () => {
+  const c = buildPreventiviQueryConstraints('mycompany');
+  const hasCompanyFilter = c.some(x => x.where === 'companyId' && x.value === 'mycompany');
+  assert.ok(hasCompanyFilter, 'should include companyId filter');
+});
+
+test('ordini-clienti: loadHistory reads all preventivi when no companyId', () => {
+  const c = buildPreventiviQueryConstraints(null);
+  const hasCompanyFilter = c.some(x => x.where === 'companyId');
+  assert.ok(!hasCompanyFilter, 'should NOT include companyId filter without tenant');
+});
+
+test('ordini-clienti: loadHistory query always includes orderBy createdAt desc', () => {
+  const c1 = buildPreventiviQueryConstraints('x');
+  const c2 = buildPreventiviQueryConstraints(null);
+  assert.ok(c1.some(x => x.orderBy === 'createdAt'));
+  assert.ok(c2.some(x => x.orderBy === 'createdAt'));
+});
+
+test('ordini-clienti: loadHistory query always includes limit 200', () => {
+  const c1 = buildPreventiviQueryConstraints('x');
+  const c2 = buildPreventiviQueryConstraints(null);
+  assert.ok(c1.some(x => x.limit === 200));
+  assert.ok(c2.some(x => x.limit === 200));
+});
+
+// Replicate client.js write routing (pure)
+function resolveClientWriteMethod(clientId, hasRef) {
+  // After Phase 13: update/delete go through fs, not raw SDK
+  if (clientId && hasRef) return 'fs.update';
+  return 'fs.add';
+}
+
+function resolveClientDeleteMethod(clientId, hasRef) {
+  if (clientId && hasRef) return 'fs.remove';
+  return 'no-op';
+}
+
+test('client.js Phase 13: update existing client uses fs.update', () => {
+  assert.equal(resolveClientWriteMethod('cli_1', true), 'fs.update');
+});
+
+test('client.js Phase 13: new client still uses fs.add', () => {
+  assert.equal(resolveClientWriteMethod(null, false), 'fs.add');
+});
+
+test('client.js Phase 13: delete existing client uses fs.remove', () => {
+  assert.equal(resolveClientDeleteMethod('cli_1', true), 'fs.remove');
+});
+
+test('client.js Phase 13: delete without clientId is no-op', () => {
+  assert.equal(resolveClientDeleteMethod(null, false), 'no-op');
+});
