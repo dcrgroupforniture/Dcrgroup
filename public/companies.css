@@ -1,0 +1,357 @@
+/* companies.css — Company management admin page for DCR GROUP */
+
+/* ─── CSS Variables ─────────────────────────────────────────────────────── */
+:root {
+  --comp-bg:          #0f172a;
+  --comp-surface:     #1e293b;
+  --comp-surface2:    #263045;
+  --comp-border:      #334155;
+  --comp-text:        #f1f5f9;
+  --comp-text-muted:  #94a3b8;
+  --comp-accent:      #6366f1;
+  --comp-accent-h:    #4f46e5;
+  --comp-danger:      #ef4444;
+  --comp-danger-h:    #dc2626;
+  --comp-success:     #22c55e;
+  --comp-warn:        #f59e0b;
+  --comp-radius:      12px;
+  --comp-radius-sm:   8px;
+  --comp-shadow:      0 4px 24px rgba(0,0,0,.45);
+}
+html.theme-light {
+  --comp-bg:          #f0f4f8;
+  --comp-surface:     #ffffff;
+  --comp-surface2:    #f1f5f9;
+  --comp-border:      #e2e8f0;
+  --comp-text:        #1e293b;
+  --comp-text-muted:  #64748b;
+  --comp-accent:      #6366f1;
+  --comp-accent-h:    #4f46e5;
+  --comp-danger:      #ef4444;
+  --comp-danger-h:    #dc2626;
+  --comp-success:     #16a34a;
+  --comp-warn:        #d97706;
+  --comp-shadow:      0 2px 12px rgba(0,0,0,.10);
+}
+
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+.comp-page {
+  background: var(--comp-bg);
+  min-height: 100vh;
+}
+.comp-wrap {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  height: calc(100vh - 60px);
+  margin-top: 60px;
+}
+@media (max-width: 768px) {
+  .comp-wrap { grid-template-columns: 1fr; }
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────────────────── */
+.comp-sidebar {
+  background: var(--comp-surface);
+  border-right: 1px solid var(--comp-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.comp-sidebar-header {
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid var(--comp-border);
+}
+.comp-search {
+  flex: 1;
+  background: var(--comp-surface2);
+  border: 1px solid var(--comp-border);
+  border-radius: var(--comp-radius-sm);
+  color: var(--comp-text);
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+}
+.comp-search:focus { border-color: var(--comp-accent); }
+.comp-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.comp-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid var(--comp-border);
+}
+.comp-item:hover { background: var(--comp-surface2); }
+.comp-item.active { background: rgba(99,102,241,.18); border-left: 3px solid var(--comp-accent); }
+.comp-item-avatar {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--comp-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: #fff;
+  flex-shrink: 0;
+}
+.comp-item-info { flex: 1; min-width: 0; }
+.comp-item-name {
+  font-weight: 600; font-size: 14px;
+  color: var(--comp-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.comp-item-badge {
+  font-size: 11px; color: var(--comp-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.comp-empty-state {
+  color: var(--comp-text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+/* ─── Main content ──────────────────────────────────────────────────────── */
+.comp-content {
+  background: var(--comp-bg);
+  overflow-y: auto;
+  padding: 24px;
+}
+.comp-no-selection {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%;
+  color: var(--comp-text-muted);
+}
+.comp-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.comp-detail-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--comp-text);
+  margin: 0 0 4px;
+}
+.comp-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────────────── */
+.comp-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--comp-border);
+  margin-bottom: 20px;
+}
+.comp-tab {
+  background: none;
+  border: none;
+  padding: 10px 18px;
+  color: var(--comp-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+}
+.comp-tab:hover { color: var(--comp-text); }
+.comp-tab.active {
+  color: var(--comp-accent);
+  border-bottom-color: var(--comp-accent);
+  font-weight: 600;
+}
+
+/* ─── Info grid ─────────────────────────────────────────────────────────── */
+.comp-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.comp-info-card {
+  background: var(--comp-surface);
+  border: 1px solid var(--comp-border);
+  border-radius: var(--comp-radius);
+  padding: 16px;
+}
+.comp-info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--comp-text-muted);
+  margin-bottom: 4px;
+}
+.comp-info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--comp-text);
+}
+
+/* ─── Users list ─────────────────────────────────────────────────────────── */
+.comp-users-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.comp-users-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--comp-text);
+}
+.comp-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comp-user-card {
+  background: var(--comp-surface);
+  border: 1px solid var(--comp-border);
+  border-radius: var(--comp-radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.comp-user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--comp-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; color: #fff;
+  flex-shrink: 0;
+}
+.comp-user-info { flex: 1; min-width: 0; }
+.comp-user-email {
+  font-weight: 600; font-size: 13px; color: var(--comp-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.comp-user-uid {
+  font-size: 11px; color: var(--comp-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.comp-role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+.comp-role-badge.admin     { background: rgba(99,102,241,.25); color: var(--comp-accent); }
+.comp-role-badge.manager   { background: rgba(16,185,129,.20); color: #10b981; }
+.comp-role-badge.agente    { background: rgba(245,158,11,.20); color: var(--comp-warn); }
+.comp-role-badge.contabile { background: rgba(14,165,233,.20); color: #0ea5e9; }
+.comp-role-badge.magazzino { background: rgba(239,68,68,.20);  color: var(--comp-danger); }
+
+/* ─── Form ──────────────────────────────────────────────────────────────── */
+.comp-form-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.comp-form-header h2 {
+  margin: 0; font-size: 20px; color: var(--comp-text);
+}
+.comp-form {
+  max-width: 520px;
+}
+.comp-form-row {
+  margin-bottom: 18px;
+}
+.comp-form-row label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--comp-text);
+  margin-bottom: 6px;
+}
+.comp-req { color: var(--comp-danger); }
+.comp-form-row input, .comp-form-row select {
+  width: 100%;
+  background: var(--comp-surface);
+  border: 1px solid var(--comp-border);
+  border-radius: var(--comp-radius-sm);
+  color: var(--comp-text);
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .15s;
+}
+.comp-form-row input:focus,
+.comp-form-row select:focus { border-color: var(--comp-accent); }
+.comp-form-row input:invalid { border-color: var(--comp-danger); }
+.comp-form-row small {
+  display: block;
+  color: var(--comp-text-muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+.comp-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.comp-form-error {
+  color: var(--comp-danger);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+.comp-btn {
+  border: none;
+  border-radius: var(--comp-radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 18px;
+  transition: background .15s, opacity .15s;
+}
+.comp-btn:disabled { opacity: .45; cursor: not-allowed; }
+.comp-btn-primary { background: var(--comp-accent); color: #fff; }
+.comp-btn-primary:hover:not(:disabled) { background: var(--comp-accent-h); }
+.comp-btn-secondary { background: var(--comp-surface); color: var(--comp-text); border: 1px solid var(--comp-border); }
+.comp-btn-secondary:hover:not(:disabled) { background: var(--comp-surface2); }
+.comp-btn-danger { background: var(--comp-danger); color: #fff; }
+.comp-btn-danger:hover:not(:disabled) { background: var(--comp-danger-h); }
+.comp-btn-sm { padding: 6px 14px; font-size: 12px; }
+
+/* ─── Toast ─────────────────────────────────────────────────────────────── */
+.comp-toast {
+  position: fixed;
+  top: calc(70px + env(safe-area-inset-top));
+  left: 50%; transform: translateX(-50%);
+  background: #1e293b;
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  z-index: 99999;
+  pointer-events: none;
+}
+
+/* ─── Tenant badge ───────────────────────────────────────────────────────── */
+.comp-tenant-badge {
+  font-size: 12px;
+  background: rgba(99,102,241,.2);
+  color: var(--comp-accent, #6366f1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-left: auto;
+}

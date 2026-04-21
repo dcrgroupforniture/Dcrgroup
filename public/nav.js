@@ -1,12 +1,13 @@
 // nav.js (module)
 // Floating AI Assistant + optional actions (promemoria/spese/incassi) with Firestore integration.
 
-import { auth, db, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit } from './firebase.js';
+import { auth, db, collection, addDoc, serverTimestamp, query, orderBy, limit, where } from './firebase.js';
 import {
   onAuthStateChanged,
   signOut,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { escapeHtml, todayISO } from './utils.js';
+import { firestoreService as fs } from './services/firestoreService.js';
 
 // ---- Helpers ----
 const qs = (sel, root=document) => root.querySelector(sel);
@@ -571,7 +572,7 @@ function openModal(){
       const end = addMinutes(start, duration);
 
       await waitForAuth();
-      await addDoc(collection(db, 'agendaEvents'), {
+      await fs.add('agendaEvents', {
         title: String(spec.title).trim(),
         start,
         end,
@@ -623,7 +624,7 @@ function openModal(){
 
       await waitForAuth();
       const col = kind === 'spesa' ? 'spese' : 'incassi';
-      await addDoc(collection(db, col), {
+      await fs.add(col, {
         date,
         description,
         amount,
@@ -668,23 +669,30 @@ function closeModal(){
 // ---- Context builder ----
 async function countCollection(colName, max=500){
   // lightweight: just read up to max docs and count
-  const snap = await getDocs(query(collection(db, colName), limit(max)));
-  return snap.size;
+  const cid = fs.getActiveCompanyId();
+  const q = cid
+    ? query(collection(db, colName), where('companyId', '==', cid), limit(max))
+    : query(collection(db, colName), limit(max));
+  const docs = await fs.getAllFromQuery(q);
+  return docs.length;
 }
 
 async function sumLastN(colName, n=200){
   // expects docs with {date:'YYYY-MM-DD', amount:number}
-  const snap = await getDocs(query(collection(db, colName), orderBy('date','desc'), limit(n)));
+  const cid = fs.getActiveCompanyId();
+  const q = cid
+    ? query(collection(db, colName), where('companyId', '==', cid), orderBy('date','desc'), limit(n))
+    : query(collection(db, colName), orderBy('date','desc'), limit(n));
+  const items = await fs.getAllFromQuery(q);
   let total30 = 0;
   let total7 = 0;
   const now = new Date();
   const d30 = new Date(now); d30.setDate(d30.getDate()-30);
   const d7 = new Date(now); d7.setDate(d7.getDate()-7);
 
-  snap.forEach(docu=>{
-    const d = docu.data() || {};
-    const dateStr = d.date;
-    const amt = Number(d.amount || 0);
+  items.forEach(item=>{
+    const dateStr = item.date;
+    const amt = Number(item.amount || 0);
     if (!dateStr || !isFinite(amt)) return;
     const dt = new Date(dateStr + 'T00:00:00');
     if (dt >= d30) total30 += amt;

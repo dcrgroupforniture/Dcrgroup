@@ -1,9 +1,10 @@
 // Preventivo semplice (offline) con esportazione PDF/Immagine e invio WhatsApp.
 
 import { db } from "./firebase.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection, doc, getDoc, setDoc, runTransaction, addDoc, serverTimestamp,
-  query, orderBy, limit, getDocs, deleteDoc
+  query, orderBy, limit, deleteDoc, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { todayISO, escapeHtml } from './utils.js';
 
@@ -126,11 +127,10 @@ function mapQuoteRowsToOrderRows(rows){
 async function resolveClientForQuote(clientName){
   const wanted = normalizeText(clientName);
   if (!wanted) return null;
-  const snap = await getDocs(collection(db, "clients"));
+  const clientDocs = await fs.getAllByCompany('clients');
   let fallback = null;
-  for (const d of snap.docs){
-    const data = d.data() || {};
-    const candidate = String(data.name || data.nome || data.ragioneSociale || data.businessName || "").trim();
+  for (const d of clientDocs){
+    const candidate = String(d.name || d.nome || d.ragioneSociale || d.businessName || "").trim();
     if (!candidate) continue;
     const n = normalizeText(candidate);
     if (n === wanted) return { id: d.id, name: candidate };
@@ -183,8 +183,8 @@ async function importQuoteToOrder(quote, sourcePreventivoId = null){
     updatedAt: serverTimestamp()
   };
 
-  const ref = await addDoc(collection(db, "orders"), payload);
-  return { orderId: ref.id, clientId: client.id };
+  const orderId = await fs.add("orders", payload);
+  return { orderId, clientId: client.id };
 }
 
 function defaultModel(){
@@ -480,28 +480,30 @@ async function savePreventivoToFirestore(m){
     total: getGrandTotalNumber(m),
     createdAt: serverTimestamp(),
   };
-  const ref = await addDoc(collection(db, PREVENTIVI_COLLECTION), payload);
-  return ref.id;
+  return await fs.add(PREVENTIVI_COLLECTION, payload);
 }
 
 async function loadHistory(){
   if (!historyBodyEl) return;
   historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Caricamento...</td></tr>`;
   try{
-    const qy = query(collection(db, PREVENTIVI_COLLECTION), orderBy("createdAt","desc"), limit(200));
-    const snap = await getDocs(qy);
-    if (snap.empty){
+    const cid = fs.getActiveCompanyId();
+    const qyConstraints = [orderBy("createdAt","desc"), limit(200)];
+    if (cid) qyConstraints.unshift(where("companyId", "==", cid));
+    const qy = query(collection(db, PREVENTIVI_COLLECTION), ...qyConstraints);
+    const docs = await fs.getAllFromQuery(qy);
+    if (!docs.length){
       historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Nessun preventivo salvato.</td></tr>`;
       return;
     }
     const allRows = [];
-    snap.forEach(docu => {
-      const d = docu.data() || {};
+    docs.forEach(item => {
+      const d = item;
       const num = d.numberLabel || formatPrevNum(d.number);
       const date = d.date || "";
       const client = d.clientName || "";
       const tot = Number(d.total || 0);
-      allRows.push({ id: docu.id, num, date, client, tot });
+      allRows.push({ id: item.id, num, date, client, tot });
     });
 
     const searchEl = document.getElementById("historySearch");
@@ -554,7 +556,7 @@ async function openPreventivo(id){
 
 async function deletePreventivoForever(id){
   if (!confirm("Eliminare definitivamente questo preventivo?")) return;
-  await deleteDoc(doc(db, PREVENTIVI_COLLECTION, id));
+  await fs.remove(PREVENTIVI_COLLECTION, id);
   await loadHistory();
 }
 

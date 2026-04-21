@@ -268,8 +268,8 @@
           getNormalizedIncomesAndOrders(),
           listExpenses(),
           listDeadlines(),
-          fs.getAll('suppliers'),
-          fs.getAll('clients'),
+          fs.getAllByCompany('suppliers'),
+          fs.getAllByCompany('clients'),
         ]);
         // Build a deduplicated client list from the Firestore clients collection
         const clientList = rawClients.map(c => ({

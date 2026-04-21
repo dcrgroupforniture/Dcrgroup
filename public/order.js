@@ -46,7 +46,6 @@ import {
   setDoc,
   doc,
   getDoc,
-  getDocs,
   query,
   where,
   deleteDoc,
@@ -54,6 +53,7 @@ import {
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 
 // ===============================
 // INCASSI: sync automatico da ordine
@@ -88,8 +88,8 @@ function parseEuroLike(v){
 async function getClientNameSafe(id){
   if(!id) return "";
   try{
-    const cSnap = await getDoc(doc(db, "clients", id));
-    if(cSnap.exists()) { const d=cSnap.data()||{}; return String(d.name || d.nome || d.ragioneSociale || d.businessName || '').trim(); }
+    const cSnap = await fs.getDoc("clients", id);
+    if(cSnap) { const d=cSnap||{}; return String(d.name || d.nome || d.ragioneSociale || d.businessName || '').trim(); }
   }catch(e){}
   return "";
 }
@@ -97,18 +97,16 @@ async function getClientNameSafe(id){
 async function removeIncassiForOrder({ orderId }){
   if(!orderId) return;
 
-  const deletions = [];
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_incasso`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_acconto`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_incasso_totale`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__saldo`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__incasso`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__acconto`)));
+  const suffixes = ["_incasso","_acconto","_incasso_totale","__saldo","__incasso","__acconto"];
+  const deletions = suffixes.map(s => fs.remove("incassi", `${orderId}${s}`).catch(()=>null));
 
   try{
-    const q = query(collection(db, "incassi"), where("orderId", "==", orderId));
-    const snap = await getDocs(q);
-    snap.forEach(d => deletions.push(deleteDoc(doc(db, "incassi", d.id))));
+    const cid = fs.getActiveCompanyId();
+    const qFilters = [where("orderId", "==", orderId)];
+    if (cid) qFilters.push(where("companyId", "==", cid));
+    const q = query(collection(db, "incassi"), ...qFilters);
+    const incassiDocs = await fs.getAllFromQuery(q);
+    incassiDocs.forEach(item => deletions.push(fs.remove("incassi", item.id).catch(()=>null)));
   }catch(e){
     console.warn("removeIncassiForOrder query failed:", e);
   }
@@ -131,12 +129,12 @@ async function createIncassoRecord({ orderId, clientId, dateKey, amount, kind, n
   // Scrittura deterministica (NO query / NO indici richiesti):
   // così l'incasso appare sempre e non può duplicarsi.
   const incassoId = `${orderId}_${kind || "incasso"}`;
-  await setDoc(doc(db, "incassi", incassoId), payload, { merge: true });
+  await fs.set("incassi", incassoId, payload);
 
   // Verifica immediata: se per qualsiasi motivo non viene scritto, facciamo fallire
   // per mostrarlo chiaramente (anziché "silenzio" e popup vuoto).
-  const check = await getDoc(doc(db, "incassi", incassoId));
-  if(!check.exists()){
+  const check = await fs.getDoc("incassi", incassoId);
+  if(!check){
     throw new Error("Incasso non scritto su Firestore (verifica permessi/regole)." );
   }
 }
@@ -169,7 +167,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       }
       const payKind = isCheck ? "assegno" : (pay.type || "acconto");
       const incassoId = `${orderId}__pay_${i}`;
-      await setDoc(doc(db, "incassi", incassoId), {
+      await fs.set("incassi", incassoId, {
         date: effectiveIncassoDate,
         source: "ordine",
         orderId,
@@ -183,7 +181,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
         reference: pay.reference || null,
         note: `${clientName || 'Cliente'} • ${euro(amt)} • ${payKind}`,
         updatedAt: new Date()
-      }, { merge: true });
+      });
     }
     return;
   }
@@ -201,23 +199,23 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
 
   if(status === "incassato"){
     const amount = Number(total) || 0;
-    await setDoc(doc(db, "incassi", `${orderId}__saldo`), {
+    await fs.set("incassi", `${orderId}__saldo`, {
       ...base,
       kind: "saldo",
       paymentType: "saldo",
       amount,
       note: `${clientName || 'Cliente'} • ${euro(amount)} • saldo`
-    }, { merge:true });
+    });
   }else if(status === "acconto"){
     const dep = Number(deposit) || 0;
     if(dep > 0){
-      await setDoc(doc(db, "incassi", `${orderId}__acconto`), {
+      await fs.set("incassi", `${orderId}__acconto`, {
         ...base,
         kind: "acconto",
         paymentType: "acconto",
         amount: dep,
         note: `${clientName || 'Cliente'} • ${euro(dep)} • acconto`
-      }, { merge:true });
+      });
     }
   }
 }
@@ -227,10 +225,13 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
 
   // Soft-delete delle scadenze precedenti collegate a questo ordine
   try{
-    const q = query(collection(db, "scadenze"), where("orderId", "==", orderId));
-    const snap = await getDocs(q);
+    const cid = fs.getActiveCompanyId();
+    const qsFilters = [where("orderId", "==", orderId)];
+    if (cid) qsFilters.push(where("companyId", "==", cid));
+    const q = query(collection(db, "scadenze"), ...qsFilters);
+    const scadenzeDocs = await fs.getAllFromQuery(q);
     await Promise.allSettled(
-      snap.docs.map(d => setDoc(doc(db, "scadenze", d.id), { isDeleted: true }, { merge: true }))
+      scadenzeDocs.map(item => fs.set("scadenze", item.id, { isDeleted: true }))
     );
   }catch(e){ console.warn("cleanup scadenze for order failed:", e); }
 
@@ -239,14 +240,14 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
     const due = deadlines[i];
     if(!due.date || !(Number(due.amount) > 0)) continue;
     const scadenzaId = `${orderId}__due_${i}`;
-    await setDoc(doc(db, "scadenze", scadenzaId), {
+    await fs.set("scadenze", scadenzaId, {
       date: due.date,
       amount: Number(due.amount),
       note: due.note || "",
       orderId,
       isDeleted: false,
       updatedAt: new Date()
-    }, { merge: true });
+    });
   }
 }
 
@@ -298,15 +299,14 @@ function openWhatsAppWithText(text){
 }
 
 async function getOrderAndClient({ orderId, clientId }){
-  const oSnap = await getDoc(doc(db, "orders", orderId));
-  if(!oSnap.exists()) throw new Error("Ordine non trovato");
-  const o = oSnap.data() || {};
+  const o = await fs.getDoc("orders", orderId);
+  if(!o) throw new Error("Ordine non trovato");
 
   let clientName = "";
   try{
     if(clientId){
-      const cSnap = await getDoc(doc(db, "clients", clientId));
-      if(cSnap.exists()) clientName = (cSnap.data()?.name || "").trim();
+      const cSnap = await fs.getDoc("clients", clientId);
+      if(cSnap) clientName = (cSnap.name || "").trim();
     }
   }catch(e){}
 
@@ -400,15 +400,14 @@ function buildReceiptHtml({ clientName, dateStr, total, statusLabel, deposit, re
   `;
 }
 async function buildOrderReceiptText({ orderId, clientId }){
-  const oSnap = await getDoc(doc(db, "orders", orderId));
-  if(!oSnap.exists()) throw new Error("Ordine non trovato");
-  const o = oSnap.data() || {};
+  const o = await fs.getDoc("orders", orderId);
+  if(!o) throw new Error("Ordine non trovato");
 
   let clientName = "";
   try{
     if(clientId){
-      const cSnap = await getDoc(doc(db, "clients", clientId));
-      if(cSnap.exists()) clientName = (cSnap.data()?.name || "").trim();
+      const cSnap = await fs.getDoc("clients", clientId);
+      if(cSnap) clientName = (cSnap.name || "").trim();
     }
   }catch(e){}
 
@@ -807,10 +806,8 @@ grandTotalEl.textContent = discountedTotal.toFixed(2);
 // ===============================
 async function loadOrderForEdit() {
   try {
-    const snap = await getDoc(doc(db, "orders", orderId));
-    if (!snap.exists()) return;
-
-    const o = snap.data();
+    const o = await fs.getDoc("orders", orderId);
+    if (!o) return;
 
     ivaCheck.checked = !!o.iva;
 
@@ -991,10 +988,9 @@ saveBtn.addEventListener("click", async () => {
     orderData.clientId = clientId;
 
     if (orderId) {
-      await updateDoc(doc(db, "orders", orderId), { ...orderData });
+      await fs.update("orders", orderId, { ...orderData });
     } else {
-      const ref = await addDoc(collection(db, "orders"), orderData);
-      savedOrderId = ref.id;
+      savedOrderId = await fs.add("orders", orderData);
     }
 
     updateProductDatabaseFromRows(rows);
@@ -1016,9 +1012,9 @@ saveBtn.addEventListener("click", async () => {
       await syncDeadlinesToScadenze(savedOrderId, deadlinesArr);
     }catch(e){ console.warn("syncDeadlinesToScadenze failed:", e); }
 
-    // \u{1F514} Evento agenda per l'ordine
+    // 🔔 Evento agenda per l'ordine
     try{
-      await addDoc(collection(db, "agendaEvents"), {
+      await fs.add("agendaEvents", {
         title: "Ordine cliente",
         start: createdAtDate,
         end: createdAtDate,
@@ -1026,11 +1022,11 @@ saveBtn.addEventListener("click", async () => {
       });
     }catch(e){ console.warn("agendaEvents add fail (order)", e); }
 
-    // \u{1F514} Evento agenda per ogni scadenza
+    // 🔔 Evento agenda per ogni scadenza
     try{
       for(const due of deadlinesArr){
         if(due.date){
-          await addDoc(collection(db, "agendaEvents"), {
+          await fs.add("agendaEvents", {
             title: "Scadenza ordine",
             start: new Date(due.date),
             end: new Date(due.date),
@@ -1203,7 +1199,7 @@ if(registerIncassoBtn){
       if(firstDue.date) legacy.dueDate = new Date(firstDue.date);
       if(firstDue.amount > 0) legacy.dueAmount = firstDue.amount;
 
-      await updateDoc(doc(db, 'orders', orderId), {
+      await fs.update('orders', orderId, {
         deadlines: deadlinesArr,
         ...legacy,
         updatedAt: new Date()
@@ -1216,7 +1212,7 @@ if(registerIncassoBtn){
       try{
         for(const due of deadlinesArr){
           if(due.date){
-            await addDoc(collection(db, 'agendaEvents'), {
+            await fs.add('agendaEvents', {
               title: 'Scadenza ordine',
               start: new Date(due.date),
               end: new Date(due.date),
@@ -1517,9 +1513,9 @@ async function ensureClientIdFromOrder(){
   // Se l'URL non porta clientId (bug / link vecchio), proviamo a recuperarlo dall'ordine
   if (clientId || !orderId) return;
   try{
-    const snap = await getDoc(doc(db, "orders", orderId));
-    if(snap.exists()){
-      const data = snap.data() || {};
+    const snap = await fs.getDoc("orders", orderId);
+    if(snap){
+      const data = snap;
       if(data.clientId) clientId = data.clientId;
     }
   }catch(e){

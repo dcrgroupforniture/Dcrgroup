@@ -189,7 +189,7 @@ closeBtn?.addEventListener('click', closePopup);
 popup?.addEventListener('click', (e)=>{ if(e.target===popup) closePopup(); });
 
 async function loadClients(){
-  clients = await fs.getAll('clients');
+  clients = await fs.getAllByCompany('clients');
   if (clientsDatalist) {
     clientsDatalist.innerHTML = clients.map(c=>`<option value="${String(c.name || c.nome || '').replace(/"/g,'&quot;')}"></option>`).join('');
   }

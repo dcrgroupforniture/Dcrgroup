@@ -193,6 +193,7 @@
 
   <script type="module">
     import { db } from './firebase.js';
+    import { firestoreService as fs } from './services/firestoreService.js';
     import {
       collection, getDocs, doc, setDoc, updateDoc, serverTimestamp
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
@@ -221,8 +222,7 @@
 
     // ── Load clients ──
     async function loadClients() {
-      const snap = await getDocs(collection(db, 'clients'));
-      const clients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const clients = await fs.getAllByCompany('clients');
       clientSelect.innerHTML = '<option value="">— Seleziona cliente —</option>';
       clients.sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(c => {
         const opt = document.createElement('option');
@@ -237,8 +237,7 @@
     async function loadPortalAccounts() {
       const container = document.getElementById('portalClientsList');
       try {
-        const snap = await getDocs(collection(db, 'portalAccounts'));
-        const accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const accounts = await fs.getAllByCompany('portalAccounts');
 
         if (!accounts.length) {
           container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:8px 0">Nessun account portale creato.</p>';
@@ -316,7 +315,7 @@
           if (!acc) return;
           btn.disabled = true;
           try {
-            await updateDoc(doc(db, 'portalAccounts', id), {
+            await fs.update('portalAccounts', id, {
               enabled: !(acc.enabled !== false),
               updatedAt: serverTimestamp(),
             });
@@ -363,7 +362,7 @@
 
       try {
         const accountId = `${clientId}_portal`;
-        await setDoc(doc(db, 'portalAccounts', accountId), {
+        await fs.set('portalAccounts', accountId, {
           clientId,
           clientName,
           email,
@@ -373,10 +372,10 @@
           portalEnabled: true,
           createdAtISO: new Date().toISOString(),
           createdAt: serverTimestamp(),
-        }, { merge: true });
+        });
 
         // Also update the client document to mark portal as enabled
-        await updateDoc(doc(db, 'clients', clientId), {
+        await fs.update('clients', clientId, {
           portalEnabled: true,
           portalEmail: email,
           updatedAt: serverTimestamp(),

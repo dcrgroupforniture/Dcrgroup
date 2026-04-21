@@ -1,13 +1,13 @@
 import { db } from "./firebase.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
+import { getCompanyId } from "./services/tenantService.js";
 import {
   collection,
   getDocs,
   doc,
-  addDoc,
-  setDoc,
-  deleteDoc,
   query,
   orderBy,
+  where,
   onSnapshot,
   serverTimestamp,
   writeBatch
@@ -95,7 +95,8 @@ function render(list){
 }
 
 async function loadSuppliers(){
-  const q = query(collection(db, "suppliers"), orderBy("name"));
+  const cid = await getCompanyId();
+  const q = query(collection(db, "suppliers"), where("companyId","==",cid), orderBy("name"));
   if(suppliersListEl) suppliersListEl.innerHTML = '<div style="padding:16px;color:#6b7280;font-style:italic;text-align:center;">⏳ Caricamento fornitori…</div>';
   try {
     onSnapshot(q, (snap) => {
@@ -134,8 +135,8 @@ async function openSupplierDetail(s) {
   // Fetch invoices (storico ordini fornitore)
   let invoices = [];
   try {
-    const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
-    invoices = invSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const invSnap = await fs.getSubCollection('suppliers', s.id, 'invoices');
+    invoices = invSnap
       .sort((a, b) => {
         const da = a.date || a.invoiceDate || a.dateISO || '';
         const db_ = b.date || b.invoiceDate || b.dateISO || '';
@@ -310,18 +311,18 @@ const markAllSuppliersInvoicesPaidBtn = document.getElementById("markAllSupplier
 markAllSuppliersInvoicesPaidBtn?.addEventListener("click", async () => {
   if(!confirm("Segna TUTTE le fatture di TUTTI i fornitori come pagate?")) return;
   try {
-    const suppSnap = await getDocs(collection(db, "suppliers"));
-    const invRefs = suppSnap.docs.map(suppDoc =>
-      collection(db, "suppliers", suppDoc.id, "invoices")
+    const suppDocs = await fs.getAllByCompany('suppliers');
+    const allInvsBySupp = await Promise.all(
+      suppDocs.map(suppDoc => fs.getSubCollection("suppliers", suppDoc.id, "invoices"))
     );
-    const invSnaps = await Promise.all(invRefs.map(ref => getDocs(ref)));
 
     // Collect all updates (Firestore batch limit: 500 ops per batch)
     const unpaidInvoiceRefs = [];
-    invSnaps.forEach((invSnap, i) => {
-      invSnap.forEach(invDoc => {
-        if((invDoc.data().status || "da-pagare") !== "pagata"){
-          unpaidInvoiceRefs.push(doc(invRefs[i], invDoc.id));
+    allInvsBySupp.forEach((invs, i) => {
+      const invSubRef = collection(db, "suppliers", suppDocs[i].id, "invoices");
+      invs.forEach(inv => {
+        if((inv.status || "da-pagare") !== "pagata"){
+          unpaidInvoiceRefs.push(doc(invSubRef, inv.id));
         }
       });
     });
@@ -511,7 +512,7 @@ async function syncAllInvoicesToSpese(){
       const note = [name, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
       const speseId = `supplier_${supplierId}_${inv.id}`;
       promises.push(
-        setDoc(doc(db,"expenses",speseId),{
+        fs.set("expenses", speseId, {
           date,
           amount,
           note,
@@ -520,7 +521,7 @@ async function syncAllInvoicesToSpese(){
           supplierId,
           invoiceId: inv.id,
           syncedAt: new Date().toISOString()
-        },{ merge: true }).catch(e => console.warn(`Sync inv ${inv.id}:`, e))
+        }).catch(e => console.warn(`Sync inv ${inv.id}:`, e))
       );
     }
   }
@@ -570,7 +571,8 @@ async function loadOrdersHistory(){
     if(suppliersCache.length){
       supplierEntries = suppliersCache.map(s => ({ id: s.id, data: s }));
     } else {
-      supplierEntries = (await getDocs(collection(db,'suppliers'))).docs.map(d => ({ id: d.id, data: d.data() }));
+      const suppDocs = await fs.getAllByCompany('suppliers');
+      supplierEntries = suppDocs.map(d => ({ id: d.id, data: d }));
     }
     suppliersCache = supplierEntries.map(({ id, data }) => ({ id, ...data }));
     ordersHistory = {};
@@ -578,9 +580,8 @@ async function loadOrdersHistory(){
     await Promise.all(supplierEntries.map(async (supplierEntry) => {
       const supplierData = supplierEntry.data || {};
       const name = String(supplierData.name || 'Senza nome');
-      const ordersSnap = await getDocs(collection(db,'suppliers',supplierEntry.id,'invoices'));
-      const orders = ordersSnap.docs
-        .map(d=>({id:d.id,...d.data()}))
+      const ordersSnap = await fs.getSubCollection('suppliers', supplierEntry.id, 'invoices');
+      const orders = ordersSnap
         .sort((a,b)=>{
           const da = a.dateISO || a.invoiceDate || a.date || '';
           const db_ = b.dateISO || b.invoiceDate || b.date || '';
@@ -691,8 +692,7 @@ function renderOrdersHistory(){
       btn.disabled = true;
       btn.textContent = '…';
       try{
-        const invoicesRef = collection(db,'suppliers',suppId,'invoices');
-        await deleteDoc(doc(invoicesRef, invId));
+        await fs.removeSubDoc('suppliers', suppId, 'invoices', invId);
         await loadOrdersHistory();
       }catch(err){
         console.error('Errore eliminazione fattura:', err);
@@ -785,7 +785,7 @@ if(qoSaveBtn){
         const snap = await uploadBytes(sRef, file);
         photoUrl = await getDownloadURL(snap.ref);
       }
-      await addDoc(collection(db,'suppliers',supplierId,'invoices'),{
+      await fs.addSubDoc('suppliers', supplierId, 'invoices', {
         dateISO: dateVal,
         description: desc||'Fattura fornitore',
         total: amount,

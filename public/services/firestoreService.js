@@ -1,6 +1,10 @@
 // services/firestoreService.js
 // Base SAFE wrapper around Firestore.
 // Rule: UI pages must NOT import firebase/firestore directly.
+//
+// Multi-tenant support:
+//   Call firestoreService.setTenantContext({ companyId, role }) after auth
+//   to automatically inject companyId into all writes and enforce data isolation.
 
 import {
   db,
@@ -20,6 +24,7 @@ import {
   writeBatch,
   serverTimestamp,
 } from "../firebase.js";
+import { logAudit, setAuditTenantContext } from "./auditService.js";
 
 const DEBUG = (() => {
   try {
@@ -29,6 +34,42 @@ const DEBUG = (() => {
     return false;
   }
 })();
+
+// ─── Tenant context ────────────────────────────────────────────────────────
+
+/** Active tenant context set after authentication. */
+let _tenantContext = null;
+
+/**
+ * Set the active tenant context.
+ * Call this once after the user authenticates (from auth-guard or tenantService).
+ * @param {{ companyId: string, role: string }|null} ctx
+ */
+function setTenantContext(ctx) {
+  _tenantContext = ctx && ctx.companyId ? ctx : null;
+  // Also propagate to auditService so it can record uid/email.
+  if (ctx) setAuditTenantContext({ companyId: ctx.companyId, uid: ctx.uid, email: ctx.email });
+  log("setTenantContext", _tenantContext);
+}
+
+/**
+ * Returns the active companyId, or null if no tenant context is set.
+ */
+function getActiveCompanyId() {
+  return _tenantContext ? _tenantContext.companyId : null;
+}
+
+/**
+ * Injects companyId into data if a tenant context is active.
+ * Always returns a new object and preserves existing companyId.
+ */
+function injectCompanyId(data = {}) {
+  const companyId = getActiveCompanyId();
+  if (!companyId) return { ...data };
+  // Only inject if not already present to avoid overwriting cross-company migrations.
+  if (data.companyId) return { ...data };
+  return { ...data, companyId };
+}
 
 function log(...args) {
   if (!DEBUG) return;
@@ -133,6 +174,10 @@ function mergeById(baseList = [], extraList = []) {
 export const firestoreService = {
   db,
 
+  // ─── Tenant context ───────────────────────────────────────────────────────
+  setTenantContext,
+  getActiveCompanyId,
+
   // --- refs ---
   col: (...segments) => collection(db, ...segments),
   doc: (...segments) => doc(db, ...segments),
@@ -228,7 +273,8 @@ export const firestoreService = {
   async add(colName, data) {
     try {
       log("add", colName, data);
-      const normalized = normalizeForCollection(colName, data);
+      const withTenant = injectCompanyId(data);
+      const normalized = normalizeForCollection(colName, withTenant);
       const ref = await addDoc(collection(db, colName), normalized);
       const twin = twinCollection(colName);
       if (twin) {
@@ -238,6 +284,7 @@ export const firestoreService = {
           { merge: true }
         );
       }
+      logAudit({ action: 'add', colName, docId: ref.id, data: normalized });
       return ref.id;
     } catch (e) {
       throw normalizeError(e);
@@ -247,7 +294,8 @@ export const firestoreService = {
   async set(colName, docId, data, { merge = true } = {}) {
     try {
       log("set", colName, docId, { merge });
-      const normalized = normalizeForCollection(colName, data);
+      const withTenant = injectCompanyId(data);
+      const normalized = normalizeForCollection(colName, withTenant);
       await setDoc(doc(db, colName, docId), normalized, { merge });
       const twin = twinCollection(colName);
       if (twin) {
@@ -257,6 +305,7 @@ export const firestoreService = {
           { merge }
         );
       }
+      logAudit({ action: 'set', colName, docId, data: normalized });
       return docId;
     } catch (e) {
       throw normalizeError(e);
@@ -266,7 +315,8 @@ export const firestoreService = {
   async update(colName, docId, data) {
     try {
       log("update", colName, docId);
-      const normalized = normalizeForCollection(colName, data);
+      const withTenant = injectCompanyId(data);
+      const normalized = normalizeForCollection(colName, withTenant);
       await updateDoc(doc(db, colName, docId), normalized);
       const twin = twinCollection(colName);
       if (twin) {
@@ -281,6 +331,7 @@ export const firestoreService = {
           );
         }
       }
+      logAudit({ action: 'update', colName, docId, data: normalized });
       return docId;
     } catch (e) {
       throw normalizeError(e);
@@ -299,7 +350,87 @@ export const firestoreService = {
           log("remove twin failed", twin, docId, normalizeError(e));
         }
       }
+      logAudit({ action: 'delete', colName, docId });
       return docId;
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Read all documents from a subcollection.
+   * Tenant isolation is inherited from the parent document (the parent must already
+   * belong to the active company, enforced by Firestore rules).
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @returns {Promise<Array<object>>} array of { id, ...data }
+   */
+  async getSubCollection(parentColName, parentId, subColName) {
+    try {
+      log("getSubCollection", parentColName, parentId, subColName);
+      const snap = await getDocs(collection(db, parentColName, parentId, subColName));
+      return snap.docs.map(toData);
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Add a document to a subcollection.
+   * CompanyId is NOT injected since tenant isolation is inherited from the parent document.
+   * Audit-logs the write.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {object} data
+   * @returns {Promise<string>} new document id
+   */
+  async addSubDoc(parentColName, parentId, subColName, data) {
+    try {
+      log("addSubDoc", parentColName, parentId, subColName, data);
+      const ref = await addDoc(collection(db, parentColName, parentId, subColName), data);
+      logAudit({ action: 'add', colName: `${parentColName}/${parentId}/${subColName}`, docId: ref.id, data });
+      return ref.id;
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Update a document in a subcollection.
+   * Tenant isolation is inherited from the parent document.
+   * Audit-logs the write.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {string} docId         - document id to update
+   * @param {object} data          - fields to merge
+   */
+  async updateSubDoc(parentColName, parentId, subColName, docId, data) {
+    try {
+      log("updateSubDoc", parentColName, parentId, subColName, docId);
+      await updateDoc(doc(db, parentColName, parentId, subColName, docId), data);
+      logAudit({ action: 'update', colName: `${parentColName}/${parentId}/${subColName}`, docId, data });
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Delete a document from a subcollection.
+   * Tenant isolation is inherited from the parent document.
+   * Audit-logs the delete.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {string} docId         - document id to delete
+   */
+  async removeSubDoc(parentColName, parentId, subColName, docId) {
+    try {
+      log("removeSubDoc", parentColName, parentId, subColName, docId);
+      await deleteDoc(doc(db, parentColName, parentId, subColName, docId));
+      logAudit({ action: 'delete', colName: `${parentColName}/${parentId}/${subColName}`, docId });
     } catch (e) {
       throw normalizeError(e);
     }
@@ -310,4 +441,40 @@ export const firestoreService = {
   },
 
   serverTimestamp,
+
+  // ─── Tenant-scoped helpers ─────────────────────────────────────────────────
+
+  /**
+   * Get all documents from a collection filtered by companyId.
+   * Falls back to getAll() when companyId is absent (backward compat).
+   * @param {string} colName
+   * @param {string} [companyId] - Defaults to active tenant context.
+   */
+  async getAllByCompany(colName, companyId) {
+    const cid = companyId || getActiveCompanyId();
+    if (!cid) return this.getAll(colName);
+    try {
+      log("getAllByCompany", colName, cid);
+      const q = query(collection(db, colName), where("companyId", "==", cid));
+      const snap = await getDocs(q);
+      return snap.docs.map(toData);
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
+   * Get a single document, verifying it belongs to the active company.
+   * @param {string} colName
+   * @param {string} docId
+   * @param {string} [companyId]
+   */
+  async getDocByCompany(colName, docId, companyId) {
+    const doc_ = await this.getDoc(colName, docId);
+    if (!doc_) return null;
+    const cid = companyId || getActiveCompanyId();
+    // If no tenant context or document has no companyId (legacy), allow access.
+    if (!cid || !doc_.companyId) return doc_;
+    return doc_.companyId === cid ? doc_ : null;
+  },
 };

@@ -1,4 +1,5 @@
 import { db } from "./firebase.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection,
   getDocs,
@@ -12,8 +13,8 @@ let products = [];
 
 // CARICAMENTO LISTINO
 async function loadPriceList() {
-  const snap = await getDocs(collection(db, "priceList"));
-  products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const data = await fs.getAllByCompany('priceList');
+  products = data;
   renderList(products);
 }
 

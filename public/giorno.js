@@ -31,14 +31,12 @@ function autoAmountFromNote(note){
 import { db } from "./firebase.js";
 import {
   collection,
-  addDoc,
   query,
   where,
   getDocs,
-  deleteDoc,
-  updateDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 
 const params = new URLSearchParams(window.location.search);
 const date = params.get("date");
@@ -67,25 +65,20 @@ async function loadPayments() {
   paymentsList.innerHTML = "";
   let total = 0;
 
-  const q = query(
-    collection(db, "payments"),
-    where("date", "==", date)
-  );
+  const all = await fs.getAllByCompany("payments");
+  const items = all.filter(p => p.date === date);
 
-  const snap = await getDocs(q);
+  items.forEach(p => {
+    const id = p.id;
 
-  snap.forEach(docSnap => {
-    const p = docSnap.data();
-    const id = docSnap.id;
-
-    total += p.amount;
+    total += Number(p.amount) || 0;
 
     const row = document.createElement("div");
     row.className = "supplier-row";
 
     row.innerHTML = `
       <span class="supplier-name">${p.note}</span>
-      <span class="supplier-total">€ ${p.amount.toFixed(2)}</span>
+      <span class="supplier-total">€ ${Number(p.amount).toFixed(2)}</span>
       <div>
         <button class="small-btn edit-btn">✏️</button>
         <button class="small-btn delete-btn">🗑️</button>
@@ -103,7 +96,7 @@ async function loadPayments() {
     // ELIMINA
     row.querySelector(".delete-btn").onclick = async () => {
       if (!confirm("Eliminare questo pagamento?")) return;
-      await deleteDoc(doc(db, "payments", id));
+      await fs.remove("payments", id);
       loadPayments();
     };
 
@@ -128,10 +121,7 @@ saveBtn.onclick = async () => {
 
   // MODIFICA
   if (editId) {
-    await updateDoc(doc(db, "payments", editId), {
-      note,
-      amount
-    });
+    await fs.update("payments", editId, { note, amount });
 
     editId = null;
     saveBtn.textContent = "Salva pagamento";
@@ -139,11 +129,7 @@ saveBtn.onclick = async () => {
 
   // NUOVO
   else {
-    await addDoc(collection(db, "payments"), {
-      date,
-      note,
-      amount
-    });
+    await fs.add("payments", { date, note, amount });
   }
 
   noteInput.value = "";

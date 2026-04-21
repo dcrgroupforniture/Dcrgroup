@@ -36,12 +36,12 @@ function setupQuickNav() {
 }
 
 async function loadFatture() {
-  try { fatture = await fs.getAll('fatture'); }
+  try { fatture = await fs.getAllByCompany('fatture'); }
   catch (e) { fatture = []; }
 }
 
 async function loadClienti() {
-  try { clienti = await fs.getAll('clienti'); }
+  try { clienti = await fs.getAllByCompany('clienti'); }
   catch (e) { clienti = []; }
 }
 

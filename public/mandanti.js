@@ -58,7 +58,7 @@ function setupQuickNav() {
 // ─── Load & Render Sidebar ────────────────────────────────────────────────────
 async function loadMandanti() {
   try {
-    mandanti = await fs.getAll(COL_MAND);
+    mandanti = await fs.getAllByCompany(COL_MAND);
     mandanti.sort((a, b) =>
       String(a.ragioneSociale || '').localeCompare(String(b.ragioneSociale || ''), 'it')
     );

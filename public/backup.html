@@ -171,6 +171,14 @@
       <div class="bk-col-tag"><div class="bk-col-dot" style="background:#14b8a6"></div>Preventivi</div>
       <div class="bk-col-tag"><div class="bk-col-dot" style="background:#f97316"></div>Agenda</div>
       <div class="bk-col-tag"><div class="bk-col-dot" style="background:#84cc16"></div>Listini</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#a78bfa"></div>Trattative</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#fb923c"></div>Offerte</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#34d399"></div>Fatture</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#f472b6"></div>Sconti</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#fbbf24"></div>Solleciti</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#60a5fa"></div>CRM Attività</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#4ade80"></div>Mailing</div>
+      <div class="bk-col-tag"><div class="bk-col-dot" style="background:#94a3b8"></div>Audit Log</div>
     </div>
   </div>
 
@@ -221,15 +229,26 @@
 import { db } from './firebase.js';
 import {
   collection, getDocs, doc, setDoc, deleteDoc, writeBatch,
-  getDoc, collectionGroup
+  getDoc, collectionGroup, query, where
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Collections to back up (top-level only; supplier invoices handled separately)
 const TOP_COLLECTIONS = [
+  // Core
   'clients', 'orders', 'incassi', 'scadenze', 'expenses',
   'suppliers', 'priceRequests', 'agendaEvents', 'listini',
-  'payments', 'auditLog'
+  'payments',
+  // Phase 2-4 collections
+  'trattative', 'offerte', 'fatture', 'pagamenti',
+  'crmAttivita', 'mandanti', 'sconti', 'solleciti',
+  'listiniItems', 'scadenzeFinance', 'mailingCampaigns', 'mailingLogs',
+  'budget', 'clienti',
+  // Audit
+  'auditLog',
 ];
+
+// Helper: get active companyId from auth-guard global (set after tenantReady)
+function getCompanyId() { return window.__tenant?.companyId || null; }
 
 function showStatus(elId, msg, type = 'ok') {
   const el = document.getElementById(elId);
@@ -245,6 +264,22 @@ function setProgress(barId, labelId, pct, label) {
   if (lbl) lbl.textContent = label;
 }
 
+// Scope a getDocs query by companyId if available (only for company-scoped collections; skip auditLog full export for admin)
+async function getScopedDocs(colName, cid) {
+  if (cid && colName !== 'auditLog') {
+    try {
+      const q = query(collection(db, colName), where('companyId', '==', cid));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) {
+      // Fallback to full collection if index/permission issue
+      console.warn(`Scoped query failed for ${colName}, falling back:`, e);
+    }
+  }
+  const snap = await getDocs(collection(db, colName));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
 // ─── EXPORT ────────────────────────────────────────────────────────────────
 document.getElementById('btnExport').addEventListener('click', async () => {
   const btn = document.getElementById('btnExport');
@@ -253,7 +288,13 @@ document.getElementById('btnExport').addEventListener('click', async () => {
   progress.classList.add('show');
   document.getElementById('exportStatus').classList.remove('show');
 
-  const backup = { version: 'backup_v2', exportedAt: new Date().toISOString(), collections: {} };
+  const cid = getCompanyId();
+  const backup = {
+    version: 'backup_v3',
+    exportedAt: new Date().toISOString(),
+    companyId: cid || null,
+    collections: {},
+  };
   const total = TOP_COLLECTIONS.length + 1; // +1 for supplier invoices
   let done = 0;
 
@@ -261,8 +302,7 @@ document.getElementById('btnExport').addEventListener('click', async () => {
     for (const colName of TOP_COLLECTIONS) {
       setProgress('exportBar', 'exportLabel', Math.round((done / total) * 100), `Esportazione ${colName}…`);
       try {
-        const snap = await getDocs(collection(db, colName));
-        backup.collections[colName] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        backup.collections[colName] = await getScopedDocs(colName, cid);
       } catch (e) {
         backup.collections[colName] = [];
         console.warn(`Backup ${colName} fallito:`, e);
@@ -273,11 +313,11 @@ document.getElementById('btnExport').addEventListener('click', async () => {
     // Supplier invoices (subcollection)
     setProgress('exportBar', 'exportLabel', Math.round((done / total) * 100), 'Esportazione fatture fornitori…');
     try {
-      const supplierSnap = await getDocs(collection(db, 'suppliers'));
+      const supplierDocs = backup.collections['suppliers'] || [];
       const invoicesAll = [];
-      for (const suppDoc of supplierSnap.docs) {
-        const invSnap = await getDocs(collection(db, 'suppliers', suppDoc.id, 'invoices'));
-        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: suppDoc.id, ...d.data() }));
+      for (const supplier of supplierDocs) {
+        const invSnap = await getDocs(collection(db, 'suppliers', supplier.id, 'invoices'));
+        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: supplier.id, ...d.data() }));
       }
       backup.collections['supplierInvoices'] = invoicesAll;
     } catch (e) {
@@ -293,13 +333,14 @@ document.getElementById('btnExport').addEventListener('click', async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const dateStr = new Date().toISOString().slice(0, 10);
+    const suffix = cid ? `-${cid}` : '';
     a.href = url;
-    a.download = `dcrgroup-backup-${dateStr}.json`;
+    a.download = `dcrgroup-backup${suffix}-${dateStr}.json`;
     a.click();
     URL.revokeObjectURL(url);
 
     const totalDocs = Object.values(backup.collections).reduce((s, arr) => s + arr.length, 0);
-    showStatus('exportStatus', `✅ Backup completato con successo!\n${totalDocs} documenti esportati in ${Object.keys(backup.collections).length} collezioni.\nFile: dcrgroup-backup-${dateStr}.json`);
+    showStatus('exportStatus', `✅ Backup completato con successo!\n${totalDocs} documenti esportati in ${Object.keys(backup.collections).length} collezioni.\nFile: dcrgroup-backup${suffix}-${dateStr}.json`);
   } catch (err) {
     showStatus('exportStatus', '❌ Errore durante l\'esportazione: ' + err.message, 'error');
   } finally {

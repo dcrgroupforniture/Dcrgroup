@@ -2,9 +2,10 @@
 
 import { db } from "./firebase.js";
 import {
-  collection, addDoc, deleteDoc, doc, getDoc, setDoc, updateDoc,
-  serverTimestamp, query, orderBy, limit, onSnapshot,
+  collection, doc, getDoc,
+  serverTimestamp, query, where, orderBy, limit, onSnapshot,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 
 // ── DOM refs ────────────────────────────────────────────────────
 const notesEl        = document.getElementById("workNotes");
@@ -23,9 +24,12 @@ const kpiWeek     = document.getElementById("kpiWeekNotes");
 const kpiSelected = document.getElementById("kpiSelectedNotes");
 
 // ── State ────────────────────────────────────────────────────────
-const DRAFT_REF  = doc(db, "workNotes", "draft");
 const HISTORY_COL = collection(db, "workNotesHistory");
-const HISTORY_Q  = query(HISTORY_COL, orderBy("createdAt", "desc"), limit(100));
+
+function getDraftDocId() {
+  const cid = fs.getActiveCompanyId() || 'default_company';
+  return `draft_${cid}`;
+}
 
 let historyCache = [];
 const selectedIds = new Set();
@@ -124,9 +128,9 @@ function openEditModal(value) {
 // ── Draft ────────────────────────────────────────────────────────
 async function loadDraft() {
   try {
-    const snap = await getDoc(DRAFT_REF);
-    if (snap.exists() && notesEl) {
-      notesEl.value = String(snap.data()?.text || '');
+    const snap = await fs.getDoc("workNotes", getDraftDocId());
+    if (snap && notesEl) {
+      notesEl.value = String(snap.text || '');
     }
     setStatus('');
   } catch (e) {
@@ -137,7 +141,7 @@ async function loadDraft() {
 
 async function saveDraft() {
   try {
-    await setDoc(DRAFT_REF, { text: String(notesEl?.value || ''), updatedAt: serverTimestamp() }, { merge: true });
+    await fs.set('workNotes', getDraftDocId(), { text: String(notesEl?.value || ''), updatedAt: serverTimestamp() });
     setStatus(`Bozza salvata ${new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })}`);
   } catch (e) {
     console.error(e);
@@ -151,7 +155,7 @@ async function saveToHistory() {
   if (!text) { setStatus('⚠️ Scrivi una nota prima di salvare.'); return; }
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Salvo…'; }
   try {
-    await addDoc(HISTORY_COL, { text, createdAt: serverTimestamp() });
+    await fs.add('workNotesHistory', { text, createdAt: serverTimestamp() });
     if (notesEl) notesEl.value = '';
     await saveDraft();
     setStatus(`✅ Nota salvata ${new Date().toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })}`);
@@ -204,7 +208,7 @@ function renderNote(item) {
     const newText = await openEditModal(text);
     if (newText === null) return;
     try {
-      await updateDoc(doc(db, 'workNotesHistory', id), { text: newText });
+      await fs.update('workNotesHistory', id, { text: newText });
     } catch (e) {
       console.error(e);
       alert('Errore modifica nota.');
@@ -217,7 +221,7 @@ function renderNote(item) {
     try {
       selectedIds.delete(id);
       updateKPIs();
-      await deleteDoc(doc(db, 'workNotesHistory', id));
+      await fs.remove('workNotesHistory', id);
     } catch (e) {
       console.error(e);
       alert('Errore eliminazione.');
@@ -277,7 +281,11 @@ function printNotes(items) {
 // ── Snapshot ────────────────────────────────────────────────────
 function bindHistory() {
   if (!historyEl) return;
-  onSnapshot(HISTORY_Q, snap => {
+  const cid = fs.getActiveCompanyId();
+  const q = cid
+    ? query(HISTORY_COL, where("companyId","==",cid), orderBy("createdAt","desc"), limit(100))
+    : query(HISTORY_COL, orderBy("createdAt","desc"), limit(100));
+  onSnapshot(q, snap => {
     historyCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     // Clean up stale selections
     const ids = new Set(historyCache.map(x => x.id));

@@ -3,18 +3,84 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ─── Auth helpers ────────────────────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Qualsiasi utente autenticato è considerato staff/admin.
-    // App ad uso interno mono-utente: chiunque abbia un account Firebase può accedere.
+    // ─── Tenant helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Returns the companyId stored in the authenticated user's profile.
+     * Falls back to "default_company" for legacy single-tenant users.
+     */
+    function getUserCompanyId() {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return profile.get('companyId', 'default_company');
+    }
+
+    /**
+     * Returns the role stored in the authenticated user's profile.
+     * Falls back to "admin" for legacy single-tenant users.
+     */
+    function getUserRole() {
+      let profile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return profile.get('role', 'admin');
+    }
+
+    /**
+     * True when the document being accessed belongs to the user's company.
+     * Documents without companyId (legacy) are accessible by default_company users.
+     */
+    function belongsToUserCompany(data) {
+      let userCid = getUserCompanyId();
+      return data.get('companyId', 'default_company') == userCid;
+    }
+
+    /**
+     * True when the data being written carries the correct companyId.
+     */
+    function writingToOwnCompany() {
+      let userCid = getUserCompanyId();
+      return request.resource.data.get('companyId', userCid) == userCid;
+    }
+
+    /**
+     * Role-based access checks.
+     */
+    function hasRole(role) {
+      return getUserRole() == role;
+    }
+
     function isAdmin() {
-      return isAuthenticated();
+      return isAuthenticated() && hasRole('admin');
     }
+
     function isStaff() {
-      return isAuthenticated();
+      return isAuthenticated() && (
+        hasRole('admin') || hasRole('manager') || hasRole('agente') ||
+        hasRole('magazzino') || hasRole('contabile')
+      );
     }
+
+    function isManagerOrAbove() {
+      return isAuthenticated() && (hasRole('admin') || hasRole('manager'));
+    }
+
+    function isContabileOrAbove() {
+      return isAuthenticated() && (hasRole('admin') || hasRole('manager') || hasRole('contabile'));
+    }
+
+    function isAgenteOrAbove() {
+      return isAuthenticated() && (
+        hasRole('admin') || hasRole('manager') || hasRole('agente') || hasRole('contabile')
+      );
+    }
+
+    /**
+     * Client portal: a client can read/write their own data.
+     */
     function isPortalClient(clientId) {
       return isAuthenticated() && (
         request.auth.uid == clientId ||
@@ -23,196 +89,370 @@ service cloud.firestore {
       );
     }
 
+    // ─── Companies collection ────────────────────────────────────────────────
+
+    match /companies/{companyId} {
+      allow read: if isAuthenticated() && getUserCompanyId() == companyId;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && getUserCompanyId() == companyId;
+      allow delete: if false; // Never delete a company.
+    }
+
+    // ─── Users ───────────────────────────────────────────────────────────────
+
     match /users/{userId} {
-      // Ogni utente può leggere il proprio documento (necessario per verificare il ruolo).
-      allow read: if request.auth.uid == userId;
-      allow create, update: if request.auth.uid == userId || isAdmin();
+      allow read: if request.auth.uid == userId || isAdmin();
+      allow create: if request.auth.uid == userId || isAdmin();
+      allow update: if (request.auth.uid == userId || isAdmin()) &&
+        // Prevent privilege escalation: only admin can set/change role or companyId.
+        (!request.resource.data.keys().hasAny(['role', 'companyId']) || isAdmin());
       allow delete: if isAdmin();
     }
 
+    // ─── Clients ─────────────────────────────────────────────────────────────
+
     match /clients/{clientId} {
-      allow read: if isStaff() || isPortalClient(clientId);
-      allow create, update, delete: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data) ||
+                     isPortalClient(clientId);
+      allow create: if isAgenteOrAbove() && writingToOwnCompany();
+      allow update: if isAgenteOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
+
+    match /clienti/{clientId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create: if isAgenteOrAbove() && writingToOwnCompany();
+      allow update: if isAgenteOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Products / Listini ──────────────────────────────────────────────────
 
     match /products/{productId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isStaff();
+      allow read: if isAuthenticated() && belongsToUserCompany(resource.data);
+      allow create: if isManagerOrAbove() && writingToOwnCompany();
+      allow update: if isManagerOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
+
+    match /listini/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /listiniItems/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /sconti/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Orders ──────────────────────────────────────────────────────────────
 
     match /orders/{orderId} {
-      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
-      allow create: if isStaff() || (
-        isAuthenticated() &&
-        request.resource.data.clientId is string &&
-        isPortalClient(request.resource.data.clientId)
-      );
-      allow update, delete: if isStaff();
+      allow read: if (isStaff() && belongsToUserCompany(resource.data)) ||
+                     (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow create: if (isAgenteOrAbove() && writingToOwnCompany()) ||
+                       (isAuthenticated() &&
+                        request.resource.data.clientId is string &&
+                        isPortalClient(request.resource.data.clientId) &&
+                        writingToOwnCompany());
+      allow update: if isAgenteOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
+    // ─── Incassi / Payments ──────────────────────────────────────────────────
+
+    match /incassi/{incassoId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isContabileOrAbove() && writingToOwnCompany();
+      allow update: if isContabileOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      // Only admin/manager can delete financial records.
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /incassiHistory/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isContabileOrAbove() && writingToOwnCompany();
+      allow update, delete: if false; // History is immutable.
+    }
+
+    match /payments/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /pagamenti/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Expenses ────────────────────────────────────────────────────────────
+
+    match /expenses/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /spese/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /expensesHistory/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isContabileOrAbove() && writingToOwnCompany();
+      allow update, delete: if false;
+    }
+
+    // ─── Scadenze ────────────────────────────────────────────────────────────
+
+    match /scadenze/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /scadenzeHistory/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isContabileOrAbove() && writingToOwnCompany();
+      allow update, delete: if false;
+    }
+
+    match /scadenzeFinance/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Fatture ─────────────────────────────────────────────────────────────
+
+    match /fatture/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Suppliers ───────────────────────────────────────────────────────────
+
+    match /suppliers/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /suppliers/{supplierId}/invoices/{invoiceId} {
+      allow read: if isStaff() && belongsToUserCompany(get(/databases/$(database)/documents/suppliers/$(supplierId)).data);
+      allow create, update: if isContabileOrAbove() &&
+        getUserCompanyId() == get(/databases/$(database)/documents/suppliers/$(supplierId)).data.get('companyId', 'default_company');
+      allow delete: if isManagerOrAbove() &&
+        getUserCompanyId() == get(/databases/$(database)/documents/suppliers/$(supplierId)).data.get('companyId', 'default_company');
+    }
+
+    match /suppliers/{supplierId}/orders/{orderId} {
+      allow read: if isStaff() && belongsToUserCompany(get(/databases/$(database)/documents/suppliers/$(supplierId)).data);
+      allow create, update: if isManagerOrAbove() &&
+        getUserCompanyId() == get(/databases/$(database)/documents/suppliers/$(supplierId)).data.get('companyId', 'default_company');
+      allow delete: if isManagerOrAbove() &&
+        getUserCompanyId() == get(/databases/$(database)/documents/suppliers/$(supplierId)).data.get('companyId', 'default_company');
+    }
+
+    // ─── CRM / Trattative / Offerte ──────────────────────────────────────────
+
+    match /trattative/{docId} {
+      allow read: if isAgenteOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isAgenteOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /offerte/{docId} {
+      allow read: if isAgenteOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isAgenteOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /crmAttivita/{docId} {
+      allow read: if isAgenteOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isAgenteOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /mandanti/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    match /budget/{docId} {
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isAdmin() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Promotions / Discounts ──────────────────────────────────────────────
+
     match /promotions/{promotionId} {
-      allow read: if isAuthenticated();
-      allow write: if isStaff();
+      allow read: if isAuthenticated() && belongsToUserCompany(resource.data);
+      allow write: if isManagerOrAbove() && writingToOwnCompany();
     }
 
     match /clientDiscounts/{docId} {
-      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
-      allow write: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data) ||
+                     (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow write: if isManagerOrAbove() && writingToOwnCompany();
+    }
+
+    // ─── Agenda / Notifications ──────────────────────────────────────────────
+
+    match /agendaEvents/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isStaff() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
     match /notifications/{docId} {
-      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
-      allow write: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data) ||
+                     (isAuthenticated() && resource.data.clientId is string && isPortalClient(resource.data.clientId));
+      allow write: if isStaff() && writingToOwnCompany();
     }
 
     match /clientDevices/{docId} {
       allow read, write: if isStaff();
     }
 
+    // ─── Mailing ────────────────────────────────────────────────────────────
+
+    match /mailingCampaigns/{docId} {
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isAdmin() && belongsToUserCompany(resource.data);
+    }
+
+    match /mailingLogs/{docId} {
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isStaff() && writingToOwnCompany();
+      allow update, delete: if false;
+    }
+
+    // ─── Solleciti ───────────────────────────────────────────────────────────
+
+    match /solleciti/{docId} {
+      allow read: if isContabileOrAbove() && belongsToUserCompany(resource.data);
+      allow create, update: if isContabileOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Portal accounts ─────────────────────────────────────────────────────
+
+    match /portalAccounts/{docId} {
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      allow create: if isManagerOrAbove() && writingToOwnCompany();
+      allow update: if isManagerOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Price list ───────────────────────────────────────────────────────────
+
+    match /priceList/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create: if isManagerOrAbove() && writingToOwnCompany();
+      allow update: if isManagerOrAbove() && belongsToUserCompany(resource.data) && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Settings ────────────────────────────────────────────────────────────
+
     match /settings/{docId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }
 
+    // ─── Logs / Audit ────────────────────────────────────────────────────────
+
     match /logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && writingToOwnCompany();
       allow update, delete: if false;
     }
 
-    match /incassi/{incassoId} {
-      allow read, create, update, delete: if isStaff();
-    }
+    // auditLog rules are defined below in the Phase 3 section.
 
-    match /expenses/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /spese/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /expensesHistory/{docId} {
-      allow read, create: if isStaff();
-      allow update, delete: if false;
-    }
-
-    match /scadenze/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /scadenzeHistory/{docId} {
-      allow read, create: if isStaff();
-      allow update, delete: if false;
-    }
-
-    match /suppliers/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /suppliers/{supplierId}/invoices/{invoiceId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /suppliers/{supplierId}/orders/{orderId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /lisapOrders/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /payments/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /priceRequests/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /agendaEvents/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /incassiHistory/{docId} {
-      allow read, create: if isStaff();
-      allow update, delete: if false;
-    }
+    // ─── Work notes ──────────────────────────────────────────────────────────
 
     match /workNotes/{docId} {
-      allow read, create, update, delete: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isStaff() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
     match /workNotesHistory/{docId} {
-      allow read, create: if isStaff();
-      allow update, delete: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create: if isStaff() && writingToOwnCompany();
+      allow update, delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Price requests / Preventivi ─────────────────────────────────────────
+
+    match /priceRequests/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isAgenteOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
 
     match /preventivi/{docId} {
-      allow read, create, update, delete: if isStaff();
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isAgenteOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
     }
+
+    // ─── Lisap orders ────────────────────────────────────────────────────────
+
+    match /lisapOrders/{docId} {
+      allow read: if isStaff() && belongsToUserCompany(resource.data);
+      allow create, update: if isManagerOrAbove() && writingToOwnCompany();
+      allow delete: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+    }
+
+    // ─── Audit Log ────────────────────────────────────────────────────────────
+
+    match /auditLog/{docId} {
+      // Staff can write (create only) their own company's audit entries.
+      allow create: if isStaff() && writingToOwnCompany();
+      // Managers and above can read their company's audit entries.
+      allow read: if isManagerOrAbove() && belongsToUserCompany(resource.data);
+      // Nobody can update or delete audit entries.
+      allow update, delete: if false;
+    }
+
+    // ─── Companies (multi-tenant registry) ───────────────────────────────────
+
+    match /companies/{companyId} {
+      // Only admins can manage company records.
+      allow read:   if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if false;  // Hard delete disabled — use soft delete (isDeleted flag)
+    }
+
+    // ─── Counters ────────────────────────────────────────────────────────────
 
     match /counters/{docId} {
-      allow read, create, update, delete: if isStaff();
+      allow read: if isStaff();
+      allow create, update: if isStaff() && writingToOwnCompany();
+      allow delete: if isAdmin();
     }
 
-    // Nuovi moduli gestionali (legacy + nuova UI)
-    match /clienti/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /mandanti/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /budget/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /crmAttivita/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /trattative/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /offerte/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /fatture/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /pagamenti/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /mailingCampaigns/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /mailingLogs/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /sconti/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /solleciti/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /listiniItems/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
-    match /scadenzeFinance/{docId} {
-      allow read, create, update, delete: if isStaff();
-    }
-
+    // ─── Deny all other documents ─────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }

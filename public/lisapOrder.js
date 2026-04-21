@@ -1,4 +1,5 @@
 import { db, doc, setDoc } from "./firebase.js";
+import { firestoreService as fs } from './services/firestoreService.js';
 import { euro, escapeHtml } from './utils.js';
 
 const KEY = "fabfix:lisap:qty:v3";
@@ -181,7 +182,7 @@ async function recordHistory(rows, total){
   const history = loadHistory();
   history.unshift(entry);
   saveHistory(history.slice(0, 100));
-  try{ await setDoc(doc(db, 'lisapOrders', entry.id), entry, { merge:true }); }catch(e){ console.warn('save lisapOrders', e); }
+  try{ await fs.set('lisapOrders', entry.id, entry); }catch(e){ console.warn('save lisapOrders', e); }
   return entry;
 }
 

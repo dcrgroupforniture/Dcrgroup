@@ -3,17 +3,14 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   query,
   where,
   orderBy,
-  addDoc,
-  deleteDoc,
-  updateDoc,
   serverTimestamp,
   auth,
 } from './firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { firestoreService as fs } from './services/firestoreService.js';
 
 // ===============================
 // Helpers
@@ -72,19 +69,17 @@ function nextYear(d){
 // Copiato (in forma compatta) dalla logica ordine: elimina eventuali incassi auto collegati all'ordine
 async function deleteIncassiByOrderId(orderId){
   try{
-    const deletions = [];
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_incasso`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_acconto`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_incasso_totale`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__saldo`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__incasso`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__acconto`)).catch(()=>null));
+    const suffixes = ["_incasso","_acconto","_incasso_totale","__saldo","__incasso","__acconto"];
+    const deletions = suffixes.map(s => fs.remove('incassi', `${orderId}${s}`).catch(()=>null));
 
     // fallback: se in passato sono stati creati con chiavi diverse ma con campo orderId
     try{
-      const qx = query(collection(db, 'incassi'), where('orderId', '==', orderId));
-      const snap = await getDocs(qx);
-      snap.forEach(d => deletions.push(deleteDoc(doc(db, 'incassi', d.id)).catch(()=>null)));
+      const cid = fs.getActiveCompanyId();
+      const qxFilters = [where('orderId', '==', orderId)];
+      if (cid) qxFilters.push(where('companyId', '==', cid));
+      const qx = query(collection(db, 'incassi'), ...qxFilters);
+      const incassiDocs = await fs.getAllFromQuery(qx);
+      incassiDocs.forEach(item => deletions.push(fs.remove('incassi', item.id).catch(()=>null)));
     }catch(e){
       // ignore
     }
@@ -203,7 +198,7 @@ function renderOrders(orders){
       const ok = confirm('Eliminare questo ordine?\n\nVerrà eliminato anche l\'incasso collegato (se presente).');
       if (!ok) return;
       try{
-        await deleteDoc(doc(db, 'orders', o.__id));
+        await fs.remove('orders', o.__id);
         await deleteIncassiByOrderId(o.__id);
         await loadOrdersForClient();
       }catch(e){
@@ -305,14 +300,14 @@ async function loadClient(){
   }
 
   _clientRef = doc(db, 'clients', clientId);
-  const snap = await getDoc(_clientRef);
-  if (!snap.exists()) {
+  const snap = await fs.getDoc('clients', clientId);
+  if (!snap) {
     els.title.textContent = 'Cliente non trovato';
     els.addOrderBtn.disabled = true;
     els.deleteClientBtn.disabled = true;
     return null;
   }
-  _clientData = snap.data();
+  _clientData = snap;
 
   const name = _clientData.name || '';
   els.title.textContent = name || 'Scheda cliente';
@@ -330,23 +325,24 @@ async function loadOrdersForClient(){
 
   const seen = new Set();
   const allOrders = [];
+  const cid = fs.getActiveCompanyId();
 
   // Query 1: by clientId (preferred, modern format)
   try {
     let snaps;
     try {
-      const q1 = query(
-        collection(db, 'orders'),
-        where('clientId', '==', clientId),
-        orderBy('createdAt', 'desc')
-      );
-      snaps = await getDocs(q1);
+      const q1Filters = [where('clientId', '==', clientId), orderBy('createdAt', 'desc')];
+      if (cid) q1Filters.unshift(where('companyId', '==', cid));
+      const q1 = query(collection(db, 'orders'), ...q1Filters);
+      snaps = await fs.getAllFromQuery(q1);
     } catch (e) {
       // Fallback without orderBy (index might be missing)
-      snaps = await getDocs(query(collection(db, 'orders'), where('clientId', '==', clientId)));
+      const fbFilters = [where('clientId', '==', clientId)];
+      if (cid) fbFilters.unshift(where('companyId', '==', cid));
+      snaps = await fs.getAllFromQuery(query(collection(db, 'orders'), ...fbFilters));
     }
-    snaps.docs.forEach(d => {
-      if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
+    snaps.forEach(item => {
+      if (!seen.has(item.id)) { seen.add(item.id); allOrders.push({ __id: item.id, ...item }); }
     });
   } catch (e) {
     console.warn('loadOrdersForClient: query by clientId failed', e);
@@ -356,9 +352,11 @@ async function loadOrdersForClient(){
   const clientName = _clientData?.name;
   if (clientName) {
     try {
-      const qLeg = await getDocs(query(collection(db, 'orders'), where('clientName', '==', clientName)));
-      qLeg.docs.forEach(d => {
-        if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
+      const legFilters = [where('clientName', '==', clientName)];
+      if (cid) legFilters.unshift(where('companyId', '==', cid));
+      const legDocs = await fs.getAllFromQuery(query(collection(db, 'orders'), ...legFilters));
+      legDocs.forEach(item => {
+        if (!seen.has(item.id)) { seen.add(item.id); allOrders.push({ __id: item.id, ...item }); }
       });
     } catch (e) {
       console.warn('loadOrdersForClient: legacy query by clientName failed', e);
@@ -402,15 +400,14 @@ async function saveClient(){
 
   try{
     if (clientId && _clientRef) {
-      await updateDoc(_clientRef, payload);
+      await fs.update('clients', clientId, payload);
       alert('✅ Cliente salvato');
       // aggiorna titolo
       els.title.textContent = name;
     } else {
       // nuovo cliente
       payload.createdAt = serverTimestamp();
-      const ref = await addDoc(collection(db, 'clients'), payload);
-      clientId = ref.id;
+      clientId = await fs.add('clients', payload);
       _clientRef = doc(db, 'clients', clientId);
       alert('✅ Cliente creato');
       window.location.href = `client.html?clientId=${encodeURIComponent(clientId)}`;
@@ -434,7 +431,7 @@ async function deleteClientSafe(){
   const ok = confirm('Eliminare il cliente? Operazione irreversibile.');
   if (!ok) return;
   try{
-    await deleteDoc(_clientRef);
+    await fs.remove('clients', clientId);
     alert('✅ Cliente eliminato');
     window.location.href = 'clients.html';
   }catch(e){

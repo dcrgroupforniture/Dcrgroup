@@ -269,7 +269,7 @@
       if (!rows.length) { alert('Nessun dato trovato nel CSV.'); return; }
       // Load existing clients once to avoid N+1 Firestore queries
       let existingClienti = [];
-      try { existingClienti = await fs.getAll('clienti'); } catch (_) {}
+      try { existingClienti = await fs.getAllByCompany('clienti'); } catch (_) {}
       let saved = 0, errors = 0;
       for (const row of rows) {
         const data = normalizeClienteRow(row);

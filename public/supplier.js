@@ -3,9 +3,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  addDoc,
-  deleteDoc,
   collection,
   getDocs,
   query,
@@ -19,6 +16,7 @@ import {
   getDownloadURL,
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { firestoreService as fs } from './services/firestoreService.js';
 import { euro as eur, todayISO, fmtDate as formatDate, escapeHtml as escapeAttr } from './utils.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -126,8 +124,8 @@ function getInvoiceEffectivePaymentDate(inv){
 async function getSupplierName(){
   if(!supplierId) return "Fornitore";
   try{
-    const snap = await getDoc(doc(db,"suppliers",supplierId));
-    return snap.exists() ? (snap.data().name || "Fornitore") : "Fornitore";
+    const snap = await fs.getDoc("suppliers", supplierId);
+    return snap ? (snap.name || "Fornitore") : "Fornitore";
   } catch(e) {
     console.warn("Impossibile leggere nome fornitore:", e);
     return "Fornitore";
@@ -145,7 +143,7 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
   if(method === "assegno") noteParts.push("Assegno");
   const note = noteParts.join(" • ");
   try{
-    await setDoc(doc(db,"expenses",speseId),{
+    await fs.set("expenses", speseId, {
       date,
       amount,
       note,
@@ -155,14 +153,14 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
       supplierId,
       invoiceId: invId,
       syncedAt: new Date().toISOString()
-    },{ merge: true });
+    });
   }catch(e){ console.warn("Sync fattura→expenses fallito:", e); }
 }
 
 async function removeInvoiceFromSpese(invId){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
-  try{ await deleteDoc(doc(db,"expenses",speseId)); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
+  try{ await fs.remove("expenses", speseId); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
 }
 
 async function syncInvoiceToScadenze(invId, inv, supplierName){
@@ -179,7 +177,7 @@ async function syncInvoiceToScadenze(invId, inv, supplierName){
   const isPaid = String(inv.status || "").toLowerCase() === "pagata";
   try{
     const dateISO = date || getInvoiceDateIso(inv) || "";
-    await setDoc(doc(db,"scadenze",scadenzaId),{
+    await fs.set("scadenze", scadenzaId, {
       date: dateISO,
       dateISO,
       amount,
@@ -190,14 +188,14 @@ async function syncInvoiceToScadenze(invId, inv, supplierName){
       invoiceId: invId,
       paymentMethod: method,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    });
   }catch(e){ console.warn("Sync fattura→scadenze fallito:", e); }
 }
 
 async function removeInvoiceFromScadenze(invId){
   if(!supplierId || !invId) return;
   const scadenzaId = `supplier_invoice_${supplierId}_${invId}`;
-  try{ await setDoc(doc(db,"scadenze",scadenzaId), { isDeleted: true, updatedAt: new Date().toISOString() }, { merge: true }); }
+  try{ await fs.set("scadenze", scadenzaId, { isDeleted: true, updatedAt: new Date().toISOString() }); }
   catch(e){ console.warn("Rimozione fattura da scadenze fallita:", e); }
 }
 
@@ -235,9 +233,8 @@ async function loadSupplier(){
     if(supplierFormCard) supplierFormCard.classList.remove("hidden");
     return;
   }
-  const snap = await getDoc(doc(db, "suppliers", supplierId));
-  if(!snap.exists()){ supplierNameTitle.textContent = "Fornitore"; return; }
-  const s = snap.data();
+  const s = await fs.getDoc("suppliers", supplierId);
+  if(!s){ supplierNameTitle.textContent = "Fornitore"; return; }
   supplierNameTitle.textContent = (s.name || "Fornitore").toUpperCase();
   if(supplierVatBadge) supplierVatBadge.textContent = s.vat || "";
   nameInput.value  = s.name  || "";
@@ -262,14 +259,13 @@ saveSupplierBtn?.addEventListener("click", async () => {
   };
   if(!data.name){ alert("Inserisci nome fornitore"); return; }
   if(supplierId){
-    await updateDoc(doc(db, "suppliers", supplierId), data);
+    await fs.update("suppliers", supplierId, data);
     supplierNameTitle.textContent = data.name.toUpperCase();
     if(supplierVatBadge) supplierVatBadge.textContent = data.vat;
     if(supplierFormCard) supplierFormCard.classList.add("hidden");
     if(toggleSupplierFormBtn) toggleSupplierFormBtn.textContent = "Modifica";
   } else {
-    const ref = await addDoc(collection(db, "suppliers"), { ...data, total: 0 });
-    supplierId = ref.id;
+    supplierId = await fs.add("suppliers", { ...data, total: 0 });
     window.location.href = `supplier.html?supplierId=${encodeURIComponent(supplierId)}`;
   }
 });
@@ -453,14 +449,12 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     updatedAt:     new Date().toISOString()
   };
 
-  const ref = collection(db, "suppliers", supplierId, "invoices");
   let invId = editingInvoiceId;
 
   if(invId){
-    await updateDoc(doc(ref, invId), payload);
+    await fs.updateSubDoc("suppliers", supplierId, "invoices", invId, payload);
   } else {
-    const newRef = await addDoc(ref, { ...payload, createdAt: new Date().toISOString() });
-    invId = newRef.id;
+    invId = await fs.addSubDoc("suppliers", supplierId, "invoices", { ...payload, createdAt: new Date().toISOString() });
   }
 
   // upload photo if present
@@ -468,7 +462,7 @@ saveInvoiceBtn?.addEventListener("click", async () => {
     try {
       const url = await uploadPhotoFile(supplierId, invId);
       payload.photoUrl = url;
-      await updateDoc(doc(ref, invId), { photoUrl: url });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", invId, { photoUrl: url });
     } catch(e){ console.warn("Foto non caricata:", e); }
   }
 
@@ -566,13 +560,13 @@ function renderInvoiceTable(){
     row.querySelector("[data-pay]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Segna questa fattura come pagata?")) return;
-      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", inv.id, { status:"pagata" });
       await loadInvoices();
     });
     row.querySelector("[data-del]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
-      await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await fs.removeSubDoc("suppliers", supplierId, "invoices", inv.id);
       await removeInvoiceFromSpese(inv.id);
       await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
@@ -584,13 +578,13 @@ function renderInvoiceTable(){
     row.querySelector("[data-pay-m]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Segna questa fattura come pagata?")) return;
-      await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id), { status:"pagata" });
+      await fs.updateSubDoc("suppliers", supplierId, "invoices", inv.id, { status:"pagata" });
       await loadInvoices();
     });
     row.querySelector("[data-del-m]")?.addEventListener("click", async (e) => {
       e.stopPropagation();
       if(!confirm("Eliminare questa fattura?")) return;
-      await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), inv.id));
+      await fs.removeSubDoc("suppliers", supplierId, "invoices", inv.id);
       await removeInvoiceFromSpese(inv.id);
       await removeInvoiceFromScadenze(inv.id);
       await loadInvoices();
@@ -636,16 +630,14 @@ async function loadInvoices(){
   invoiceList.innerHTML = "";
   if(!supplierId){ return; }
 
-  const ref = collection(db, "suppliers", supplierId, "invoices");
   let snap;
-  try { snap = await getDocs(ref); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
+  try { snap = await fs.getSubCollection("suppliers", supplierId, "invoices"); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
 
   const currentYear = new Date().getFullYear().toString();
   let totalAll = 0, totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
   const urgent = [];
 
-  allInvoices = snap.docs
-    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+  allInvoices = snap
     .sort((a, b) => getInvoiceDateIso(b).localeCompare(getInvoiceDateIso(a)));
 
   allInvoices.forEach(inv => {
@@ -701,7 +693,7 @@ async function loadInvoices(){
   }
 
   // update supplier total
-  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
+  try { await fs.update("suppliers", supplierId, { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
 
   // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
   try {
@@ -751,16 +743,13 @@ async function markAllInvoicesPaid(){
   if(!supplierId) return;
   if(!confirm("Segna TUTTE le fatture di questo fornitore come pagate?")) return;
   try {
-    const invRef = collection(db, "suppliers", supplierId, "invoices");
-    const snap = await getDocs(invRef);
+    const allInvs = await fs.getSubCollection("suppliers", supplierId, "invoices");
 
     // Collect unpaid invoice refs
-    const unpaidInvoiceRefs = [];
-    snap.forEach(docSnap => {
-      if(docSnap.data().status !== "pagata"){
-        unpaidInvoiceRefs.push(doc(invRef, docSnap.id));
-      }
-    });
+    const invSubRef = collection(db, "suppliers", supplierId, "invoices");
+    const unpaidInvoiceRefs = allInvs
+      .filter(inv => inv.status !== "pagata")
+      .map(inv => doc(invSubRef, inv.id));
 
     if(unpaidInvoiceRefs.length === 0){ alert("Tutte le fatture sono già segnate come pagate."); return; }
 
@@ -784,14 +773,13 @@ async function markAllInvoicesPaid(){
 async function markAllOrdersPaid(){
   if(!supplierId) return;
   if(!confirm("Segna TUTTI gli ordini di questo fornitore come pagati e saldati?")) return;
-  const ordersRef = collection(db, "suppliers", supplierId, "orders");
-  const snap = await getDocs(ordersRef);
+  const ordersSubRef = collection(db, "suppliers", supplierId, "orders");
+  const allOrds = await fs.getSubCollection("suppliers", supplierId, "orders");
   const batch = writeBatch(db);
   let count = 0;
-  snap.forEach(docSnap => {
-    const d = docSnap.data();
+  allOrds.forEach(d => {
     if(!d.pagato || !d.saldato){
-      batch.update(doc(ordersRef, docSnap.id), { pagato: true, saldato: true });
+      batch.update(doc(ordersSubRef, d.id), { pagato: true, saldato: true });
       count++;
     }
   });
@@ -811,7 +799,7 @@ async function loadOrders(){
 
   let ordersSnap;
   try {
-    ordersSnap = await getDocs(ordersQ);
+    ordersSnap = await fs.getAllFromQuery(ordersQ);
   } catch(e){
     console.warn("Storico non caricato:", e);
     ordersEmptyState?.classList.remove("hidden");
@@ -821,10 +809,9 @@ async function loadOrders(){
   // Build combined entries list (orders + invoices)
   const entries = [];
 
-  ordersSnap.forEach(docSnap => {
-    const o = docSnap.data();
+  ordersSnap.forEach(o => {
     const dateVal = o.data?.toDate ? o.data.toDate() : (o.data ? new Date(o.data) : null);
-    entries.push({ id: docSnap.id, type: "order", dateVal, data: o });
+    entries.push({ id: o.id, type: "order", dateVal, data: o });
   });
 
   allInvoices.forEach(inv => {
@@ -899,7 +886,7 @@ async function loadOrders(){
       row.querySelector("[data-order-pay]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Segna questo ordine come pagato e saldato?")) return;
-        await updateDoc(doc(ordersRef, entry.id), { pagato: true, saldato: true });
+        await fs.updateSubDoc("suppliers", supplierId, "orders", entry.id, { pagato: true, saldato: true });
         await loadOrders();
       });
 
@@ -943,13 +930,13 @@ async function loadOrders(){
       row.querySelector("[data-inv-pay]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Segna questa fattura come pagata?")) return;
-        await updateDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id), { status:"pagata" });
+        await fs.updateSubDoc("suppliers", supplierId, "invoices", entry.id, { status:"pagata" });
         await reloadInvoiceSections();
       });
       row.querySelector("[data-inv-del]")?.addEventListener("click", async (e) => {
         e.stopPropagation();
         if(!confirm("Eliminare questa fattura?")) return;
-        await deleteDoc(doc(collection(db,"suppliers",supplierId,"invoices"), entry.id));
+        await fs.removeSubDoc("suppliers", supplierId, "invoices", entry.id);
         await removeInvoiceFromSpese(entry.id);
         await reloadInvoiceSections();
       });

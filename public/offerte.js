@@ -98,7 +98,7 @@ function setupQuickNav() {
 
 async function loadOfferte() {
   try {
-    offerte = await fs.getAll(COL_OFFERTE);
+    offerte = await fs.getAllByCompany(COL_OFFERTE);
     offerte.sort((a, b) => String(b.numero || '').localeCompare(String(a.numero || ''), 'it'));
     applyFilters();
   } catch (e) {
@@ -108,7 +108,7 @@ async function loadOfferte() {
 
 async function loadClienti() {
   try {
-    clienti = await fs.getAll(COL_CLIENTI);
+    clienti = await fs.getAllByCompany(COL_CLIENTI);
     clienti.sort((a, b) =>
       String(a.ragioneSociale || a.nome || '').localeCompare(
         String(b.ragioneSociale || b.nome || ''), 'it'
@@ -122,7 +122,7 @@ async function loadClienti() {
 
 async function loadMandanti() {
   try {
-    mandanti = await fs.getAll(COL_MANDANTI);
+    mandanti = await fs.getAllByCompany(COL_MANDANTI);
     mandanti.sort((a, b) =>
       String(a.ragioneSociale || a.nome || '').localeCompare(
         String(b.ragioneSociale || b.nome || ''), 'it'
@@ -150,7 +150,7 @@ function populateSelect(selEl, items, labelFn) {
 
 async function generateNumero(anno) {
   try {
-    const all = await fs.getAll(COL_OFFERTE);
+    const all = await fs.getAllByCompany(COL_OFFERTE);
     const prefix = `OFR-${anno}-`;
     let max = 0;
     all.forEach((o) => {
