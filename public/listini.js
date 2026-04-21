@@ -266,7 +266,7 @@ function editHistoryOrder(orderId){
   const history = LISAP_HISTORY_CACHE; const h = history.find(x => x.id === orderId); if(!h) return;
   localStorage.setItem('fabfix:lisap:history:lastEditId', orderId); localStorage.setItem('fabfix:lisap:history:lastEditOrder', JSON.stringify(h)); location.href = 'lisap.html?edit=' + encodeURIComponent(orderId);
 }
-async function deleteHistoryOrder(orderId){ if(!confirm('Eliminare questo ordine dallo storico listini?')) return; const history = LISAP_HISTORY_CACHE.filter(x => x.id !== orderId); saveLisapHistory(history); try{ await deleteDoc(doc(db,'lisapOrders', orderId)); }catch(e){ console.warn('delete lisap order', e); } await renderHistory();
+async function deleteHistoryOrder(orderId){ if(!confirm('Eliminare questo ordine dallo storico listini?')) return; const history = LISAP_HISTORY_CACHE.filter(x => x.id !== orderId); saveLisapHistory(history); try{ await fs.remove('lisapOrders', orderId); }catch(e){ console.warn('delete lisap order', e); } await renderHistory();
 await renderLisapProductsBank(); }
 
 function aggregateLisapProducts(history){

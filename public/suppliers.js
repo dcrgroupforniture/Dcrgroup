@@ -787,7 +787,7 @@ if(qoSaveBtn){
         const snap = await uploadBytes(sRef, file);
         photoUrl = await getDownloadURL(snap.ref);
       }
-      await addDoc(collection(db,'suppliers',supplierId,'invoices'),{
+      await fs.addSubDoc('suppliers', supplierId, 'invoices', {
         dateISO: dateVal,
         description: desc||'Fattura fornitore',
         total: amount,

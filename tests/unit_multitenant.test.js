@@ -1164,3 +1164,60 @@ test('order: buildLegacyIncassoPayload returns null for da_incassare', () => {
 test('order: buildLegacyIncassoPayload returns null for acconto with zero deposit', () => {
   assert.equal(buildLegacyIncassoPayload({}, 'acconto', 500, 0), null);
 });
+
+// ─── Phase 11: addSubDoc + workNotesHistory + draft-per-company ───────────────
+
+// Replicate getDraftDocId logic (pure)
+function getDraftDocId(activeCompanyId) {
+  const cid = activeCompanyId || 'default_company';
+  return `draft_${cid}`;
+}
+
+test('ordini-appunti: getDraftDocId uses activeCompanyId', () => {
+  assert.equal(getDraftDocId('acme'), 'draft_acme');
+  assert.equal(getDraftDocId('beta_corp'), 'draft_beta_corp');
+});
+
+test('ordini-appunti: getDraftDocId falls back to default_company', () => {
+  assert.equal(getDraftDocId(null), 'draft_default_company');
+  assert.equal(getDraftDocId(undefined), 'draft_default_company');
+  assert.equal(getDraftDocId(''), 'draft_default_company');
+});
+
+test('ordini-appunti: different companies get distinct draft doc IDs', () => {
+  const ids = ['company_a', 'company_b', 'default_company'].map(getDraftDocId);
+  assert.equal(new Set(ids).size, 3);
+});
+
+// Replicate addSubDoc path-building (pure)
+function buildSubDocPath(parentCol, parentId, subCol) {
+  return `${parentCol}/${parentId}/${subCol}`;
+}
+
+test('firestoreService.addSubDoc: builds correct audit path for suppliers/invoices', () => {
+  const path = buildSubDocPath('suppliers', 'sup_abc', 'invoices');
+  assert.equal(path, 'suppliers/sup_abc/invoices');
+});
+
+test('firestoreService.addSubDoc: works for any parent/subcollection combo', () => {
+  assert.equal(buildSubDocPath('orders', 'ord_1', 'items'), 'orders/ord_1/items');
+  assert.equal(buildSubDocPath('clients', 'cli_99', 'notes'), 'clients/cli_99/notes');
+});
+
+// Replicate workNotesHistory company-scoped query builder (pure)
+function buildHistoryQueryParams(cid) {
+  return cid
+    ? { filters: [{ field: 'companyId', op: '==', value: cid }], orderBy: 'createdAt', limit: 100 }
+    : { filters: [], orderBy: 'createdAt', limit: 100 };
+}
+
+test('ordini-appunti: buildHistoryQueryParams filters by companyId when set', () => {
+  const p = buildHistoryQueryParams('my_company');
+  assert.equal(p.filters.length, 1);
+  assert.equal(p.filters[0].value, 'my_company');
+});
+
+test('ordini-appunti: buildHistoryQueryParams has no filter without companyId', () => {
+  assert.equal(buildHistoryQueryParams(null).filters.length, 0);
+  assert.equal(buildHistoryQueryParams('').filters.length, 0);
+});

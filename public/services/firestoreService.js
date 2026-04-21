@@ -357,6 +357,27 @@ export const firestoreService = {
     }
   },
 
+  /**
+   * Add a document to a subcollection.
+   * CompanyId is NOT injected since tenant isolation is inherited from the parent document.
+   * Audit-logs the write.
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @param {object} data
+   * @returns {Promise<string>} new document id
+   */
+  async addSubDoc(parentColName, parentId, subColName, data) {
+    try {
+      log("addSubDoc", parentColName, parentId, subColName, data);
+      const ref = await addDoc(collection(db, parentColName, parentId, subColName), data);
+      logAudit({ action: 'add', colName: `${parentColName}/${parentId}/${subColName}`, docId: ref.id, data });
+      return ref.id;
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
   batch() {
     return writeBatch(db);
   },
