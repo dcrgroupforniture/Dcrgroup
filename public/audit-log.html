@@ -94,8 +94,9 @@
   <script type="module">
     import { db } from "./firebase.js";
     import {
-      collection, getDocs, query, orderBy, limit, where
+      collection, query, orderBy, limit, where
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { firestoreService as fs } from "./services/firestoreService.js";
 
     const SOURCES = ["auditLog", "expensesHistory", "scadenzeHistory", "incassiHistory"];
     const PAGE_SIZE = 50;
@@ -252,8 +253,8 @@
           } else {
             q = query(collection(db, src), orderBy("at","desc"), limit(500));
           }
-          const snap = await getDocs(q);
-          snap.forEach(d => allEntries.push({ ...d.data(), _source: src, _id: d.id }));
+          const items = await fs.getAllFromQuery(q);
+          items.forEach(item => allEntries.push({ ...item, _source: src, _id: item.id }));
         } catch (_) {
           // Collection may not exist yet or missing index — silent skip
         }

@@ -46,7 +46,6 @@ import {
   setDoc,
   doc,
   getDoc,
-  getDocs,
   query,
   where,
   deleteDoc,
@@ -106,8 +105,8 @@ async function removeIncassiForOrder({ orderId }){
     const qFilters = [where("orderId", "==", orderId)];
     if (cid) qFilters.push(where("companyId", "==", cid));
     const q = query(collection(db, "incassi"), ...qFilters);
-    const snap = await getDocs(q);
-    snap.forEach(d => deletions.push(fs.remove("incassi", d.id).catch(()=>null)));
+    const incassiDocs = await fs.getAllFromQuery(q);
+    incassiDocs.forEach(item => deletions.push(fs.remove("incassi", item.id).catch(()=>null)));
   }catch(e){
     console.warn("removeIncassiForOrder query failed:", e);
   }
@@ -230,9 +229,9 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
     const qsFilters = [where("orderId", "==", orderId)];
     if (cid) qsFilters.push(where("companyId", "==", cid));
     const q = query(collection(db, "scadenze"), ...qsFilters);
-    const snap = await getDocs(q);
+    const scadenzeDocs = await fs.getAllFromQuery(q);
     await Promise.allSettled(
-      snap.docs.map(d => fs.set("scadenze", d.id, { isDeleted: true }))
+      scadenzeDocs.map(item => fs.set("scadenze", item.id, { isDeleted: true }))
     );
   }catch(e){ console.warn("cleanup scadenze for order failed:", e); }
 

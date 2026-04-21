@@ -3,7 +3,7 @@
 
 import { firestoreService as fs } from './services/firestoreService.js';
 import { escapeHtml } from './utils.js';
-import { auth, db, doc, getDoc, getDocs, collection, query, where, setDoc } from './firebase.js';
+import { auth, db, doc, getDoc, collection, query, where, setDoc } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -56,8 +56,9 @@ function showToast(msg, ok = true) {
 
 async function loadCompanies() {
   try {
-    const snap = await getDocs(collection(db, 'companies'));
-    companies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // fs.getAll is used here intentionally without companyId filter:
+    // this admin tool manages the companies collection itself.
+    companies = await fs.getAll('companies');
     companies.sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id, 'it'));
     renderList();
   } catch (e) {
@@ -69,9 +70,10 @@ async function loadCompanies() {
 
 async function loadUsersForCompany(companyId) {
   try {
+    // Query users by companyId — admin-level read, no tenant scoping needed
     const q = query(collection(db, 'users'), where('companyId', '==', companyId));
-    const snap = await getDocs(q);
-    return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    const items = await fs.getAllFromQuery(q);
+    return items.map(item => ({ uid: item.id, ...item }));
   } catch (e) {
     console.error('[companies] loadUsers error', e);
     return [];

@@ -3,7 +3,6 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   query,
   where,
   orderBy,
@@ -79,8 +78,8 @@ async function deleteIncassiByOrderId(orderId){
       const qxFilters = [where('orderId', '==', orderId)];
       if (cid) qxFilters.push(where('companyId', '==', cid));
       const qx = query(collection(db, 'incassi'), ...qxFilters);
-      const snap = await getDocs(qx);
-      snap.forEach(d => deletions.push(fs.remove('incassi', d.id).catch(()=>null)));
+      const incassiDocs = await fs.getAllFromQuery(qx);
+      incassiDocs.forEach(item => deletions.push(fs.remove('incassi', item.id).catch(()=>null)));
     }catch(e){
       // ignore
     }
@@ -335,15 +334,15 @@ async function loadOrdersForClient(){
       const q1Filters = [where('clientId', '==', clientId), orderBy('createdAt', 'desc')];
       if (cid) q1Filters.unshift(where('companyId', '==', cid));
       const q1 = query(collection(db, 'orders'), ...q1Filters);
-      snaps = await getDocs(q1);
+      snaps = await fs.getAllFromQuery(q1);
     } catch (e) {
       // Fallback without orderBy (index might be missing)
       const fbFilters = [where('clientId', '==', clientId)];
       if (cid) fbFilters.unshift(where('companyId', '==', cid));
-      snaps = await getDocs(query(collection(db, 'orders'), ...fbFilters));
+      snaps = await fs.getAllFromQuery(query(collection(db, 'orders'), ...fbFilters));
     }
-    snaps.docs.forEach(d => {
-      if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
+    snaps.forEach(item => {
+      if (!seen.has(item.id)) { seen.add(item.id); allOrders.push({ __id: item.id, ...item }); }
     });
   } catch (e) {
     console.warn('loadOrdersForClient: query by clientId failed', e);
@@ -355,9 +354,9 @@ async function loadOrdersForClient(){
     try {
       const legFilters = [where('clientName', '==', clientName)];
       if (cid) legFilters.unshift(where('companyId', '==', cid));
-      const qLeg = await getDocs(query(collection(db, 'orders'), ...legFilters));
-      qLeg.docs.forEach(d => {
-        if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
+      const legDocs = await fs.getAllFromQuery(query(collection(db, 'orders'), ...legFilters));
+      legDocs.forEach(item => {
+        if (!seen.has(item.id)) { seen.add(item.id); allOrders.push({ __id: item.id, ...item }); }
       });
     } catch (e) {
       console.warn('loadOrdersForClient: legacy query by clientName failed', e);

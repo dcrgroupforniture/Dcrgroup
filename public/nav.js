@@ -1,7 +1,7 @@
 // nav.js (module)
 // Floating AI Assistant + optional actions (promemoria/spese/incassi) with Firestore integration.
 
-import { auth, db, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit, where } from './firebase.js';
+import { auth, db, collection, addDoc, serverTimestamp, query, orderBy, limit, where } from './firebase.js';
 import {
   onAuthStateChanged,
   signOut,
@@ -673,8 +673,8 @@ async function countCollection(colName, max=500){
   const q = cid
     ? query(collection(db, colName), where('companyId', '==', cid), limit(max))
     : query(collection(db, colName), limit(max));
-  const snap = await getDocs(q);
-  return snap.size;
+  const docs = await fs.getAllFromQuery(q);
+  return docs.length;
 }
 
 async function sumLastN(colName, n=200){
@@ -683,17 +683,16 @@ async function sumLastN(colName, n=200){
   const q = cid
     ? query(collection(db, colName), where('companyId', '==', cid), orderBy('date','desc'), limit(n))
     : query(collection(db, colName), orderBy('date','desc'), limit(n));
-  const snap = await getDocs(q);
+  const items = await fs.getAllFromQuery(q);
   let total30 = 0;
   let total7 = 0;
   const now = new Date();
   const d30 = new Date(now); d30.setDate(d30.getDate()-30);
   const d7 = new Date(now); d7.setDate(d7.getDate()-7);
 
-  snap.forEach(docu=>{
-    const d = docu.data() || {};
-    const dateStr = d.date;
-    const amt = Number(d.amount || 0);
+  items.forEach(item=>{
+    const dateStr = item.date;
+    const amt = Number(item.amount || 0);
     if (!dateStr || !isFinite(amt)) return;
     const dt = new Date(dateStr + 'T00:00:00');
     if (dt >= d30) total30 += amt;

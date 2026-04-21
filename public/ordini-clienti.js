@@ -4,7 +4,7 @@ import { db } from "./firebase.js";
 import { firestoreService as fs } from "./services/firestoreService.js";
 import {
   collection, doc, getDoc, setDoc, runTransaction, addDoc, serverTimestamp,
-  query, orderBy, limit, getDocs, deleteDoc, where
+  query, orderBy, limit, deleteDoc, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { todayISO, escapeHtml } from './utils.js';
 
@@ -491,19 +491,19 @@ async function loadHistory(){
     const qyConstraints = [orderBy("createdAt","desc"), limit(200)];
     if (cid) qyConstraints.unshift(where("companyId", "==", cid));
     const qy = query(collection(db, PREVENTIVI_COLLECTION), ...qyConstraints);
-    const snap = await getDocs(qy);
-    if (snap.empty){
+    const docs = await fs.getAllFromQuery(qy);
+    if (!docs.length){
       historyBodyEl.innerHTML = `<tr><td colspan="5" class="muted">Nessun preventivo salvato.</td></tr>`;
       return;
     }
     const allRows = [];
-    snap.forEach(docu => {
-      const d = docu.data() || {};
+    docs.forEach(item => {
+      const d = item;
       const num = d.numberLabel || formatPrevNum(d.number);
       const date = d.date || "";
       const client = d.clientName || "";
       const tot = Number(d.total || 0);
-      allRows.push({ id: docu.id, num, date, client, tot });
+      allRows.push({ id: item.id, num, date, client, tot });
     });
 
     const searchEl = document.getElementById("historySearch");
