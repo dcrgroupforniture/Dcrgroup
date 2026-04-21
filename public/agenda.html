@@ -1124,9 +1124,9 @@
         const suppDocs=await fs.getAllByCompany('suppliers');
         await Promise.all(suppDocs.map(async suppDoc=>{
           try{
-            const invSnap=await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+            const invSnap=await fs.getSubCollection('suppliers',suppDoc.id,'invoices');
             invSnap.forEach(d=>{
-              const data=d.data()||{};
+              const data=d||{};
                 const iso=
                   normalizeDateKey(data.dateISO)||
                   normalizeDateKey(data.date)||

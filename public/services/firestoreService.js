@@ -358,6 +358,25 @@ export const firestoreService = {
   },
 
   /**
+   * Read all documents from a subcollection.
+   * Tenant isolation is inherited from the parent document (the parent must already
+   * belong to the active company, enforced by Firestore rules).
+   * @param {string} parentColName - e.g. 'suppliers'
+   * @param {string} parentId      - e.g. supplierId
+   * @param {string} subColName    - e.g. 'invoices'
+   * @returns {Promise<Array<object>>} array of { id, ...data }
+   */
+  async getSubCollection(parentColName, parentId, subColName) {
+    try {
+      log("getSubCollection", parentColName, parentId, subColName);
+      const snap = await getDocs(collection(db, parentColName, parentId, subColName));
+      return snap.docs.map(toData);
+    } catch (e) {
+      throw normalizeError(e);
+    }
+  },
+
+  /**
    * Add a document to a subcollection.
    * CompanyId is NOT injected since tenant isolation is inherited from the parent document.
    * Audit-logs the write.

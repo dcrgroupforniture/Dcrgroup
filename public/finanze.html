@@ -402,9 +402,9 @@
     try{
       const suppDocsKpi = await fs.getAllByCompany('suppliers');
       for(const suppDoc of suppDocsKpi){
-        const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+        const invSnap = await fs.getSubCollection('suppliers',suppDoc.id,'invoices');
         invSnap.forEach(d=>{
-          const data=d.data()||{};
+          const data=d||{};
           const dateKey = String(data.dateISO||data.invoiceDate||data.date||'').slice(0,10);
           if(!dateKey) return;
           const amount = Number(data.totalWithVat||data.total||data.importo||data.amount||0);
@@ -488,9 +488,9 @@
     try{
       const suppDocsYear = await fs.getAllByCompany('suppliers');
       for(const suppDoc of suppDocsYear){
-        const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+        const invSnap = await fs.getSubCollection('suppliers',suppDoc.id,'invoices');
         invSnap.forEach(d=>{
-          const data=d.data()||{};
+          const data=d||{};
           const dateKey=String(data.dateISO||data.invoiceDate||data.date||'').slice(0,10);
           if(!dateKey.startsWith(String(y))) return;
           const m=parseInt(dateKey.slice(5,7))-1;
@@ -718,9 +718,9 @@
       const items = [];
       for(const suppDoc of suppDocsForni){
         const name = String(suppDoc.name||'Fornitore');
-        const invSnap = await getDocs(collection(db,'suppliers',suppDoc.id,'invoices'));
+        const invSnap = await fs.getSubCollection('suppliers',suppDoc.id,'invoices');
         invSnap.forEach(d=>{
-          const data=d.data()||{};
+          const data=d||{};
           const dateKey = String(data.dateISO||data.invoiceDate||data.date||'').slice(0,10);
           const amount = Number(data.totalWithVat||data.total||data.importo||data.amount||0);
           if(!dateKey||!amount) return;

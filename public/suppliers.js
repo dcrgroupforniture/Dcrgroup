@@ -135,8 +135,8 @@ async function openSupplierDetail(s) {
   // Fetch invoices (storico ordini fornitore)
   let invoices = [];
   try {
-    const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
-    invoices = invSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const invSnap = await fs.getSubCollection('suppliers', s.id, 'invoices');
+    invoices = invSnap
       .sort((a, b) => {
         const da = a.date || a.invoiceDate || a.dateISO || '';
         const db_ = b.date || b.invoiceDate || b.dateISO || '';
@@ -580,9 +580,8 @@ async function loadOrdersHistory(){
     await Promise.all(supplierEntries.map(async (supplierEntry) => {
       const supplierData = supplierEntry.data || {};
       const name = String(supplierData.name || 'Senza nome');
-      const ordersSnap = await getDocs(collection(db,'suppliers',supplierEntry.id,'invoices'));
-      const orders = ordersSnap.docs
-        .map(d=>({id:d.id,...d.data()}))
+      const ordersSnap = await fs.getSubCollection('suppliers', supplierEntry.id, 'invoices');
+      const orders = ordersSnap
         .sort((a,b)=>{
           const da = a.dateISO || a.invoiceDate || a.date || '';
           const db_ = b.dateISO || b.invoiceDate || b.date || '';

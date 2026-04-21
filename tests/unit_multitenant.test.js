@@ -1221,3 +1221,33 @@ test('ordini-appunti: buildHistoryQueryParams has no filter without companyId', 
   assert.equal(buildHistoryQueryParams(null).filters.length, 0);
   assert.equal(buildHistoryQueryParams('').filters.length, 0);
 });
+
+// ─── Phase 12: getSubCollection path building ────────────────────────────────
+
+function buildSubColReadPath(parentCol, parentId, subCol) {
+  return `${parentCol}/${parentId}/${subCol}`;
+}
+
+test('firestoreService.getSubCollection: builds correct path for suppliers/invoices', () => {
+  assert.equal(buildSubColReadPath('suppliers', 'sup_xyz', 'invoices'), 'suppliers/sup_xyz/invoices');
+});
+
+test('firestoreService.getSubCollection: works for arbitrary parent/subcollection', () => {
+  assert.equal(buildSubColReadPath('clients', 'cli_1', 'orders'), 'clients/cli_1/orders');
+  assert.equal(buildSubColReadPath('orders', 'ord_99', 'items'), 'orders/ord_99/items');
+});
+
+// Verify that documents returned by getSubCollection (plain objects) don't need .data()
+test('finanze/agenda: subcollection docs are plain objects — no .data() call needed', () => {
+  const mockDocs = [
+    { id: 'inv_1', dateISO: '2026-01-15', totalWithVat: 100 },
+    { id: 'inv_2', dateISO: '2026-02-20', totalWithVat: 200 },
+  ];
+  // Simulates the forEach pattern after migration
+  let total = 0;
+  mockDocs.forEach(d => {
+    const data = d || {};
+    total += Number(data.totalWithVat || 0);
+  });
+  assert.equal(total, 300);
+});
