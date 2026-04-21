@@ -98,18 +98,13 @@ async function getClientNameSafe(id){
 async function removeIncassiForOrder({ orderId }){
   if(!orderId) return;
 
-  const deletions = [];
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_incasso`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_acconto`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}_incasso_totale`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__saldo`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__incasso`)));
-  deletions.push(deleteDoc(doc(db, "incassi", `${orderId}__acconto`)));
+  const suffixes = ["_incasso","_acconto","_incasso_totale","__saldo","__incasso","__acconto"];
+  const deletions = suffixes.map(s => fs.remove("incassi", `${orderId}${s}`).catch(()=>null));
 
   try{
     const q = query(collection(db, "incassi"), where("orderId", "==", orderId));
     const snap = await getDocs(q);
-    snap.forEach(d => deletions.push(deleteDoc(doc(db, "incassi", d.id))));
+    snap.forEach(d => deletions.push(fs.remove("incassi", d.id).catch(()=>null)));
   }catch(e){
     console.warn("removeIncassiForOrder query failed:", e);
   }
@@ -132,7 +127,7 @@ async function createIncassoRecord({ orderId, clientId, dateKey, amount, kind, n
   // Scrittura deterministica (NO query / NO indici richiesti):
   // così l'incasso appare sempre e non può duplicarsi.
   const incassoId = `${orderId}_${kind || "incasso"}`;
-  await setDoc(doc(db, "incassi", incassoId), payload, { merge: true });
+  await fs.set("incassi", incassoId, payload);
 
   // Verifica immediata: se per qualsiasi motivo non viene scritto, facciamo fallire
   // per mostrarlo chiaramente (anziché "silenzio" e popup vuoto).
@@ -170,7 +165,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
       }
       const payKind = isCheck ? "assegno" : (pay.type || "acconto");
       const incassoId = `${orderId}__pay_${i}`;
-      await setDoc(doc(db, "incassi", incassoId), {
+      await fs.set("incassi", incassoId, {
         date: effectiveIncassoDate,
         source: "ordine",
         orderId,
@@ -184,7 +179,7 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
         reference: pay.reference || null,
         note: `${clientName || 'Cliente'} • ${euro(amt)} • ${payKind}`,
         updatedAt: new Date()
-      }, { merge: true });
+      });
     }
     return;
   }
@@ -202,23 +197,23 @@ async function syncIncassiFromOrder({ orderId, clientId, payments, paymentStatus
 
   if(status === "incassato"){
     const amount = Number(total) || 0;
-    await setDoc(doc(db, "incassi", `${orderId}__saldo`), {
+    await fs.set("incassi", `${orderId}__saldo`, {
       ...base,
       kind: "saldo",
       paymentType: "saldo",
       amount,
       note: `${clientName || 'Cliente'} • ${euro(amount)} • saldo`
-    }, { merge:true });
+    });
   }else if(status === "acconto"){
     const dep = Number(deposit) || 0;
     if(dep > 0){
-      await setDoc(doc(db, "incassi", `${orderId}__acconto`), {
+      await fs.set("incassi", `${orderId}__acconto`, {
         ...base,
         kind: "acconto",
         paymentType: "acconto",
         amount: dep,
         note: `${clientName || 'Cliente'} • ${euro(dep)} • acconto`
-      }, { merge:true });
+      });
     }
   }
 }
@@ -231,7 +226,7 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
     const q = query(collection(db, "scadenze"), where("orderId", "==", orderId));
     const snap = await getDocs(q);
     await Promise.allSettled(
-      snap.docs.map(d => setDoc(doc(db, "scadenze", d.id), { isDeleted: true }, { merge: true }))
+      snap.docs.map(d => fs.set("scadenze", d.id, { isDeleted: true }))
     );
   }catch(e){ console.warn("cleanup scadenze for order failed:", e); }
 
@@ -240,14 +235,14 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
     const due = deadlines[i];
     if(!due.date || !(Number(due.amount) > 0)) continue;
     const scadenzaId = `${orderId}__due_${i}`;
-    await setDoc(doc(db, "scadenze", scadenzaId), {
+    await fs.set("scadenze", scadenzaId, {
       date: due.date,
       amount: Number(due.amount),
       note: due.note || "",
       orderId,
       isDeleted: false,
       updatedAt: new Date()
-    }, { merge: true });
+    });
   }
 }
 
@@ -992,10 +987,9 @@ saveBtn.addEventListener("click", async () => {
     orderData.clientId = clientId;
 
     if (orderId) {
-      await updateDoc(doc(db, "orders", orderId), { ...orderData });
+      await fs.update("orders", orderId, { ...orderData });
     } else {
-      const ref = await addDoc(collection(db, "orders"), orderData);
-      savedOrderId = ref.id;
+      savedOrderId = await fs.add("orders", orderData);
     }
 
     updateProductDatabaseFromRows(rows);
@@ -1204,7 +1198,7 @@ if(registerIncassoBtn){
       if(firstDue.date) legacy.dueDate = new Date(firstDue.date);
       if(firstDue.amount > 0) legacy.dueAmount = firstDue.amount;
 
-      await updateDoc(doc(db, 'orders', orderId), {
+      await fs.update('orders', orderId, {
         deadlines: deadlinesArr,
         ...legacy,
         updatedAt: new Date()

@@ -14,6 +14,7 @@ import {
   auth,
 } from './firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { firestoreService as fs } from './services/firestoreService.js';
 
 // ===============================
 // Helpers
@@ -72,19 +73,14 @@ function nextYear(d){
 // Copiato (in forma compatta) dalla logica ordine: elimina eventuali incassi auto collegati all'ordine
 async function deleteIncassiByOrderId(orderId){
   try{
-    const deletions = [];
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_incasso`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_acconto`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}_incasso_totale`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__saldo`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__incasso`)).catch(()=>null));
-    deletions.push(deleteDoc(doc(db, 'incassi', `${orderId}__acconto`)).catch(()=>null));
+    const suffixes = ["_incasso","_acconto","_incasso_totale","__saldo","__incasso","__acconto"];
+    const deletions = suffixes.map(s => fs.remove('incassi', `${orderId}${s}`).catch(()=>null));
 
     // fallback: se in passato sono stati creati con chiavi diverse ma con campo orderId
     try{
       const qx = query(collection(db, 'incassi'), where('orderId', '==', orderId));
       const snap = await getDocs(qx);
-      snap.forEach(d => deletions.push(deleteDoc(doc(db, 'incassi', d.id)).catch(()=>null)));
+      snap.forEach(d => deletions.push(fs.remove('incassi', d.id).catch(()=>null)));
     }catch(e){
       // ignore
     }
@@ -203,7 +199,7 @@ function renderOrders(orders){
       const ok = confirm('Eliminare questo ordine?\n\nVerrà eliminato anche l\'incasso collegato (se presente).');
       if (!ok) return;
       try{
-        await deleteDoc(doc(db, 'orders', o.__id));
+        await fs.remove('orders', o.__id);
         await deleteIncassiByOrderId(o.__id);
         await loadOrdersForClient();
       }catch(e){
@@ -409,8 +405,7 @@ async function saveClient(){
     } else {
       // nuovo cliente
       payload.createdAt = serverTimestamp();
-      const ref = await addDoc(collection(db, 'clients'), payload);
-      clientId = ref.id;
+      clientId = await fs.add('clients', payload);
       _clientRef = doc(db, 'clients', clientId);
       alert('✅ Cliente creato');
       window.location.href = `client.html?clientId=${encodeURIComponent(clientId)}`;

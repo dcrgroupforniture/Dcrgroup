@@ -4,6 +4,7 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/fi
 import {
   doc, setDoc, deleteDoc, addDoc, collection, serverTimestamp, getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { firestoreService as fs } from './services/firestoreService.js';
 import { euro as fmt, todayISO, fmtDate, monthLabel } from './utils.js';
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -36,17 +37,17 @@ function esc(s) {
 async function syncScadenzaToSpese(dateKey, amount, note) {
   if (!dateKey) return;
   try {
-    await setDoc(doc(db, 'expenses', `scad_${dateKey}`), {
+    await fs.set('expenses', `scad_${dateKey}`, {
       date: dateKey, amount: amount || 0,
       note: note || '', category: 'scadenze',
       source: 'scadenza', syncedAt: new Date().toISOString()
-    }, { merge: true });
+    });
   } catch (e) { console.warn('Sync scadenza→expenses:', e); }
 }
 
 async function removeScadenzaFromSpese(dateKey) {
   if (!dateKey) return;
-  try { await deleteDoc(doc(db, 'expenses', `scad_${dateKey}`)); }
+  try { await fs.remove('expenses', `scad_${dateKey}`); }
   catch (e) { console.warn('Rimozione scadenza da expenses:', e); }
 }
 
@@ -415,7 +416,7 @@ async function handleSave() {
     await upsertDeadline(targetId, payload);
     await syncScadenzaToSpese(targetId, amountVal, noteVal);
     try {
-      await addDoc(collection(db, 'scadenzeHistory'), {
+      await fs.add('scadenzeHistory', {
         action: 'save', day: targetId, payload, at: serverTimestamp()
       });
     } catch (_) {}
@@ -437,7 +438,7 @@ async function handleDelete(id) {
   try {
     const snap = await getDoc(doc(db, 'scadenze', id));
     if (snap.exists()) {
-      await addDoc(collection(db, 'scadenzeHistory'), {
+      await fs.add('scadenzeHistory', {
         action: 'delete', day: id, payload: snap.data(), at: serverTimestamp()
       });
     }

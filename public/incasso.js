@@ -71,14 +71,11 @@ function autoAmountFromNote(note){
 import { db } from "./firebase.js";
 import {
   collection,
-  addDoc,
-  getDocs,
   query,
   where,
-  deleteDoc,
-  doc,
-  updateDoc
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { firestoreService as fs } from "./services/firestoreService.js";
 
 const params = new URLSearchParams(window.location.search);
 const date = params.get("date");
@@ -93,19 +90,14 @@ const dayTotalEl = document.getElementById("dayTotal");
 dayTitle.textContent = `Incassi ${date}`;
 
 async function loadIncassi() {
-  const q = query(
-    collection(db, "incassi"),
-    where("date", "==", date)
-  );
-
-  const snap = await getDocs(q);
+  const all = await fs.getAllByCompany("incassi");
+  const items = all.filter(i => i.date === date);
 
   incassiList.innerHTML = "";
   let total = 0;
 
-  snap.forEach(docSnap => {
-    const i = docSnap.data();
-    const id = docSnap.id;
+  items.forEach(i => {
+    const id = i.id;
 
     total += Number(i.amount) || 0;
 
@@ -122,7 +114,7 @@ async function loadIncassi() {
     `;
 
     row.querySelector(".delete-btn").addEventListener("click", async () => {
-      await deleteDoc(doc(db, "incassi", id));
+      await fs.remove("incassi", id);
       loadIncassi();
     });
 
@@ -132,7 +124,7 @@ async function loadIncassi() {
 
       if (!newNote || isNaN(newAmount)) return;
 
-      await updateDoc(doc(db, "incassi", id), {
+      await fs.update("incassi", id, {
         note: newNote,
         amount: Number(newAmount)
       });
@@ -157,11 +149,7 @@ addBtn.addEventListener("click", async () => {
   if (!amount || isNaN(amount) || amount <= 0) { amountInput.classList.add("field-error"); hasError = true; }
   if (hasError) return;
 
-  await addDoc(collection(db, "incassi"), {
-    date,
-    note,
-    amount
-  });
+  await fs.add("incassi", { date, note, amount });
 
   noteInput.value = "";
   amountInput.value = "";

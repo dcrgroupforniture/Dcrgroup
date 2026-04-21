@@ -1463,13 +1463,13 @@
         eventDrop:async(info)=>{
           if(info.event.extendedProps?.readonly){info.revert();return;}
           const ev=info.event;
-          try{await updateDoc(doc(db,"agendaEvents",ev.id),{start:toISO(ev.start),end:toISO(ev.end),allDay:ev.allDay===true});}
+          try{await fs.update("agendaEvents",ev.id,{start:toISO(ev.start),end:toISO(ev.end),allDay:ev.allDay===true});}
           catch(e){info.revert();}
         },
         eventResize:async(info)=>{
           if(info.event.extendedProps?.readonly){info.revert();return;}
           const ev=info.event;
-          try{await updateDoc(doc(db,"agendaEvents",ev.id),{start:toISO(ev.start),end:toISO(ev.end),allDay:ev.allDay===true});}
+          try{await fs.update("agendaEvents",ev.id,{start:toISO(ev.start),end:toISO(ev.end),allDay:ev.allDay===true});}
           catch(e){info.revert();}
         }
       });
@@ -1556,9 +1556,9 @@
       const color=TYPE_COLORS[type]||TYPE_COLORS.promemoria;
       try{
         if(editingEventId){
-          await updateDoc(doc(db,'agendaEvents',editingEventId),{title,type,start,end:safeEnd,allDay,color});
+          await fs.update('agendaEvents',editingEventId,{title,type,start,end:safeEnd,allDay,color});
         }else{
-          await addDoc(col,{title,type,start,end:safeEnd,allDay,color});
+          await fs.add('agendaEvents',{title,type,start,end:safeEnd,allDay,color});
         }
         closeModal();
       }catch(e){alert('Errore salvataggio. Riprova.');}
@@ -1567,7 +1567,7 @@
     btnDelete.addEventListener('click',async()=>{
       if(!editingEventId) return;
       if(!confirm('Eliminare questo evento?')) return;
-      try{await deleteDoc(doc(db,'agendaEvents',editingEventId));closeModal();}
+      try{await fs.remove('agendaEvents',editingEventId);closeModal();}
       catch(e){alert('Errore eliminazione. Riprova.');}
     });
 

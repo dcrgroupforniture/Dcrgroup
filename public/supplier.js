@@ -19,6 +19,7 @@ import {
   getDownloadURL,
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { firestoreService as fs } from './services/firestoreService.js';
 import { euro as eur, todayISO, fmtDate as formatDate, escapeHtml as escapeAttr } from './utils.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -145,7 +146,7 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
   if(method === "assegno") noteParts.push("Assegno");
   const note = noteParts.join(" • ");
   try{
-    await setDoc(doc(db,"expenses",speseId),{
+    await fs.set("expenses", speseId, {
       date,
       amount,
       note,
@@ -155,14 +156,14 @@ async function syncInvoiceToSpese(invId, inv, supplierName){
       supplierId,
       invoiceId: invId,
       syncedAt: new Date().toISOString()
-    },{ merge: true });
+    });
   }catch(e){ console.warn("Sync fattura→expenses fallito:", e); }
 }
 
 async function removeInvoiceFromSpese(invId){
   if(!supplierId || !invId) return;
   const speseId = `supplier_${supplierId}_${invId}`;
-  try{ await deleteDoc(doc(db,"expenses",speseId)); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
+  try{ await fs.remove("expenses", speseId); }catch(e){ console.warn("Rimozione fattura da expenses fallita:", e); }
 }
 
 async function syncInvoiceToScadenze(invId, inv, supplierName){
@@ -179,7 +180,7 @@ async function syncInvoiceToScadenze(invId, inv, supplierName){
   const isPaid = String(inv.status || "").toLowerCase() === "pagata";
   try{
     const dateISO = date || getInvoiceDateIso(inv) || "";
-    await setDoc(doc(db,"scadenze",scadenzaId),{
+    await fs.set("scadenze", scadenzaId, {
       date: dateISO,
       dateISO,
       amount,
@@ -190,14 +191,14 @@ async function syncInvoiceToScadenze(invId, inv, supplierName){
       invoiceId: invId,
       paymentMethod: method,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    });
   }catch(e){ console.warn("Sync fattura→scadenze fallito:", e); }
 }
 
 async function removeInvoiceFromScadenze(invId){
   if(!supplierId || !invId) return;
   const scadenzaId = `supplier_invoice_${supplierId}_${invId}`;
-  try{ await setDoc(doc(db,"scadenze",scadenzaId), { isDeleted: true, updatedAt: new Date().toISOString() }, { merge: true }); }
+  try{ await fs.set("scadenze", scadenzaId, { isDeleted: true, updatedAt: new Date().toISOString() }); }
   catch(e){ console.warn("Rimozione fattura da scadenze fallita:", e); }
 }
 
@@ -262,14 +263,13 @@ saveSupplierBtn?.addEventListener("click", async () => {
   };
   if(!data.name){ alert("Inserisci nome fornitore"); return; }
   if(supplierId){
-    await updateDoc(doc(db, "suppliers", supplierId), data);
+    await fs.update("suppliers", supplierId, data);
     supplierNameTitle.textContent = data.name.toUpperCase();
     if(supplierVatBadge) supplierVatBadge.textContent = data.vat;
     if(supplierFormCard) supplierFormCard.classList.add("hidden");
     if(toggleSupplierFormBtn) toggleSupplierFormBtn.textContent = "Modifica";
   } else {
-    const ref = await addDoc(collection(db, "suppliers"), { ...data, total: 0 });
-    supplierId = ref.id;
+    supplierId = await fs.add("suppliers", { ...data, total: 0 });
     window.location.href = `supplier.html?supplierId=${encodeURIComponent(supplierId)}`;
   }
 });
@@ -701,7 +701,7 @@ async function loadInvoices(){
   }
 
   // update supplier total
-  try { await updateDoc(doc(db,"suppliers",supplierId), { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
+  try { await fs.update("suppliers", supplierId, { total: totalAll }); } catch(e){ console.warn("Aggiornamento totale fornitore fallito:", e); }
 
   // Sincronizza tutte le fatture di questo fornitore → spese (idempotente)
   try {

@@ -512,7 +512,7 @@ async function syncAllInvoicesToSpese(){
       const note = [name, inv.description || inv.invoiceNumber].filter(Boolean).join(" – ");
       const speseId = `supplier_${supplierId}_${inv.id}`;
       promises.push(
-        setDoc(doc(db,"expenses",speseId),{
+        fs.set("expenses", speseId, {
           date,
           amount,
           note,
@@ -521,7 +521,7 @@ async function syncAllInvoicesToSpese(){
           supplierId,
           invoiceId: inv.id,
           syncedAt: new Date().toISOString()
-        },{ merge: true }).catch(e => console.warn(`Sync inv ${inv.id}:`, e))
+        }).catch(e => console.warn(`Sync inv ${inv.id}:`, e))
       );
     }
   }

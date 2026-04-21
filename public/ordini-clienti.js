@@ -183,8 +183,8 @@ async function importQuoteToOrder(quote, sourcePreventivoId = null){
     updatedAt: serverTimestamp()
   };
 
-  const ref = await addDoc(collection(db, "orders"), payload);
-  return { orderId: ref.id, clientId: client.id };
+  const orderId = await fs.add("orders", payload);
+  return { orderId, clientId: client.id };
 }
 
 function defaultModel(){
@@ -480,8 +480,7 @@ async function savePreventivoToFirestore(m){
     total: getGrandTotalNumber(m),
     createdAt: serverTimestamp(),
   };
-  const ref = await addDoc(collection(db, PREVENTIVI_COLLECTION), payload);
-  return ref.id;
+  return await fs.add(PREVENTIVI_COLLECTION, payload);
 }
 
 async function loadHistory(){
@@ -554,7 +553,7 @@ async function openPreventivo(id){
 
 async function deletePreventivoForever(id){
   if (!confirm("Eliminare definitivamente questo preventivo?")) return;
-  await deleteDoc(doc(db, PREVENTIVI_COLLECTION, id));
+  await fs.remove(PREVENTIVI_COLLECTION, id);
   await loadHistory();
 }
 

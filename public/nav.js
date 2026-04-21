@@ -624,7 +624,7 @@ function openModal(){
 
       await waitForAuth();
       const col = kind === 'spesa' ? 'spese' : 'incassi';
-      await addDoc(collection(db, col), {
+      await fs.add(col, {
         date,
         description,
         amount,

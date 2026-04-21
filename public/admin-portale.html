@@ -315,7 +315,7 @@
           if (!acc) return;
           btn.disabled = true;
           try {
-            await updateDoc(doc(db, 'portalAccounts', id), {
+            await fs.update('portalAccounts', id, {
               enabled: !(acc.enabled !== false),
               updatedAt: serverTimestamp(),
             });
@@ -362,7 +362,7 @@
 
       try {
         const accountId = `${clientId}_portal`;
-        await setDoc(doc(db, 'portalAccounts', accountId), {
+        await fs.set('portalAccounts', accountId, {
           clientId,
           clientName,
           email,
@@ -372,10 +372,10 @@
           portalEnabled: true,
           createdAtISO: new Date().toISOString(),
           createdAt: serverTimestamp(),
-        }, { merge: true });
+        });
 
         // Also update the client document to mark portal as enabled
-        await updateDoc(doc(db, 'clients', clientId), {
+        await fs.update('clients', clientId, {
           portalEnabled: true,
           portalEmail: email,
           updatedAt: serverTimestamp(),

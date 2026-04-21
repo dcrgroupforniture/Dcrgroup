@@ -1087,3 +1087,80 @@ test('queryRegistry QUERY_META: no duplicate collection names for _ALL entries',
   const unique = new Set(cols);
   assert.equal(unique.size, cols.length, 'Duplicate _ALL entry found in QUERY_META');
 });
+
+// ─── Phase 10: remaining writes → fs.* + incasso/payment day-filter logic ────
+
+// Replicate removeIncassiForOrder suffix logic (pure)
+function buildIncassoSuffixes(orderId) {
+  const suffixes = ["_incasso","_acconto","_incasso_totale","__saldo","__incasso","__acconto"];
+  return suffixes.map(s => `${orderId}${s}`);
+}
+
+test('order: buildIncassoSuffixes returns 6 deterministic IDs for an orderId', () => {
+  const ids = buildIncassoSuffixes('ord123');
+  assert.equal(ids.length, 6);
+  assert.ok(ids.includes('ord123_incasso'));
+  assert.ok(ids.includes('ord123__saldo'));
+  assert.ok(ids.includes('ord123__acconto'));
+  assert.ok(ids.includes('ord123_incasso_totale'));
+});
+
+test('order: buildIncassoSuffixes returns unique IDs', () => {
+  const ids = buildIncassoSuffixes('abc');
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+// Replicate day-filter logic from giorno.js / incasso.js (pure)
+function filterByDate(items, date) {
+  return items.filter(item => item.date === date);
+}
+
+test('giorno/incasso: filterByDate returns only matching day items', () => {
+  const items = [
+    { id: '1', date: '2026-04-21', amount: 100 },
+    { id: '2', date: '2026-04-22', amount: 50 },
+    { id: '3', date: '2026-04-21', amount: 30 },
+  ];
+  const result = filterByDate(items, '2026-04-21');
+  assert.equal(result.length, 2);
+  assert.equal(result[0].id, '1');
+  assert.equal(result[1].id, '3');
+});
+
+test('giorno/incasso: filterByDate returns empty array when no match', () => {
+  const items = [
+    { id: '1', date: '2026-04-21', amount: 100 },
+  ];
+  assert.equal(filterByDate(items, '2026-01-01').length, 0);
+});
+
+// Replicate syncIncassiFromOrder legacy branch logic (pure)
+function buildLegacyIncassoPayload(base, status, total, deposit) {
+  if (status === 'incassato') {
+    return { type: 'saldo', amount: Number(total) || 0 };
+  } else if (status === 'acconto') {
+    const dep = Number(deposit) || 0;
+    if (dep > 0) return { type: 'acconto', amount: dep };
+  }
+  return null;
+}
+
+test('order: buildLegacyIncassoPayload returns saldo for incassato', () => {
+  const r = buildLegacyIncassoPayload({}, 'incassato', 500, 0);
+  assert.equal(r.type, 'saldo');
+  assert.equal(r.amount, 500);
+});
+
+test('order: buildLegacyIncassoPayload returns acconto when deposit > 0', () => {
+  const r = buildLegacyIncassoPayload({}, 'acconto', 500, 150);
+  assert.equal(r.type, 'acconto');
+  assert.equal(r.amount, 150);
+});
+
+test('order: buildLegacyIncassoPayload returns null for da_incassare', () => {
+  assert.equal(buildLegacyIncassoPayload({}, 'da_incassare', 500, 0), null);
+});
+
+test('order: buildLegacyIncassoPayload returns null for acconto with zero deposit', () => {
+  assert.equal(buildLegacyIncassoPayload({}, 'acconto', 500, 0), null);
+});
