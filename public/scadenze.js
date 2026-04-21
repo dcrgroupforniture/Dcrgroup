@@ -345,9 +345,8 @@ async function openModal(id = null) {
     if (mPagato) mPagato.checked = false;
 
     try {
-      const snap = await getDoc(doc(db, 'scadenze', id));
-      if (snap.exists()) {
-        const raw = snap.data();
+      const raw = await fs.getDoc('scadenze', id);
+      if (raw) {
         mCategory.value = raw.category || '';
         if (mPagato) mPagato.checked = !!(raw.pagata || raw.paid || raw.pagato);
       }
@@ -436,10 +435,10 @@ async function handleDelete(id) {
   if (!confirm(`Eliminare la scadenza del ${label}?`)) return;
 
   try {
-    const snap = await getDoc(doc(db, 'scadenze', id));
-    if (snap.exists()) {
+    const raw = await fs.getDoc('scadenze', id);
+    if (raw) {
       await fs.add('scadenzeHistory', {
-        action: 'delete', day: id, payload: snap.data(), at: serverTimestamp()
+        action: 'delete', day: id, payload: raw, at: serverTimestamp()
       });
     }
   } catch (_) {}

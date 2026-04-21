@@ -1,7 +1,7 @@
 // nav.js (module)
 // Floating AI Assistant + optional actions (promemoria/spese/incassi) with Firestore integration.
 
-import { auth, db, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit } from './firebase.js';
+import { auth, db, collection, addDoc, getDocs, serverTimestamp, query, orderBy, limit, where } from './firebase.js';
 import {
   onAuthStateChanged,
   signOut,
@@ -669,13 +669,21 @@ function closeModal(){
 // ---- Context builder ----
 async function countCollection(colName, max=500){
   // lightweight: just read up to max docs and count
-  const snap = await getDocs(query(collection(db, colName), limit(max)));
+  const cid = fs.getActiveCompanyId();
+  const q = cid
+    ? query(collection(db, colName), where('companyId', '==', cid), limit(max))
+    : query(collection(db, colName), limit(max));
+  const snap = await getDocs(q);
   return snap.size;
 }
 
 async function sumLastN(colName, n=200){
   // expects docs with {date:'YYYY-MM-DD', amount:number}
-  const snap = await getDocs(query(collection(db, colName), orderBy('date','desc'), limit(n)));
+  const cid = fs.getActiveCompanyId();
+  const q = cid
+    ? query(collection(db, colName), where('companyId', '==', cid), orderBy('date','desc'), limit(n))
+    : query(collection(db, colName), orderBy('date','desc'), limit(n));
+  const snap = await getDocs(q);
   let total30 = 0;
   let total7 = 0;
   const now = new Date();

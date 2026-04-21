@@ -127,8 +127,8 @@ function getInvoiceEffectivePaymentDate(inv){
 async function getSupplierName(){
   if(!supplierId) return "Fornitore";
   try{
-    const snap = await getDoc(doc(db,"suppliers",supplierId));
-    return snap.exists() ? (snap.data().name || "Fornitore") : "Fornitore";
+    const snap = await fs.getDoc("suppliers", supplierId);
+    return snap ? (snap.name || "Fornitore") : "Fornitore";
   } catch(e) {
     console.warn("Impossibile leggere nome fornitore:", e);
     return "Fornitore";
@@ -236,9 +236,8 @@ async function loadSupplier(){
     if(supplierFormCard) supplierFormCard.classList.remove("hidden");
     return;
   }
-  const snap = await getDoc(doc(db, "suppliers", supplierId));
-  if(!snap.exists()){ supplierNameTitle.textContent = "Fornitore"; return; }
-  const s = snap.data();
+  const s = await fs.getDoc("suppliers", supplierId);
+  if(!s){ supplierNameTitle.textContent = "Fornitore"; return; }
   supplierNameTitle.textContent = (s.name || "Fornitore").toUpperCase();
   if(supplierVatBadge) supplierVatBadge.textContent = s.vat || "";
   nameInput.value  = s.name  || "";
@@ -636,16 +635,14 @@ async function loadInvoices(){
   invoiceList.innerHTML = "";
   if(!supplierId){ return; }
 
-  const ref = collection(db, "suppliers", supplierId, "invoices");
   let snap;
-  try { snap = await getDocs(ref); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
+  try { snap = await fs.getSubCollection("suppliers", supplierId, "invoices"); } catch(e){ console.warn("Fatture non caricate:", e); renderInvoiceTable(); return; }
 
   const currentYear = new Date().getFullYear().toString();
   let totalAll = 0, totalYear = 0, countYear = 0, daPagare = 0, scadute = 0;
   const urgent = [];
 
-  allInvoices = snap.docs
-    .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+  allInvoices = snap
     .sort((a, b) => getInvoiceDateIso(b).localeCompare(getInvoiceDateIso(a)));
 
   allInvoices.forEach(inv => {
@@ -751,16 +748,13 @@ async function markAllInvoicesPaid(){
   if(!supplierId) return;
   if(!confirm("Segna TUTTE le fatture di questo fornitore come pagate?")) return;
   try {
-    const invRef = collection(db, "suppliers", supplierId, "invoices");
-    const snap = await getDocs(invRef);
+    const allInvs = await fs.getSubCollection("suppliers", supplierId, "invoices");
 
     // Collect unpaid invoice refs
-    const unpaidInvoiceRefs = [];
-    snap.forEach(docSnap => {
-      if(docSnap.data().status !== "pagata"){
-        unpaidInvoiceRefs.push(doc(invRef, docSnap.id));
-      }
-    });
+    const invSubRef = collection(db, "suppliers", supplierId, "invoices");
+    const unpaidInvoiceRefs = allInvs
+      .filter(inv => inv.status !== "pagata")
+      .map(inv => doc(invSubRef, inv.id));
 
     if(unpaidInvoiceRefs.length === 0){ alert("Tutte le fatture sono già segnate come pagate."); return; }
 
@@ -784,14 +778,13 @@ async function markAllInvoicesPaid(){
 async function markAllOrdersPaid(){
   if(!supplierId) return;
   if(!confirm("Segna TUTTI gli ordini di questo fornitore come pagati e saldati?")) return;
-  const ordersRef = collection(db, "suppliers", supplierId, "orders");
-  const snap = await getDocs(ordersRef);
+  const ordersSubRef = collection(db, "suppliers", supplierId, "orders");
+  const allOrds = await fs.getSubCollection("suppliers", supplierId, "orders");
   const batch = writeBatch(db);
   let count = 0;
-  snap.forEach(docSnap => {
-    const d = docSnap.data();
+  allOrds.forEach(d => {
     if(!d.pagato || !d.saldato){
-      batch.update(doc(ordersRef, docSnap.id), { pagato: true, saldato: true });
+      batch.update(doc(ordersSubRef, d.id), { pagato: true, saldato: true });
       count++;
     }
   });
@@ -811,7 +804,7 @@ async function loadOrders(){
 
   let ordersSnap;
   try {
-    ordersSnap = await getDocs(ordersQ);
+    ordersSnap = await fs.getAllFromQuery(ordersQ);
   } catch(e){
     console.warn("Storico non caricato:", e);
     ordersEmptyState?.classList.remove("hidden");
@@ -821,10 +814,9 @@ async function loadOrders(){
   // Build combined entries list (orders + invoices)
   const entries = [];
 
-  ordersSnap.forEach(docSnap => {
-    const o = docSnap.data();
+  ordersSnap.forEach(o => {
     const dateVal = o.data?.toDate ? o.data.toDate() : (o.data ? new Date(o.data) : null);
-    entries.push({ id: docSnap.id, type: "order", dateVal, data: o });
+    entries.push({ id: o.id, type: "order", dateVal, data: o });
   });
 
   allInvoices.forEach(inv => {

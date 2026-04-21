@@ -312,17 +312,17 @@ markAllSuppliersInvoicesPaidBtn?.addEventListener("click", async () => {
   if(!confirm("Segna TUTTE le fatture di TUTTI i fornitori come pagate?")) return;
   try {
     const suppDocs = await fs.getAllByCompany('suppliers');
-    const invoiceCollectionRefs = suppDocs.map(suppDoc =>
-      collection(db, "suppliers", suppDoc.id, "invoices")
+    const allInvsBySupp = await Promise.all(
+      suppDocs.map(suppDoc => fs.getSubCollection("suppliers", suppDoc.id, "invoices"))
     );
-    const invSnaps = await Promise.all(invoiceCollectionRefs.map(ref => getDocs(ref)));
 
     // Collect all updates (Firestore batch limit: 500 ops per batch)
     const unpaidInvoiceRefs = [];
-    invSnaps.forEach((invSnap, i) => {
-      invSnap.forEach(invDoc => {
-        if((invDoc.data().status || "da-pagare") !== "pagata"){
-          unpaidInvoiceRefs.push(doc(invoiceCollectionRefs[i], invDoc.id));
+    allInvsBySupp.forEach((invs, i) => {
+      const invSubRef = collection(db, "suppliers", suppDocs[i].id, "invoices");
+      invs.forEach(inv => {
+        if((inv.status || "da-pagare") !== "pagata"){
+          unpaidInvoiceRefs.push(doc(invSubRef, inv.id));
         }
       });
     });

@@ -78,7 +78,10 @@ async function deleteIncassiByOrderId(orderId){
 
     // fallback: se in passato sono stati creati con chiavi diverse ma con campo orderId
     try{
-      const qx = query(collection(db, 'incassi'), where('orderId', '==', orderId));
+      const cid = fs.getActiveCompanyId();
+      const qxFilters = [where('orderId', '==', orderId)];
+      if (cid) qxFilters.push(where('companyId', '==', cid));
+      const qx = query(collection(db, 'incassi'), ...qxFilters);
       const snap = await getDocs(qx);
       snap.forEach(d => deletions.push(fs.remove('incassi', d.id).catch(()=>null)));
     }catch(e){
@@ -301,14 +304,14 @@ async function loadClient(){
   }
 
   _clientRef = doc(db, 'clients', clientId);
-  const snap = await getDoc(_clientRef);
-  if (!snap.exists()) {
+  const snap = await fs.getDoc('clients', clientId);
+  if (!snap) {
     els.title.textContent = 'Cliente non trovato';
     els.addOrderBtn.disabled = true;
     els.deleteClientBtn.disabled = true;
     return null;
   }
-  _clientData = snap.data();
+  _clientData = snap;
 
   const name = _clientData.name || '';
   els.title.textContent = name || 'Scheda cliente';
@@ -326,20 +329,21 @@ async function loadOrdersForClient(){
 
   const seen = new Set();
   const allOrders = [];
+  const cid = fs.getActiveCompanyId();
 
   // Query 1: by clientId (preferred, modern format)
   try {
     let snaps;
     try {
-      const q1 = query(
-        collection(db, 'orders'),
-        where('clientId', '==', clientId),
-        orderBy('createdAt', 'desc')
-      );
+      const q1Filters = [where('clientId', '==', clientId), orderBy('createdAt', 'desc')];
+      if (cid) q1Filters.unshift(where('companyId', '==', cid));
+      const q1 = query(collection(db, 'orders'), ...q1Filters);
       snaps = await getDocs(q1);
     } catch (e) {
       // Fallback without orderBy (index might be missing)
-      snaps = await getDocs(query(collection(db, 'orders'), where('clientId', '==', clientId)));
+      const fbFilters = [where('clientId', '==', clientId)];
+      if (cid) fbFilters.unshift(where('companyId', '==', cid));
+      snaps = await getDocs(query(collection(db, 'orders'), ...fbFilters));
     }
     snaps.docs.forEach(d => {
       if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
@@ -352,7 +356,9 @@ async function loadOrdersForClient(){
   const clientName = _clientData?.name;
   if (clientName) {
     try {
-      const qLeg = await getDocs(query(collection(db, 'orders'), where('clientName', '==', clientName)));
+      const legFilters = [where('clientName', '==', clientName)];
+      if (cid) legFilters.unshift(where('companyId', '==', cid));
+      const qLeg = await getDocs(query(collection(db, 'orders'), ...legFilters));
       qLeg.docs.forEach(d => {
         if (!seen.has(d.id)) { seen.add(d.id); allOrders.push({ __id: d.id, ...d.data() }); }
       });

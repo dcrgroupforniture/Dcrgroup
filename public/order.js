@@ -89,8 +89,8 @@ function parseEuroLike(v){
 async function getClientNameSafe(id){
   if(!id) return "";
   try{
-    const cSnap = await getDoc(doc(db, "clients", id));
-    if(cSnap.exists()) { const d=cSnap.data()||{}; return String(d.name || d.nome || d.ragioneSociale || d.businessName || '').trim(); }
+    const cSnap = await fs.getDoc("clients", id);
+    if(cSnap) { const d=cSnap||{}; return String(d.name || d.nome || d.ragioneSociale || d.businessName || '').trim(); }
   }catch(e){}
   return "";
 }
@@ -102,7 +102,10 @@ async function removeIncassiForOrder({ orderId }){
   const deletions = suffixes.map(s => fs.remove("incassi", `${orderId}${s}`).catch(()=>null));
 
   try{
-    const q = query(collection(db, "incassi"), where("orderId", "==", orderId));
+    const cid = fs.getActiveCompanyId();
+    const qFilters = [where("orderId", "==", orderId)];
+    if (cid) qFilters.push(where("companyId", "==", cid));
+    const q = query(collection(db, "incassi"), ...qFilters);
     const snap = await getDocs(q);
     snap.forEach(d => deletions.push(fs.remove("incassi", d.id).catch(()=>null)));
   }catch(e){
@@ -131,8 +134,8 @@ async function createIncassoRecord({ orderId, clientId, dateKey, amount, kind, n
 
   // Verifica immediata: se per qualsiasi motivo non viene scritto, facciamo fallire
   // per mostrarlo chiaramente (anziché "silenzio" e popup vuoto).
-  const check = await getDoc(doc(db, "incassi", incassoId));
-  if(!check.exists()){
+  const check = await fs.getDoc("incassi", incassoId);
+  if(!check){
     throw new Error("Incasso non scritto su Firestore (verifica permessi/regole)." );
   }
 }
@@ -223,7 +226,10 @@ async function syncDeadlinesToScadenze(orderId, deadlines){
 
   // Soft-delete delle scadenze precedenti collegate a questo ordine
   try{
-    const q = query(collection(db, "scadenze"), where("orderId", "==", orderId));
+    const cid = fs.getActiveCompanyId();
+    const qsFilters = [where("orderId", "==", orderId)];
+    if (cid) qsFilters.push(where("companyId", "==", cid));
+    const q = query(collection(db, "scadenze"), ...qsFilters);
     const snap = await getDocs(q);
     await Promise.allSettled(
       snap.docs.map(d => fs.set("scadenze", d.id, { isDeleted: true }))
@@ -294,15 +300,14 @@ function openWhatsAppWithText(text){
 }
 
 async function getOrderAndClient({ orderId, clientId }){
-  const oSnap = await getDoc(doc(db, "orders", orderId));
-  if(!oSnap.exists()) throw new Error("Ordine non trovato");
-  const o = oSnap.data() || {};
+  const o = await fs.getDoc("orders", orderId);
+  if(!o) throw new Error("Ordine non trovato");
 
   let clientName = "";
   try{
     if(clientId){
-      const cSnap = await getDoc(doc(db, "clients", clientId));
-      if(cSnap.exists()) clientName = (cSnap.data()?.name || "").trim();
+      const cSnap = await fs.getDoc("clients", clientId);
+      if(cSnap) clientName = (cSnap.name || "").trim();
     }
   }catch(e){}
 
@@ -396,15 +401,14 @@ function buildReceiptHtml({ clientName, dateStr, total, statusLabel, deposit, re
   `;
 }
 async function buildOrderReceiptText({ orderId, clientId }){
-  const oSnap = await getDoc(doc(db, "orders", orderId));
-  if(!oSnap.exists()) throw new Error("Ordine non trovato");
-  const o = oSnap.data() || {};
+  const o = await fs.getDoc("orders", orderId);
+  if(!o) throw new Error("Ordine non trovato");
 
   let clientName = "";
   try{
     if(clientId){
-      const cSnap = await getDoc(doc(db, "clients", clientId));
-      if(cSnap.exists()) clientName = (cSnap.data()?.name || "").trim();
+      const cSnap = await fs.getDoc("clients", clientId);
+      if(cSnap) clientName = (cSnap.name || "").trim();
     }
   }catch(e){}
 
@@ -803,10 +807,8 @@ grandTotalEl.textContent = discountedTotal.toFixed(2);
 // ===============================
 async function loadOrderForEdit() {
   try {
-    const snap = await getDoc(doc(db, "orders", orderId));
-    if (!snap.exists()) return;
-
-    const o = snap.data();
+    const o = await fs.getDoc("orders", orderId);
+    if (!o) return;
 
     ivaCheck.checked = !!o.iva;
 
@@ -1512,9 +1514,9 @@ async function ensureClientIdFromOrder(){
   // Se l'URL non porta clientId (bug / link vecchio), proviamo a recuperarlo dall'ordine
   if (clientId || !orderId) return;
   try{
-    const snap = await getDoc(doc(db, "orders", orderId));
-    if(snap.exists()){
-      const data = snap.data() || {};
+    const snap = await fs.getDoc("orders", orderId);
+    if(snap){
+      const data = snap;
       if(data.clientId) clientId = data.clientId;
     }
   }catch(e){

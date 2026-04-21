@@ -128,9 +128,9 @@ function openEditModal(value) {
 // ── Draft ────────────────────────────────────────────────────────
 async function loadDraft() {
   try {
-    const snap = await getDoc(doc(db, "workNotes", getDraftDocId()));
-    if (snap.exists() && notesEl) {
-      notesEl.value = String(snap.data()?.text || '');
+    const snap = await fs.getDoc("workNotes", getDraftDocId());
+    if (snap && notesEl) {
+      notesEl.value = String(snap.text || '');
     }
     setStatus('');
   } catch (e) {
