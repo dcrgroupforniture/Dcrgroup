@@ -99,12 +99,12 @@ function renderOutstandingRows(rows) {
 }
 
 async function refreshClients(){
-  cache.clients = await fs.getAll("clients");
+  cache.clients = await fs.getAllByCompany("clients");
   els.clientsDatalist.innerHTML = cache.clients.map((c)=>`<option value="${escapeHtml(c.name || c.nome || "")}"></option>`).join("");
 }
 
 async function loadData() {
-  const [norm, expenses, rawIncassi] = await Promise.all([getNormalizedIncomesAndOrders(), listExpenses(), fs.getAll('incassi')]);
+  const [norm, expenses, rawIncassi] = await Promise.all([getNormalizedIncomesAndOrders(), listExpenses(), fs.getAllByCompany('incassi')]);
   cache.incomes = norm.incomes;
   cache.orders = norm.orders;
   cache.expenses = expenses;

@@ -101,10 +101,36 @@ new Promise((resolve) => {
     firestoreService.setTenantContext({ companyId, role });
     // Expose tenant info globally for pages that need it.
     window.__tenant = { uid: user.uid, email: user.email, companyId, role };
+    _injectCompanyBadge(companyId, role);
   }).catch((err) => {
     // Firestore unavailable: set default context so writes don't fail.
     console.warn('[auth-guard] Could not load user profile, using default tenant context.', err);
     firestoreService.setTenantContext({ companyId: DEFAULT_COMPANY_ID, role: 'admin' });
     window.__tenant = { uid: user.uid, email: user.email, companyId: DEFAULT_COMPANY_ID, role: 'admin' };
+    _injectCompanyBadge(DEFAULT_COMPANY_ID, 'admin');
   });
 });
+
+/**
+ * Injects a small company badge into the .top-bar element so every page
+ * shows which tenant is active. Only shown when companyId is not the legacy
+ * default, or when the user is an admin (to aid orientation).
+ */
+function _injectCompanyBadge(companyId, role) {
+  if (!companyId) return;
+  // Skip if a badge is already present (e.g. companies.html injects its own).
+  if (document.getElementById('__tenant-badge')) return;
+  const topBar = document.querySelector('.top-bar');
+  if (!topBar) return;
+  const badge = document.createElement('span');
+  badge.id = '__tenant-badge';
+  badge.style.cssText = [
+    'font-size:11px','font-weight:700','padding:3px 10px',
+    'border-radius:20px','margin-left:auto','flex-shrink:0',
+    'background:rgba(99,102,241,.18)','color:#818cf8',
+    'white-space:nowrap','overflow:hidden','text-overflow:ellipsis','max-width:120px',
+  ].join(';');
+  badge.title = `Azienda: ${companyId} | Ruolo: ${role}`;
+  badge.textContent = companyId === DEFAULT_COMPANY_ID ? role : companyId;
+  topBar.appendChild(badge);
+}

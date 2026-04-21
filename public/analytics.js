@@ -54,8 +54,8 @@ function setupAnnoSelect() {
 
 async function loadData() {
   try {
-    fatture  = await fs.getAll('fatture');
-    mandanti = await fs.getAll('mandanti');
+    fatture  = await fs.getAllByCompany('fatture');
+    mandanti = await fs.getAllByCompany('mandanti');
   } catch (e) {
     fatture = []; mandanti = [];
   }

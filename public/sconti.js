@@ -39,19 +39,19 @@ function setupQuickNav() {
 }
 
 async function loadSconti() {
-  try { sconti = await fs.getAll(COL); }
+  try { sconti = await fs.getAllByCompany(COL); }
   catch (e) { sconti = []; }
   sconti.sort((a, b) => (Number(a.priorita) || 99) - (Number(b.priorita) || 99));
   applyFilters();
 }
 
 async function loadClienti() {
-  try { clienti = await fs.getAll('clienti'); } catch { clienti = []; }
+  try { clienti = await fs.getAllByCompany('clienti'); } catch { clienti = []; }
   populateSelect('selectScontoCliente', clienti, c => c.ragioneSociale || c.nome || c.id, true);
 }
 
 async function loadMandanti() {
-  try { mandanti = await fs.getAll('mandanti'); } catch { mandanti = []; }
+  try { mandanti = await fs.getAllByCompany('mandanti'); } catch { mandanti = []; }
   populateSelect('selectScontoMandante', mandanti, m => m.ragioneSociale || m.nome || m.id, true);
 }
 
@@ -222,7 +222,7 @@ function bindEvents() {
 export async function applyBestSconto(clienteId, mandanteId, totaleImponibile) {
   const today = todayISO();
   let rules = [];
-  try { rules = await fs.getAll(COL); } catch { return null; }
+  try { rules = await fs.getAllByCompany(COL); } catch { return null; }
   rules.sort((a, b) => (Number(a.priorita) || 99) - (Number(b.priorita) || 99));
   return rules.find(s => {
     if (s.clienteId  && s.clienteId  !== clienteId)  return false;

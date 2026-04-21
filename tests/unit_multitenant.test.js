@@ -301,3 +301,98 @@ test('detectOrphanOrders: returns empty array when all orders are valid', () => 
   const orders = [{ id: 'o1', clientId: 'c1' }];
   assert.equal(detectOrphanOrders(clients, orders).length, 0);
 });
+
+// ─── Auto-scoped query registry tests ─────────────────────────────────────
+// Test the scopedAll behaviour without Firebase using a mock firestoreService.
+
+function makeMockFs(activeCompanyId = null) {
+  const calls = [];
+  return {
+    calls,
+    getActiveCompanyId: () => activeCompanyId,
+    col: (name) => ({ _col: name }),
+    query: (colRef, ...clauses) => ({ _col: colRef._col, _clauses: clauses }),
+    where: (field, op, value) => ({ _where: { field, op, value } }),
+  };
+}
+
+function scopedAll(colName, mockFs) {
+  return () => {
+    const cid = mockFs.getActiveCompanyId();
+    if (cid) return mockFs.query(mockFs.col(colName), mockFs.where('companyId', '==', cid));
+    return mockFs.query(mockFs.col(colName));
+  };
+}
+
+function forCompany(companyId, mockFs, colName) {
+  if (!companyId) return scopedAll(colName, mockFs);
+  return () => mockFs.query(mockFs.col(colName), mockFs.where('companyId', '==', companyId));
+}
+
+test('scopedAll: unscoped when no active company', () => {
+  const mockFs = makeMockFs(null);
+  const q = scopedAll('orders', mockFs)();
+  assert.equal(q._col, 'orders');
+  assert.equal(q._clauses.length, 0);
+});
+
+test('scopedAll: scoped to active company when context is set', () => {
+  const mockFs = makeMockFs('acme_corp');
+  const q = scopedAll('orders', mockFs)();
+  assert.equal(q._col, 'orders');
+  assert.equal(q._clauses.length, 1);
+  assert.deepEqual(q._clauses[0]._where, { field: 'companyId', op: '==', value: 'acme_corp' });
+});
+
+test('scopedAll: different calls with same factory reflect current active company', () => {
+  let activeCid = null;
+  const mockFs = {
+    getActiveCompanyId: () => activeCid,
+    col: (n) => ({ _col: n }),
+    query: (c, ...cl) => ({ _col: c._col, _clauses: cl }),
+    where: (f, o, v) => ({ _where: { field: f, op: o, value: v } }),
+  };
+  const factory = scopedAll('clients', mockFs);
+
+  // Before auth: unscoped
+  const q1 = factory();
+  assert.equal(q1._clauses.length, 0);
+
+  // After auth (tenant context set): auto-scoped
+  activeCid = 'beta_srl';
+  const q2 = factory();
+  assert.equal(q2._clauses.length, 1);
+  assert.equal(q2._clauses[0]._where.value, 'beta_srl');
+});
+
+test('forCompany: explicit companyId overrides active context', () => {
+  const mockFs = makeMockFs('active_company');
+  const q = forCompany('other_company', mockFs, 'invoices')();
+  assert.equal(q._col, 'invoices');
+  assert.equal(q._clauses.length, 1);
+  assert.equal(q._clauses[0]._where.value, 'other_company');
+});
+
+test('forCompany: null companyId falls back to scopedAll', () => {
+  const mockFs = makeMockFs('active_co');
+  const q = forCompany(null, mockFs, 'suppliers')();
+  assert.equal(q._col, 'suppliers');
+  // Since active_co is set, scopedAll still scopes it
+  assert.equal(q._clauses.length, 1);
+  assert.equal(q._clauses[0]._where.value, 'active_co');
+});
+
+test('scopedAll: works for all 13 core collection names', () => {
+  const cols = [
+    'clients','orders','incassi','expenses','scadenze','suppliers',
+    'payments','priceRequests','trattative','offerte','fatture',
+    'pagamenti','crmAttivita',
+  ];
+  const mockFs = makeMockFs('tenant_x');
+  for (const col of cols) {
+    const q = scopedAll(col, mockFs)();
+    assert.equal(q._col, col, `scopedAll failed for collection: ${col}`);
+    assert.equal(q._clauses.length, 1, `scopedAll missing clause for: ${col}`);
+    assert.equal(q._clauses[0]._where.value, 'tenant_x');
+  }
+});

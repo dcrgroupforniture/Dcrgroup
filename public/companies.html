@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestione Aziende — DCR GROUP</title>
+  <link rel="stylesheet" href="styles.css?v=20260421" />
+  <link rel="stylesheet" href="mobile.css?v=20260421" />
+  <link rel="stylesheet" href="companies.css?v=20260421" />
+  <script type="module" src="/auth-guard.js"></script>
+</head>
+<body class="page comp-page">
+
+<header class="top-bar">
+  <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+  <span class="page-title">Gestione Aziende</span>
+  <span id="companyBadge" class="comp-tenant-badge"></span>
+</header>
+
+<main class="comp-wrap">
+
+  <!-- SIDEBAR: list of companies -->
+  <aside class="comp-sidebar">
+    <div class="comp-sidebar-header">
+      <input type="search" id="compSearch" class="comp-search" placeholder="Cerca azienda…" autocomplete="off"/>
+      <button class="comp-btn comp-btn-primary" id="btnNewCompany">＋ Nuova</button>
+    </div>
+    <div class="comp-list" id="compList">
+      <div class="comp-empty-state" id="compEmptyState">Nessuna azienda. Clicca "+ Nuova" per creare.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN: company detail / create form -->
+  <section class="comp-content" id="compContent">
+
+    <div class="comp-no-selection" id="compNoSelection">
+      <p>Seleziona un'azienda dalla lista oppure creane una nuova.</p>
+    </div>
+
+    <!-- Company detail view -->
+    <div id="compDetail" style="display:none">
+      <div class="comp-detail-header">
+        <div>
+          <h2 class="comp-detail-title" id="compDetailName">—</h2>
+          <span class="comp-item-badge" id="compDetailId">—</span>
+        </div>
+        <div class="comp-detail-actions">
+          <button class="comp-btn comp-btn-sm comp-btn-secondary" id="btnEditCompany">Modifica</button>
+          <button class="comp-btn comp-btn-sm comp-btn-danger" id="btnDeleteCompany">Elimina</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <nav class="comp-tabs" role="tablist">
+        <button class="comp-tab active" role="tab" data-tab="info">Anagrafica</button>
+        <button class="comp-tab" role="tab" data-tab="users">Utenti</button>
+      </nav>
+
+      <!-- TAB: Anagrafica -->
+      <div class="comp-tab-panel active" id="tab-info">
+        <div class="comp-info-grid" id="compInfoGrid"></div>
+      </div>
+
+      <!-- TAB: Utenti -->
+      <div class="comp-tab-panel" id="tab-users" style="display:none">
+        <div class="comp-users-header">
+          <h3>Utenti dell'azienda</h3>
+          <button class="comp-btn comp-btn-sm comp-btn-primary" id="btnAddUser">＋ Aggiungi utente</button>
+        </div>
+        <div id="compUsersList" class="comp-users-list">
+          <p class="comp-empty-state">Nessun utente trovato per questa azienda.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE / EDIT FORM -->
+    <div id="compForm" style="display:none">
+      <div class="comp-form-header">
+        <h2 id="compFormTitle">Nuova Azienda</h2>
+      </div>
+      <form id="compFormEl" class="comp-form" autocomplete="off">
+        <div class="comp-form-row">
+          <label for="fCompId">ID Azienda <span class="comp-req">*</span></label>
+          <input type="text" id="fCompId" name="id" placeholder="es. mycompany_srl" required pattern="[a-z0-9_]+" maxlength="64"/>
+          <small>Solo minuscolo, numeri e underscore. Non modificabile dopo la creazione.</small>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompName">Nome <span class="comp-req">*</span></label>
+          <input type="text" id="fCompName" name="name" placeholder="DCR Group SRL" required maxlength="128"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompVat">Partita IVA</label>
+          <input type="text" id="fCompVat" name="vatNumber" placeholder="IT01234567890" maxlength="16"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompEmail">Email</label>
+          <input type="email" id="fCompEmail" name="email" placeholder="info@azienda.it" maxlength="128"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompPhone">Telefono</label>
+          <input type="text" id="fCompPhone" name="phone" placeholder="+39 0000 000000" maxlength="32"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompAddress">Indirizzo</label>
+          <input type="text" id="fCompAddress" name="address" placeholder="Via Roma 1, Milano" maxlength="200"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fCompPlan">Piano</label>
+          <select id="fCompPlan" name="plan">
+            <option value="starter">Starter</option>
+            <option value="pro" selected>Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="comp-form-actions">
+          <button type="button" class="comp-btn comp-btn-secondary" id="btnCancelForm">Annulla</button>
+          <button type="submit" class="comp-btn comp-btn-primary" id="btnSaveCompany">Salva</button>
+        </div>
+        <p id="compFormError" class="comp-form-error" style="display:none"></p>
+      </form>
+    </div>
+
+    <!-- ADD USER FORM -->
+    <div id="compAddUserForm" style="display:none">
+      <div class="comp-form-header">
+        <h2>Aggiungi Utente all'Azienda</h2>
+        <button type="button" class="comp-btn comp-btn-secondary comp-btn-sm" id="btnCancelAddUser">Annulla</button>
+      </div>
+      <form id="compAddUserFormEl" class="comp-form" autocomplete="off">
+        <div class="comp-form-row">
+          <label for="fUserUid">UID Firebase Auth <span class="comp-req">*</span></label>
+          <input type="text" id="fUserUid" name="uid" placeholder="abc123..." required maxlength="128"/>
+          <small>UID dell'utente già registrato su Firebase Auth.</small>
+        </div>
+        <div class="comp-form-row">
+          <label for="fUserEmail">Email</label>
+          <input type="email" id="fUserEmail" name="email" placeholder="utente@azienda.it" maxlength="128"/>
+        </div>
+        <div class="comp-form-row">
+          <label for="fUserRole">Ruolo <span class="comp-req">*</span></label>
+          <select id="fUserRole" name="role" required>
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="agente" selected>Agente</option>
+            <option value="contabile">Contabile</option>
+            <option value="magazzino">Magazzino</option>
+          </select>
+        </div>
+        <div class="comp-form-actions">
+          <button type="submit" class="comp-btn comp-btn-primary">Aggiungi</button>
+        </div>
+        <p id="addUserError" class="comp-form-error" style="display:none"></p>
+      </form>
+    </div>
+
+  </section>
+</main>
+
+<div id="compToast" class="comp-toast" style="display:none"></div>
+
+<script src="/scripts/dashboard-menu.js"></script>
+<script type="module" src="/companies.js?v=20260421"></script>
+</body>
+</html>

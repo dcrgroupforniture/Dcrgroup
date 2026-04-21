@@ -75,7 +75,7 @@ async function loadAttivita() {
   }
   if (!loaded) {
     try {
-      attivita = await fs.getAll('crmAttivita');
+      attivita = await fs.getAllByCompany('crmAttivita');
       loaded = true;
     } catch (e) {
       console.error('[crm] loadAttivita getAll failed', e);
@@ -88,7 +88,7 @@ async function loadAttivita() {
 
 async function loadClienti() {
   try {
-    clienti = await fs.getAll('clienti');
+    clienti = await fs.getAllByCompany('clienti');
   } catch {
     clienti = [];
   }
@@ -96,7 +96,7 @@ async function loadClienti() {
 
 async function loadMandanti() {
   try {
-    mandanti = await fs.getAll('mandanti');
+    mandanti = await fs.getAllByCompany('mandanti');
   } catch {
     mandanti = [];
   }
@@ -401,7 +401,7 @@ let currentTrattativaId = null;
 
 async function loadTrattative() {
   try {
-    trattative = await fs.getAll('trattative');
+    trattative = await fs.getAllByCompany('trattative');
     trattative.sort((a, b) => (b.dataApertura || '').localeCompare(a.dataApertura || ''));
   } catch (e) {
     trattative = [];

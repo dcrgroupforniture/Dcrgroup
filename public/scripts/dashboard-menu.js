@@ -39,6 +39,7 @@
     'sconti.html':        { c:'#7c3aed', s:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>' },
     'solleciti.html':     { c:'#dc2626', s:'<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>' },
     'analytics.html':     { c:'#6366f1', s:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>' },
+    'companies.html':     { c:'#7c3aed', s:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/><rect x="9" y="12" width="6" height="10"/>' },
   };
   const FALLBACK_COLORS = ["#2563eb","#16a34a","#f59e0b","#ef4444","#7c3aed","#0ea5e9","#db2777","#059669","#f97316"];
   const MASTER_ITEMS = [
@@ -67,6 +68,7 @@
     { value:"analytics.html", text:"Analytics" },
     { value:"migrate-to-multitenant.html", text:"Migrazione Multi-Tenant" },
     { value:"validate-migration.html", text:"Valida Migrazione" },
+    { value:"companies.html", text:"Gestione Aziende" },
   ];
 
   function iconSVG(seed, pageValue){

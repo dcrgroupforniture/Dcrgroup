@@ -79,7 +79,7 @@ async function loadLog() {
 
 async function loadClienti() {
   try {
-    clienti = await fs.getAll('clienti');
+    clienti = await fs.getAllByCompany('clienti');
   } catch (e) {
     console.error('loadClienti:', e);
     clienti = [];
@@ -88,7 +88,7 @@ async function loadClienti() {
 
 async function loadMandanti() {
   try {
-    mandanti = await fs.getAll('mandanti');
+    mandanti = await fs.getAllByCompany('mandanti');
     populateMandantiSelect();
   } catch (e) {
     console.error('loadMandanti:', e);

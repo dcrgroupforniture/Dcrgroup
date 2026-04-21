@@ -197,7 +197,7 @@ function applyFilters() {
 
 async function loadFatture() {
   try {
-    fatture = await fs.getAll(COL_FATTURE);
+    fatture = await fs.getAllByCompany(COL_FATTURE);
     fatture.sort((a, b) => {
       const numA = String(a.numero || '');
       const numB = String(b.numero || '');
@@ -214,7 +214,7 @@ async function loadFatture() {
 
 async function loadPagamenti() {
   try {
-    pagamenti = await fs.getAll(COL_PAGAMENTI);
+    pagamenti = await fs.getAllByCompany(COL_PAGAMENTI);
     pagamenti.sort((a, b) => (b.dataPagamento || '').localeCompare(a.dataPagamento || ''));
     renderPagamentiTable();
   } catch (e) {
@@ -224,7 +224,7 @@ async function loadPagamenti() {
 
 async function loadClienti() {
   try {
-    clienti = await fs.getAll(COL_CLIENTI);
+    clienti = await fs.getAllByCompany(COL_CLIENTI);
     clienti.sort((a, b) => {
       const na = a.ragioneSociale || a.nome || '';
       const nb = b.ragioneSociale || b.nome || '';
@@ -238,7 +238,7 @@ async function loadClienti() {
 
 async function loadMandanti() {
   try {
-    mandanti = await fs.getAll(COL_MANDANTI);
+    mandanti = await fs.getAllByCompany(COL_MANDANTI);
     mandanti.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'it'));
     populateMandanteSelect();
   } catch (e) {
@@ -298,7 +298,7 @@ function updateKpis() {
 // ── Auto-generate invoice number ───────────────────────────────────────────
 
 async function nextFatturaNumber(anno) {
-  const list = await fs.getAll(COL_FATTURE);
+  const list = await fs.getAllByCompany(COL_FATTURE);
   const yearDocs = list.filter(f => String(f.anno) === String(anno));
   let maxSeq = 0;
   yearDocs.forEach(f => {
@@ -1039,7 +1039,7 @@ async function registraPagamento(fatturaId, importo, dataPagamento, metodo, rife
   });
 
   // 2. Sum all payments for this fattura
-  const allPag = await fs.getAll(COL_PAGAMENTI);
+  const allPag = await fs.getAllByCompany(COL_PAGAMENTI);
   const totalePagato = allPag
     .filter(p => p.fatturaId === fatturaId)
     .reduce((s, p) => s + Number(p.importo || 0), 0);
