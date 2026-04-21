@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Migrazione Multi-Tenant — DCR Group</title>
+  <link rel="stylesheet" href="styles.css?v=20260421" />
+  <link rel="stylesheet" href="mobile.css?v=20260421" />
+  <script type="module" src="/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+      --brand:#3b82f6; --brand2:#2563eb; --border:rgba(255,255,255,.10);
+      --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --radius:16px;
+    }
+    :root.theme-light { --bg:#f1f5f9; --card:#fff; --text:#0f172a; --muted:#64748b; --border:rgba(0,0,0,.10); }
+    *{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--text);min-height:100vh}
+
+    .mt-topbar{position:fixed;top:0;left:0;right:0;height:calc(60px + env(safe-area-inset-top));
+      padding-top:env(safe-area-inset-top);background:var(--card);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;padding-left:16px;padding-right:16px;z-index:100}
+    .mt-topbar .back-btn{background:var(--brand);color:#fff;border:none;border-radius:12px;
+      padding:10px 14px;font-size:18px;cursor:pointer}
+    .mt-topbar .page-title{font-weight:900;font-size:17px;color:var(--text)}
+
+    .mt-main{max-width:760px;margin:0 auto;padding:calc(80px + env(safe-area-inset-top)) 16px 40px}
+
+    .mt-hero{text-align:center;padding:28px 20px 20px;
+      background:linear-gradient(135deg,#1e3a8a 0%,#312e81 100%);
+      border-radius:var(--radius);margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.30)}
+    .mt-hero-icon{font-size:48px;margin-bottom:10px}
+    .mt-hero-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px}
+    .mt-hero-sub{font-size:13px;color:rgba(255,255,255,.70);line-height:1.6}
+
+    .mt-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+    .mt-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;
+      padding-bottom:12px;border-bottom:1px solid var(--border)}
+    .mt-card-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:20px}
+    .mt-card-icon.blue{background:rgba(59,130,246,.18)}
+    .mt-card-icon.green{background:rgba(16,185,129,.18)}
+    .mt-card-icon.orange{background:rgba(245,158,11,.18)}
+    .mt-card-icon.purple{background:rgba(139,92,246,.18)}
+    .mt-card-title{font-weight:900;font-size:16px}
+    .mt-card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .mt-btn{display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:14px 18px;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;
+      border:none;transition:all .15s;-webkit-tap-highlight-color:transparent;min-width:160px}
+    .mt-btn.primary{background:var(--brand);color:#fff}
+    .mt-btn.primary:hover{background:var(--brand2)}
+    .mt-btn.success{background:var(--success);color:#fff}
+    .mt-btn.danger{background:var(--danger);color:#fff}
+    .mt-btn:disabled{opacity:.5;cursor:not-allowed}
+    .mt-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+    .mt-warning{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.25);
+      border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;color:#fcd34d;margin-bottom:14px}
+    .mt-warning strong{color:#fbbf24}
+
+    .mt-status{border-radius:10px;padding:12px 14px;font-size:13px;font-weight:700;
+      margin-top:12px;display:none;white-space:pre-line;line-height:1.6}
+    .mt-status.show{display:block}
+    .mt-status.ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#34d399}
+    .mt-status.error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+    .mt-status.warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+    .mt-status.info{background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.25);color:#93c5fd}
+
+    .mt-progress{margin-top:14px;display:none}
+    .mt-progress.show{display:block}
+    .mt-progress-bar-wrap{background:rgba(255,255,255,.08);border-radius:999px;height:8px;overflow:hidden}
+    .mt-progress-bar{height:100%;background:var(--brand);border-radius:999px;transition:width .3s;width:0%}
+    .mt-progress-label{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .mt-table-wrap{overflow-x:auto;margin-top:14px}
+    .mt-table{width:100%;border-collapse:collapse;font-size:13px}
+    .mt-table th{background:rgba(255,255,255,.06);padding:8px 12px;text-align:left;
+      font-weight:800;border-bottom:1px solid var(--border);white-space:nowrap}
+    .mt-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+    .mt-table tr:last-child td{border-bottom:none}
+    .mt-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800}
+    .mt-badge.ok{background:#dcfce7;color:#166534}
+    .mt-badge.skip{background:#e0e7ff;color:#3730a3}
+    .mt-badge.dry{background:#fef9c3;color:#854d0e}
+    .mt-badge.error{background:#fee2e2;color:#991b1b}
+
+    .mt-log{font-family:monospace;font-size:12px;background:rgba(0,0,0,.25);border-radius:10px;
+      padding:12px;max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-top:12px;display:none}
+    .mt-log.show{display:block}
+
+    .mode-toggle{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+    .mode-toggle label{font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+    .mode-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:800}
+    .mode-badge.dry{background:rgba(245,158,11,.20);color:#fbbf24;border:1px solid rgba(245,158,11,.30)}
+    .mode-badge.apply{background:rgba(239,68,68,.18);color:#fca5a5;border:1px solid rgba(239,68,68,.28)}
+
+    .company-input{width:100%;padding:10px 14px;border-radius:10px;
+      border:1px solid var(--border);background:rgba(255,255,255,.07);
+      color:var(--text);font-size:14px;font-weight:700;margin-bottom:10px}
+  </style>
+</head>
+<body>
+
+<header class="mt-topbar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div>
+    <div class="page-title">🏢 Migrazione Multi-Tenant</div>
+  </div>
+</header>
+
+<main class="mt-main">
+
+  <div class="mt-hero">
+    <div class="mt-hero-icon">🔄</div>
+    <div class="mt-hero-title">Migrazione a Multi-Tenant</div>
+    <div class="mt-hero-sub">
+      Aggiunge il campo <strong>companyId</strong> a tutti i documenti esistenti.<br>
+      Tutti i dati attuali diventano la prima azienda nella piattaforma SaaS.<br>
+      <strong>Esegui sempre il dry-run prima di applicare le modifiche.</strong>
+    </div>
+  </div>
+
+  <!-- Step 1: Backup -->
+  <div class="mt-card">
+    <div class="mt-card-head">
+      <div class="mt-card-icon orange">⚠️</div>
+      <div>
+        <div class="mt-card-title">Step 1 — Backup obbligatorio</div>
+        <div class="mt-card-sub">Prima di procedere, esporta un backup completo</div>
+      </div>
+    </div>
+    <div class="mt-warning">
+      <strong>⚠️ LEGGI ATTENTAMENTE:</strong><br>
+      La migrazione modifica i dati di produzione. Non è reversibile automaticamente.<br>
+      Esegui il <strong>Backup completo</strong> prima di procedere.<br>
+      Se qualcosa va storto, il backup ti permette di ripristinare tutti i dati.
+    </div>
+    <div class="mt-btns">
+      <button class="mt-btn primary" id="btnBackup">⬇️ Backup pre-migrazione</button>
+      <a href="backup.html" class="mt-btn primary" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+        📂 Pagina Backup
+      </a>
+    </div>
+    <div class="mt-status" id="backupStatus"></div>
+  </div>
+
+  <!-- Step 2: Configuration -->
+  <div class="mt-card">
+    <div class="mt-card-head">
+      <div class="mt-card-icon blue">⚙️</div>
+      <div>
+        <div class="mt-card-title">Step 2 — Configurazione</div>
+        <div class="mt-card-sub">Imposta il companyId per i dati esistenti</div>
+      </div>
+    </div>
+    <label style="font-size:13px;font-weight:700;margin-bottom:6px;display:block;color:var(--muted)">
+      Company ID (identificatore univoco per questa azienda)
+    </label>
+    <input class="company-input" id="companyIdInput" type="text"
+      value="default_company" placeholder="es: default_company"
+      title="ID univoco della prima azienda nel sistema multi-tenant">
+    <p style="font-size:12px;color:var(--muted);margin:0">
+      Lascia <strong>default_company</strong> per il setup standard. Usato per isolare i dati di questa azienda.
+    </p>
+    <div class="mode-toggle" style="margin-top:14px">
+      <strong style="font-size:13px">Modalità:</strong>
+      <label>
+        <input type="radio" name="mode" value="dry" checked>
+        <span class="mode-badge dry">DRY-RUN (simulazione)</span>
+      </label>
+      <label>
+        <input type="radio" name="mode" value="apply">
+        <span class="mode-badge apply">APPLY (scrive su Firestore)</span>
+      </label>
+    </div>
+    <p id="modeDesc" style="font-size:12px;color:var(--muted);margin:6px 0 0">
+      🔍 <strong>DRY-RUN:</strong> analizza i dati e mostra cosa verrebbe modificato senza scrivere nulla.
+    </p>
+  </div>
+
+  <!-- Step 3: Run Migration -->
+  <div class="mt-card">
+    <div class="mt-card-head">
+      <div class="mt-card-icon purple">🚀</div>
+      <div>
+        <div class="mt-card-title">Step 3 — Esegui migrazione</div>
+        <div class="mt-card-sub">Aggiunge companyId a tutti i documenti</div>
+      </div>
+    </div>
+    <div class="mt-btns">
+      <button class="mt-btn primary" id="btnRunMigration">▶ Avvia migrazione</button>
+      <button class="mt-btn danger" id="btnShowLog" style="display:none">📋 Mostra log</button>
+    </div>
+    <div class="mt-progress" id="migrationProgress">
+      <div class="mt-progress-bar-wrap"><div class="mt-progress-bar" id="migrationBar"></div></div>
+      <div class="mt-progress-label" id="migrationLabel">Analisi in corso…</div>
+    </div>
+    <div class="mt-status" id="migrationStatus"></div>
+    <div class="mt-log" id="migrationLog"></div>
+
+    <!-- Results table -->
+    <div id="resultsWrap" style="display:none">
+      <div class="mt-table-wrap">
+        <table class="mt-table">
+          <thead>
+            <tr>
+              <th>Collezione</th>
+              <th>Totale</th>
+              <th>Da migrare</th>
+              <th>Già migrati</th>
+              <th>Esito</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Validate -->
+  <div class="mt-card">
+    <div class="mt-card-head">
+      <div class="mt-card-icon green">✅</div>
+      <div>
+        <div class="mt-card-title">Step 4 — Valida la migrazione</div>
+        <div class="mt-card-sub">Verifica che tutti i documenti abbiano companyId</div>
+      </div>
+    </div>
+    <div class="mt-btns">
+      <a href="validate-migration.html" class="mt-btn success" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+        🔍 Apri validatore
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script type="module" src="/nav.js?v=20260421"></script>
+<script src="scripts/dashboard-menu.js?v=20260421"></script>
+
+<script type="module">
+import { db } from './firebase.js';
+import {
+  collection, getDocs, writeBatch, doc, serverTimestamp, setDoc
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// ─── Collections to migrate ────────────────────────────────────────────────
+const TOP_COLLECTIONS = [
+  'clients', 'clienti', 'orders', 'incassi', 'expenses', 'spese',
+  'scadenze', 'suppliers', 'payments', 'fatture', 'pagamenti',
+  'priceRequests', 'agendaEvents', 'products', 'listini', 'listiniItems',
+  'sconti', 'trattative', 'offerte', 'mandanti', 'budget', 'crmAttivita',
+  'mailingCampaigns', 'mailingLogs', 'solleciti', 'scadenzeFinance', 'preventivi',
+];
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+const logLines = [];
+function appendLog(msg) {
+  const ts = new Date().toLocaleTimeString('it-IT');
+  const line = `[${ts}] ${msg}`;
+  logLines.push(line);
+  const el = document.getElementById('migrationLog');
+  if (el && el.classList.contains('show')) {
+    el.textContent = logLines.join('\n');
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+function setProgress(pct, label) {
+  const bar = document.getElementById('migrationBar');
+  const lbl = document.getElementById('migrationLabel');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = label;
+}
+
+function showStatus(id, msg, type = 'ok') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `mt-status show ${type}`;
+}
+
+function addResultRow(col, total, toMigrate, skipped, isDryRun, hasError) {
+  const tbody = document.getElementById('resultsBody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  const badgeClass = hasError ? 'error' : isDryRun ? 'dry' : (toMigrate > 0 ? 'ok' : 'skip');
+  const badgeText = hasError ? '❌ Errore' : isDryRun ? '🔍 Simulato' : (toMigrate > 0 ? '✓ Migrato' : '↷ Già ok');
+  tr.innerHTML = `
+    <td><strong>${col}</strong></td>
+    <td>${total}</td>
+    <td>${toMigrate}</td>
+    <td>${skipped}</td>
+    <td><span class="mt-badge ${badgeClass}">${badgeText}</span></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// ─── Mode toggle ───────────────────────────────────────────────────────────
+const modeRadios = document.querySelectorAll('input[name="mode"]');
+const modeDesc = document.getElementById('modeDesc');
+function updateModeDesc() {
+  const mode = document.querySelector('input[name="mode"]:checked')?.value;
+  modeDesc.innerHTML = mode === 'dry'
+    ? '🔍 <strong>DRY-RUN:</strong> analizza i dati e mostra cosa verrebbe modificato senza scrivere nulla.'
+    : '⚡ <strong>APPLY:</strong> scriverà companyId su tutti i documenti che non ce l\'hanno. Azione irreversibile senza backup.';
+}
+modeRadios.forEach(r => r.addEventListener('change', updateModeDesc));
+
+// ─── Pre-migration backup ──────────────────────────────────────────────────
+document.getElementById('btnBackup').addEventListener('click', async () => {
+  const btn = document.getElementById('btnBackup');
+  btn.disabled = true;
+  showStatus('backupStatus', '⏳ Backup in corso…', 'info');
+
+  try {
+    const backup = {
+      version: 'backup_pre_migration_v1',
+      exportedAt: new Date().toISOString(),
+      migrationType: 'multitenant',
+      collections: {}
+    };
+
+    for (const colName of TOP_COLLECTIONS) {
+      try {
+        const snap = await getDocs(collection(db, colName));
+        backup.collections[colName] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch {
+        backup.collections[colName] = [];
+      }
+    }
+
+    // Supplier invoices subcollection
+    try {
+      const supplierSnap = await getDocs(collection(db, 'suppliers'));
+      const invoicesAll = [];
+      for (const s of supplierSnap.docs) {
+        const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
+        invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: s.id, ...d.data() }));
+      }
+      backup.collections['supplierInvoices'] = invoicesAll;
+    } catch { backup.collections['supplierInvoices'] = []; }
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `dcrgroup-pre-migration-backup-${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    const total = Object.values(backup.collections).reduce((s, arr) => s + arr.length, 0);
+    showStatus('backupStatus', `✅ Backup completato! ${total} documenti salvati.\nFile: dcrgroup-pre-migration-backup-${dateStr}.json`, 'ok');
+  } catch (err) {
+    showStatus('backupStatus', `❌ Errore backup: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ─── Migration ─────────────────────────────────────────────────────────────
+document.getElementById('btnRunMigration').addEventListener('click', async () => {
+  const btn = document.getElementById('btnRunMigration');
+  const isDryRun = document.querySelector('input[name="mode"]:checked')?.value === 'dry';
+  const companyId = document.getElementById('companyIdInput').value.trim() || 'default_company';
+
+  if (!isDryRun) {
+    const ok = confirm(
+      `⚠️ ATTENZIONE\n\nStai per avviare la migrazione in modalità APPLY.\n` +
+      `Tutti i documenti senza companyId riceveranno il valore "${companyId}".\n\n` +
+      `Hai fatto il backup? Vuoi continuare?`
+    );
+    if (!ok) return;
+  }
+
+  btn.disabled = true;
+  logLines.length = 0;
+  document.getElementById('migrationProgress').classList.add('show');
+  document.getElementById('resultsWrap').style.display = 'none';
+  document.getElementById('resultsBody').innerHTML = '';
+  document.getElementById('migrationStatus').classList.remove('show');
+  document.getElementById('migrationLog').classList.remove('show');
+  document.getElementById('btnShowLog').style.display = 'none';
+
+  appendLog(`Avvio migrazione — modalità: ${isDryRun ? 'DRY-RUN' : 'APPLY'} — companyId: "${companyId}"`);
+
+  let totalDocs = 0;
+  let totalMigrated = 0;
+  let totalErrors = 0;
+  const BATCH_SIZE = 400;
+
+  try {
+    // Ensure company document exists.
+    if (!isDryRun) {
+      const companyRef = doc(db, 'companies', companyId);
+      await setDoc(companyRef, {
+        name: 'DCR Group',
+        createdAt: serverTimestamp(),
+        plan: 'default',
+        active: true,
+        _createdByMigration: true,
+      }, { merge: true });
+      appendLog(`✓ Documento azienda creato/aggiornato: companies/${companyId}`);
+    }
+
+    for (let i = 0; i < TOP_COLLECTIONS.length; i++) {
+      const colName = TOP_COLLECTIONS[i];
+      setProgress(Math.round((i / TOP_COLLECTIONS.length) * 90), `Analisi ${colName}…`);
+      appendLog(`Analisi collezione: ${colName}`);
+
+      let total = 0, toMigrate = 0, skipped = 0, hasError = false;
+
+      try {
+        const snap = await getDocs(collection(db, colName));
+        total = snap.docs.length;
+        const docs = snap.docs.filter(d => !d.data().companyId);
+        toMigrate = docs.length;
+        skipped = total - toMigrate;
+
+        appendLog(`  ${colName}: ${total} totali, ${toMigrate} da migrare, ${skipped} già ok`);
+
+        if (!isDryRun && docs.length > 0) {
+          for (let j = 0; j < docs.length; j += BATCH_SIZE) {
+            const chunk = docs.slice(j, j + BATCH_SIZE);
+            const batch = writeBatch(db);
+            for (const d of chunk) {
+              batch.update(d.ref, {
+                companyId,
+                _migratedAt: serverTimestamp(),
+                _migrationVersion: '1.0',
+              });
+            }
+            await batch.commit();
+            appendLog(`    Batch ${Math.floor(j / BATCH_SIZE) + 1}: ${chunk.length} doc scritti.`);
+          }
+        }
+
+        totalDocs += total;
+        totalMigrated += isDryRun ? toMigrate : toMigrate;
+      } catch (err) {
+        hasError = true;
+        totalErrors++;
+        appendLog(`  ❌ ERRORE ${colName}: ${err.message}`);
+      }
+
+      addResultRow(colName, total, toMigrate, skipped, isDryRun, hasError);
+    }
+
+    // Supplier invoices subcollection.
+    setProgress(92, 'Analisi fatture fornitori…');
+    appendLog('Analisi sottocollezione: suppliers/{id}/invoices');
+    try {
+      const supplierSnap = await getDocs(collection(db, 'suppliers'));
+      let subTotal = 0, subToMigrate = 0, subSkipped = 0;
+
+      for (const s of supplierSnap.docs) {
+        const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
+        const toMig = invSnap.docs.filter(d => !d.data().companyId);
+        subTotal += invSnap.docs.length;
+        subToMigrate += toMig.length;
+        subSkipped += invSnap.docs.length - toMig.length;
+
+        if (!isDryRun && toMig.length > 0) {
+          for (let j = 0; j < toMig.length; j += BATCH_SIZE) {
+            const chunk = toMig.slice(j, j + BATCH_SIZE);
+            const batch = writeBatch(db);
+            for (const d of chunk) {
+              batch.update(d.ref, { companyId, _migratedAt: serverTimestamp(), _migrationVersion: '1.0' });
+            }
+            await batch.commit();
+          }
+        }
+      }
+
+      totalDocs += subTotal;
+      totalMigrated += subToMigrate;
+      addResultRow('suppliers/*/invoices', subTotal, subToMigrate, subSkipped, isDryRun, false);
+      appendLog(`  suppliers/invoices: ${subTotal} totali, ${subToMigrate} da migrare.`);
+    } catch (err) {
+      appendLog(`  ❌ ERRORE suppliers/invoices: ${err.message}`);
+      addResultRow('suppliers/*/invoices', 0, 0, 0, isDryRun, true);
+    }
+
+    setProgress(100, 'Completato!');
+    document.getElementById('resultsWrap').style.display = '';
+    document.getElementById('btnShowLog').style.display = '';
+
+    const summary = isDryRun
+      ? `🔍 DRY-RUN completato.\n${totalDocs} documenti analizzati.\n${totalMigrated} documenti riceverebbero companyId="${companyId}".\nNessuna modifica effettuata.`
+      : `✅ Migrazione completata!\n${totalDocs} documenti analizzati.\n${totalMigrated} documenti aggiornati con companyId="${companyId}".\nErrori: ${totalErrors}`;
+
+    showStatus('migrationStatus', summary, totalErrors > 0 ? 'error' : isDryRun ? 'warn' : 'ok');
+    appendLog(`\n=== RIEPILOGO ===\nTotale: ${totalDocs} | Migrati: ${totalMigrated} | Errori: ${totalErrors}`);
+
+  } catch (err) {
+    showStatus('migrationStatus', `❌ Errore critico: ${err.message}`, 'error');
+    appendLog(`ERRORE CRITICO: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Log toggle.
+document.getElementById('btnShowLog').addEventListener('click', () => {
+  const logEl = document.getElementById('migrationLog');
+  const isShown = logEl.classList.toggle('show');
+  logEl.textContent = logLines.join('\n');
+  if (isShown) logEl.scrollTop = logEl.scrollHeight;
+  document.getElementById('btnShowLog').textContent = isShown ? '📋 Nascondi log' : '📋 Mostra log';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Validazione Migrazione — DCR Group</title>
+  <link rel="stylesheet" href="styles.css?v=20260421" />
+  <link rel="stylesheet" href="mobile.css?v=20260421" />
+  <script type="module" src="/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+      --brand:#3b82f6; --brand2:#2563eb; --border:rgba(255,255,255,.10);
+      --success:#10b981; --danger:#ef4444; --warning:#f59e0b; --radius:16px;
+    }
+    :root.theme-light { --bg:#f1f5f9; --card:#fff; --text:#0f172a; --muted:#64748b; --border:rgba(0,0,0,.10); }
+    *{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--text);min-height:100vh}
+
+    .vl-topbar{position:fixed;top:0;left:0;right:0;height:calc(60px + env(safe-area-inset-top));
+      padding-top:env(safe-area-inset-top);background:var(--card);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;padding-left:16px;padding-right:16px;z-index:100}
+    .back-btn{background:var(--brand);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer}
+    .page-title{font-weight:900;font-size:17px;color:var(--text)}
+
+    .vl-main{max-width:900px;margin:0 auto;padding:calc(80px + env(safe-area-inset-top)) 16px 40px}
+
+    .vl-hero{text-align:center;padding:24px;background:linear-gradient(135deg,#064e3b 0%,#065f46 100%);
+      border-radius:var(--radius);margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.30)}
+    .vl-hero-icon{font-size:48px;margin-bottom:8px}
+    .vl-hero-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px}
+    .vl-hero-sub{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6}
+
+    .vl-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+    .vl-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;
+      padding-bottom:12px;border-bottom:1px solid var(--border)}
+    .vl-card-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .vl-card-icon.blue{background:rgba(59,130,246,.18)}
+    .vl-card-icon.green{background:rgba(16,185,129,.18)}
+    .vl-card-icon.red{background:rgba(239,68,68,.18)}
+    .vl-card-icon.yellow{background:rgba(245,158,11,.18)}
+    .vl-card-title{font-weight:900;font-size:16px}
+    .vl-card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .vl-btn{display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:12px 20px;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;
+      border:none;transition:all .15s;min-width:160px}
+    .vl-btn.primary{background:var(--brand);color:#fff}
+    .vl-btn.success{background:var(--success);color:#fff}
+    .vl-btn:disabled{opacity:.5;cursor:not-allowed}
+
+    .vl-progress{margin-top:14px;display:none}
+    .vl-progress.show{display:block}
+    .vl-progress-bar-wrap{background:rgba(255,255,255,.08);border-radius:999px;height:8px;overflow:hidden}
+    .vl-progress-bar{height:100%;background:var(--success);border-radius:999px;transition:width .3s;width:0%}
+    .vl-progress-label{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .vl-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+    .vl-kpi{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;
+      padding:16px;text-align:center}
+    .vl-kpi-val{font-size:28px;font-weight:900;margin-bottom:4px}
+    .vl-kpi-label{font-size:12px;color:var(--muted);font-weight:700}
+    .vl-kpi.ok .vl-kpi-val{color:var(--success)}
+    .vl-kpi.warn .vl-kpi-val{color:var(--warning)}
+    .vl-kpi.error .vl-kpi-val{color:var(--danger)}
+    .vl-kpi.info .vl-kpi-val{color:var(--brand)}
+
+    .vl-table-wrap{overflow-x:auto;margin-top:12px}
+    .vl-table{width:100%;border-collapse:collapse;font-size:13px}
+    .vl-table th{background:rgba(255,255,255,.06);padding:8px 12px;text-align:left;
+      font-weight:800;border-bottom:1px solid var(--border);white-space:nowrap}
+    .vl-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+    .vl-table tr:last-child td{border-bottom:none}
+
+    .vl-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800}
+    .vl-badge.ok{background:#dcfce7;color:#166534}
+    .vl-badge.warn{background:#fef9c3;color:#854d0e}
+    .vl-badge.error{background:#fee2e2;color:#991b1b}
+    .vl-badge.info{background:#dbeafe;color:#1e40af}
+
+    .vl-status{border-radius:10px;padding:14px;font-size:13px;font-weight:700;
+      margin-top:14px;display:none;white-space:pre-line;line-height:1.6}
+    .vl-status.show{display:block}
+    .vl-status.ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#34d399}
+    .vl-status.warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#fcd34d}
+    .vl-status.error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+
+    .vl-orphan{font-size:12px;font-family:monospace;color:var(--muted);word-break:break-all}
+  </style>
+</head>
+<body>
+
+<header class="vl-topbar">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div>
+    <div class="page-title">🔍 Validazione Migrazione</div>
+  </div>
+</header>
+
+<main class="vl-main">
+
+  <div class="vl-hero">
+    <div class="vl-hero-icon">🛡️</div>
+    <div class="vl-hero-title">Validazione Post-Migrazione</div>
+    <div class="vl-hero-sub">
+      Verifica che tutti i documenti abbiano il campo <strong>companyId</strong>.<br>
+      Controlla l'integrità delle relazioni (clienti → ordini → incassi).<br>
+      Rileva eventuali documenti orfani o corrotti.
+    </div>
+  </div>
+
+  <!-- Run validation -->
+  <div class="vl-card">
+    <div class="vl-card-head">
+      <div class="vl-card-icon blue">🚀</div>
+      <div>
+        <div class="vl-card-title">Avvia validazione completa</div>
+        <div class="vl-card-sub">Analisi di tutte le collezioni Firestore</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="vl-btn primary" id="btnValidate">🔍 Valida ora</button>
+      <button class="vl-btn success" id="btnExportReport" style="display:none">📥 Esporta report JSON</button>
+    </div>
+    <div class="vl-progress" id="valProgress">
+      <div class="vl-progress-bar-wrap"><div class="vl-progress-bar" id="valBar"></div></div>
+      <div class="vl-progress-label" id="valLabel">Validazione in corso…</div>
+    </div>
+    <div class="vl-status" id="valStatus"></div>
+  </div>
+
+  <!-- Summary KPIs -->
+  <div class="vl-card" id="summaryCard" style="display:none">
+    <div class="vl-card-head">
+      <div class="vl-card-icon green">📊</div>
+      <div>
+        <div class="vl-card-title">Riepilogo</div>
+        <div class="vl-card-sub">Stato generale della migrazione</div>
+      </div>
+    </div>
+    <div class="vl-summary-grid" id="summaryGrid"></div>
+  </div>
+
+  <!-- Coverage per collection -->
+  <div class="vl-card" id="coverageCard" style="display:none">
+    <div class="vl-card-head">
+      <div class="vl-card-icon blue">📋</div>
+      <div>
+        <div class="vl-card-title">Copertura companyId per collezione</div>
+        <div class="vl-card-sub">Percentuale di documenti migrati</div>
+      </div>
+    </div>
+    <div class="vl-table-wrap">
+      <table class="vl-table">
+        <thead>
+          <tr>
+            <th>Collezione</th>
+            <th>Totale</th>
+            <th>Con companyId</th>
+            <th>Senza companyId</th>
+            <th>Copertura</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody id="coverageBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Orphan detection -->
+  <div class="vl-card" id="orphanCard" style="display:none">
+    <div class="vl-card-head">
+      <div class="vl-card-icon yellow">⚠️</div>
+      <div>
+        <div class="vl-card-title">Rilevamento record orfani</div>
+        <div class="vl-card-sub">Ordini senza clientId valido, incassi senza riferimento</div>
+      </div>
+    </div>
+    <div class="vl-table-wrap">
+      <table class="vl-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>ID documento</th>
+            <th>Problema</th>
+            <th>Severità</th>
+          </tr>
+        </thead>
+        <tbody id="orphanBody"></tbody>
+      </table>
+    </div>
+    <div id="orphanEmpty" style="display:none;padding:12px;font-size:13px;color:var(--muted);text-align:center">
+      ✅ Nessun record orfano trovato. Integrità relazionale verificata.
+    </div>
+  </div>
+
+</main>
+
+<script type="module" src="/nav.js?v=20260421"></script>
+<script src="scripts/dashboard-menu.js?v=20260421"></script>
+
+<script type="module">
+import { db } from './firebase.js';
+import {
+  collection, getDocs, query, where
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const TOP_COLLECTIONS = [
+  'clients', 'clienti', 'orders', 'incassi', 'expenses', 'spese',
+  'scadenze', 'suppliers', 'payments', 'fatture', 'priceRequests',
+  'agendaEvents', 'listini', 'listiniItems', 'sconti', 'trattative',
+  'offerte', 'mandanti', 'pagamenti', 'solleciti', 'scadenzeFinance',
+];
+
+let reportData = null;
+
+function setProgress(pct, label) {
+  const bar = document.getElementById('valBar');
+  const lbl = document.getElementById('valLabel');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = label;
+}
+
+function showStatus(msg, type = 'ok') {
+  const el = document.getElementById('valStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `vl-status show ${type}`;
+}
+
+function addKpi(label, value, type = 'info') {
+  const grid = document.getElementById('summaryGrid');
+  if (!grid) return;
+  const div = document.createElement('div');
+  div.className = `vl-kpi ${type}`;
+  div.innerHTML = `<div class="vl-kpi-val">${value}</div><div class="vl-kpi-label">${label}</div>`;
+  grid.appendChild(div);
+}
+
+function addCoverageRow(col, total, withId, withoutId) {
+  const pct = total > 0 ? Math.round((withId / total) * 100) : 100;
+  const type = pct === 100 ? 'ok' : pct >= 80 ? 'warn' : 'error';
+  const badge = pct === 100 ? 'ok' : pct >= 80 ? 'warn' : 'error';
+  const badgeText = pct === 100 ? '✓ Completo' : pct >= 80 ? '⚠ Parziale' : '❌ Incompleto';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>${col}</strong></td>
+    <td>${total}</td>
+    <td style="color:var(--success)">${withId}</td>
+    <td style="color:${withoutId > 0 ? 'var(--danger)' : 'var(--muted)'}">${withoutId}</td>
+    <td><strong>${pct}%</strong></td>
+    <td><span class="vl-badge ${badge}">${badgeText}</span></td>
+  `;
+  document.getElementById('coverageBody').appendChild(tr);
+}
+
+function addOrphanRow(type, id, problem, severity) {
+  const tr = document.createElement('tr');
+  const badge = severity === 'HIGH' ? 'error' : severity === 'MEDIUM' ? 'warn' : 'info';
+  const badgeText = severity === 'HIGH' ? '⬆ Alta' : severity === 'MEDIUM' ? '▲ Media' : '▽ Bassa';
+  tr.innerHTML = `
+    <td><strong>${type}</strong></td>
+    <td class="vl-orphan">${id}</td>
+    <td>${problem}</td>
+    <td><span class="vl-badge ${badge}">${badgeText}</span></td>
+  `;
+  document.getElementById('orphanBody').appendChild(tr);
+  return tr;
+}
+
+document.getElementById('btnValidate').addEventListener('click', async () => {
+  const btn = document.getElementById('btnValidate');
+  btn.disabled = true;
+
+  document.getElementById('valProgress').classList.add('show');
+  document.getElementById('summaryCard').style.display = 'none';
+  document.getElementById('coverageCard').style.display = 'none';
+  document.getElementById('orphanCard').style.display = 'none';
+  document.getElementById('summaryGrid').innerHTML = '';
+  document.getElementById('coverageBody').innerHTML = '';
+  document.getElementById('orphanBody').innerHTML = '';
+  document.getElementById('btnExportReport').style.display = 'none';
+  document.getElementById('valStatus').classList.remove('show');
+
+  const report = {
+    validatedAt: new Date().toISOString(),
+    collections: {},
+    orphans: [],
+    summary: {},
+  };
+
+  let totalDocs = 0, totalWithId = 0, totalWithout = 0;
+  let orphanCount = 0;
+
+  // ─── Coverage check ──────────────────────────────────────────────────────
+  for (let i = 0; i < TOP_COLLECTIONS.length; i++) {
+    const colName = TOP_COLLECTIONS[i];
+    setProgress(Math.round((i / TOP_COLLECTIONS.length) * 60), `Analisi ${colName}…`);
+
+    try {
+      const snap = await getDocs(collection(db, colName));
+      const total = snap.docs.length;
+      const withId = snap.docs.filter(d => !!d.data().companyId).length;
+      const without = total - withId;
+
+      report.collections[colName] = { total, withId, without };
+      totalDocs += total;
+      totalWithId += withId;
+      totalWithout += without;
+
+      if (total > 0) addCoverageRow(colName, total, withId, without);
+    } catch {
+      report.collections[colName] = { total: 0, withId: 0, without: 0, error: true };
+    }
+  }
+
+  // Supplier invoices subcollection coverage.
+  setProgress(65, 'Analisi fatture fornitori…');
+  try {
+    const supplierSnap = await getDocs(collection(db, 'suppliers'));
+    let subTotal = 0, subWithId = 0;
+    for (const s of supplierSnap.docs) {
+      const invSnap = await getDocs(collection(db, 'suppliers', s.id, 'invoices'));
+      subTotal += invSnap.docs.length;
+      subWithId += invSnap.docs.filter(d => !!d.data().companyId).length;
+    }
+    const subWithout = subTotal - subWithId;
+    report.collections['suppliers/*/invoices'] = { total: subTotal, withId: subWithId, without: subWithout };
+    totalDocs += subTotal;
+    totalWithId += subWithId;
+    totalWithout += subWithout;
+    if (subTotal > 0) addCoverageRow('suppliers/*/invoices', subTotal, subWithId, subWithout);
+  } catch {}
+
+  // ─── Orphan detection ────────────────────────────────────────────────────
+  setProgress(72, 'Rilevamento ordini orfani…');
+  try {
+    const [clientSnap, orderSnap] = await Promise.all([
+      getDocs(collection(db, 'clients')),
+      getDocs(collection(db, 'orders')),
+    ]);
+    const clientIds = new Set(clientSnap.docs.map(d => d.id));
+    for (const d of orderSnap.docs) {
+      const data = d.data();
+      if (!data.clientId) {
+        addOrphanRow('Ordine', d.id, 'Manca clientId', 'HIGH');
+        report.orphans.push({ type: 'order', id: d.id, problem: 'missing_clientId', severity: 'HIGH' });
+        orphanCount++;
+      } else if (!clientIds.has(data.clientId)) {
+        addOrphanRow('Ordine', d.id, `clientId non trovato: ${data.clientId}`, 'HIGH');
+        report.orphans.push({ type: 'order', id: d.id, problem: 'invalid_clientId', clientId: data.clientId, severity: 'HIGH' });
+        orphanCount++;
+      }
+    }
+  } catch {}
+
+  setProgress(82, 'Rilevamento incassi orfani…');
+  try {
+    const [orderSnap, incSnap] = await Promise.all([
+      getDocs(collection(db, 'orders')),
+      getDocs(collection(db, 'incassi')),
+    ]);
+    const orderIds = new Set(orderSnap.docs.map(d => d.id));
+    for (const d of incSnap.docs) {
+      const data = d.data();
+      if (data.orderId && !orderIds.has(data.orderId)) {
+        addOrphanRow('Incasso', d.id, `orderId non trovato: ${data.orderId}`, 'MEDIUM');
+        report.orphans.push({ type: 'income', id: d.id, problem: 'invalid_orderId', orderId: data.orderId, severity: 'MEDIUM' });
+        orphanCount++;
+      }
+    }
+  } catch {}
+
+  setProgress(92, 'Rilevamento scadenze orfane…');
+  try {
+    const scadSnap = await getDocs(collection(db, 'scadenze'));
+    for (const d of scadSnap.docs) {
+      const data = d.data();
+      if (!data.amount && !data.importo) {
+        addOrphanRow('Scadenza', d.id, 'Importo mancante o zero', 'LOW');
+        report.orphans.push({ type: 'deadline', id: d.id, problem: 'missing_amount', severity: 'LOW' });
+        orphanCount++;
+      }
+    }
+  } catch {}
+
+  setProgress(100, 'Validazione completata!');
+
+  // ─── Summary ─────────────────────────────────────────────────────────────
+  const coveragePct = totalDocs > 0 ? Math.round((totalWithId / totalDocs) * 100) : 100;
+  report.summary = { totalDocs, totalWithId, totalWithout, orphanCount, coveragePct };
+  reportData = report;
+
+  document.getElementById('summaryCard').style.display = '';
+  document.getElementById('coverageCard').style.display = '';
+  document.getElementById('orphanCard').style.display = '';
+
+  addKpi('Documenti totali', totalDocs, 'info');
+  addKpi('Con companyId', totalWithId, totalWithId === totalDocs ? 'ok' : 'warn');
+  addKpi('Senza companyId', totalWithout, totalWithout === 0 ? 'ok' : 'error');
+  addKpi('Copertura', `${coveragePct}%`, coveragePct === 100 ? 'ok' : coveragePct >= 80 ? 'warn' : 'error');
+  addKpi('Orfani', orphanCount, orphanCount === 0 ? 'ok' : 'warn');
+
+  if (orphanCount === 0) {
+    document.getElementById('orphanEmpty').style.display = '';
+  }
+
+  const allGood = totalWithout === 0 && orphanCount === 0;
+  const msg = allGood
+    ? `✅ MIGRAZIONE VERIFICATA\nTutti i ${totalDocs} documenti hanno companyId.\nNessun record orfano trovato.\nIl sistema è pronto per il multi-tenant.`
+    : `⚠️ MIGRAZIONE INCOMPLETA\n${totalWithout} documenti mancano di companyId (${coveragePct}% copertura).\n${orphanCount} record orfani trovati.\nEsegui la migrazione e ripeti la validazione.`;
+
+  showStatus(msg, allGood ? 'ok' : totalWithout > 0 ? 'error' : 'warn');
+  document.getElementById('btnExportReport').style.display = '';
+  btn.disabled = false;
+});
+
+// ─── Export report ──────────────────────────────────────────────────────────
+document.getElementById('btnExportReport').addEventListener('click', () => {
+  if (!reportData) return;
+  const json = JSON.stringify(reportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `dcrgroup-migration-report-${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>

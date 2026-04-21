@@ -1,12 +1,16 @@
 // auth-guard.js
 // Includi questo script come <script type="module" src="/auth-guard.js"></script>
 // su ogni pagina riservata allo staff. Reindirizza al login se non autenticato.
+// Dopo l'autenticazione carica il tenant context (companyId + ruolo) e lo
+// inietta nel firestoreService per le scritture multi-tenant.
 
-import { auth } from './firebase.js';
+import { auth, db, doc, getDoc } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { firestoreService } from './services/firestoreService.js';
 
 const LOGIN_PAGE = '/login.html';
 const TIMEOUT_MS = 3000;
+const DEFAULT_COMPANY_ID = 'default_company';
 
 // ── Session inactivity timeout (30 min warning, 35 min logout) ──
 const WARN_MS  = 30 * 60 * 1000;  // 30 minutes
@@ -87,5 +91,19 @@ new Promise((resolve) => {
   if (!user) {
     const next = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.replace(`${LOGIN_PAGE}?next=${next}`);
+    return;
   }
+  // Load tenant context and inject into firestoreService.
+  getDoc(doc(db, 'users', user.uid)).then((snap) => {
+    const profile = snap.exists() ? snap.data() : {};
+    const companyId = profile.companyId || DEFAULT_COMPANY_ID;
+    const role = profile.role || 'admin';
+    firestoreService.setTenantContext({ companyId, role });
+    // Expose tenant info globally for pages that need it.
+    window.__tenant = { uid: user.uid, email: user.email, companyId, role };
+  }).catch(() => {
+    // Firestore unavailable: set default context so writes don't fail.
+    firestoreService.setTenantContext({ companyId: DEFAULT_COMPANY_ID, role: 'admin' });
+    window.__tenant = { uid: user.uid, email: user.email, companyId: DEFAULT_COMPANY_ID, role: 'admin' };
+  });
 });
