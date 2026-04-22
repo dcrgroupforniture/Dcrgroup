@@ -243,9 +243,11 @@
 
 <script type="module">
 import { db } from './firebase.js';
+import { auth } from './firebase.js';
 import {
-  collection, getDocs, writeBatch, doc, serverTimestamp, setDoc
+  collection, getDocs, writeBatch, doc, serverTimestamp, setDoc, getDoc
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ─── Collections to migrate ────────────────────────────────────────────────
 const TOP_COLLECTIONS = [
@@ -254,6 +256,7 @@ const TOP_COLLECTIONS = [
   'priceRequests', 'agendaEvents', 'products', 'listini', 'listiniItems',
   'sconti', 'trattative', 'offerte', 'mandanti', 'budget', 'crmAttivita',
   'mailingCampaigns', 'mailingLogs', 'solleciti', 'scadenzeFinance', 'preventivi',
+  'notifications', 'portalAccounts',
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -317,6 +320,46 @@ document.getElementById('btnBackup').addEventListener('click', async () => {
   showStatus('backupStatus', '⏳ Backup in corso…', 'info');
 
   try {
+    // ── Diagnostica autenticazione ──────────────────────────────────────────
+    const user = auth.currentUser;
+    if (!user) {
+      showStatus('backupStatus', '❌ Utente non autenticato. Effettua il login e riprova.', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    // Verifica il documento utente su Firestore per diagnosticare problemi di ruolo
+    let userRole = '(non trovato)';
+    let userCompanyId = '(non trovato)';
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        userRole = userDoc.data().role ?? '(campo mancante)';
+        userCompanyId = userDoc.data().companyId ?? '(campo mancante)';
+      } else {
+        showStatus('backupStatus',
+          `❌ Documento utente non trovato in Firestore (users/${user.uid}).\n` +
+          `Vai su Firestore → users → crea il documento con: role="admin", companyId="default_company"`,
+          'error');
+        btn.disabled = false;
+        return;
+      }
+    } catch (authCheckErr) {
+      showStatus('backupStatus', `❌ Impossibile leggere il profilo utente: ${authCheckErr.message}`, 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    // Avvisa se il ruolo non è admin (causa più comune di 0 documenti)
+    if (userRole !== 'admin') {
+      showStatus('backupStatus',
+        `❌ Il ruolo dell'utente è "${userRole}" invece di "admin".\n` +
+        `Vai su Firestore → users/${user.uid} → imposta role="admin" (senza virgolette extra).`,
+        'error');
+      btn.disabled = false;
+      return;
+    }
+
     const backup = {
       version: 'backup_pre_migration_v1',
       exportedAt: new Date().toISOString(),
@@ -324,12 +367,17 @@ document.getElementById('btnBackup').addEventListener('click', async () => {
       collections: {}
     };
 
+    const collectionErrors = [];
+
     for (const colName of TOP_COLLECTIONS) {
       try {
         const snap = await getDocs(collection(db, colName));
         backup.collections[colName] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      } catch {
+        appendLog(`✓ ${colName}: ${backup.collections[colName].length} documenti`);
+      } catch (e) {
         backup.collections[colName] = [];
+        collectionErrors.push(`${colName}: ${e.message}`);
+        appendLog(`✗ ${colName}: ERRORE — ${e.message}`);
       }
     }
 
@@ -342,7 +390,12 @@ document.getElementById('btnBackup').addEventListener('click', async () => {
         invSnap.docs.forEach(d => invoicesAll.push({ id: d.id, supplierId: s.id, ...d.data() }));
       }
       backup.collections['supplierInvoices'] = invoicesAll;
-    } catch { backup.collections['supplierInvoices'] = []; }
+      appendLog(`✓ supplierInvoices: ${invoicesAll.length} documenti`);
+    } catch (e) {
+      backup.collections['supplierInvoices'] = [];
+      collectionErrors.push(`supplierInvoices: ${e.message}`);
+      appendLog(`✗ supplierInvoices: ERRORE — ${e.message}`);
+    }
 
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -355,7 +408,29 @@ document.getElementById('btnBackup').addEventListener('click', async () => {
     URL.revokeObjectURL(url);
 
     const total = Object.values(backup.collections).reduce((s, arr) => s + arr.length, 0);
-    showStatus('backupStatus', `✅ Backup completato! ${total} documenti salvati.\nFile: dcrgroup-pre-migration-backup-${dateStr}.json`, 'ok');
+
+    if (collectionErrors.length > 0) {
+      const errList = collectionErrors.slice(0, 3).join('\n');
+      const moreErrors = collectionErrors.length > 3 ? `\n… e altri ${collectionErrors.length - 3} errori (vedi log)` : '';
+      showStatus('backupStatus',
+        `⚠️ Backup parziale: ${total} documenti salvati, ${collectionErrors.length} collezioni con errori.\n` +
+        `Apri il log per i dettagli. Errori:\n${errList}${moreErrors}`,
+        collectionErrors.length === TOP_COLLECTIONS.length + 1 ? 'error' : 'info');
+    } else {
+      showStatus('backupStatus',
+        `✅ Backup completato! ${total} documenti salvati.\nFile: dcrgroup-pre-migration-backup-${dateStr}.json`,
+        'ok');
+    }
+
+    // Mostra automaticamente il log se ci sono errori
+    if (collectionErrors.length > 0) {
+      const logEl = document.getElementById('migrationLog');
+      if (logEl) {
+        logEl.classList.add('show');
+        logEl.textContent = logLines.join('\n');
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+    }
   } catch (err) {
     showStatus('backupStatus', `❌ Errore backup: ${err.message}`, 'error');
   } finally {
