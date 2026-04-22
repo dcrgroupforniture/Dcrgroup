@@ -1484,13 +1484,14 @@ if(discountPercentEl){ discountPercentEl.addEventListener("input", calculate); d
 setTimeout(() => {
   preloadProductSuggestions();
 }, 0);
-function waitForAuth() {
+function waitForTenantReady() {
   return new Promise(resolve => {
-    const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user); });
+    if (window.__tenant) { resolve(window.__tenant); return; }
+    document.addEventListener('tenantReady', e => resolve(e.detail), { once: true });
   });
 }
 
-waitForAuth().then(async () => {
+waitForTenantReady().then(async () => {
   if (orderId) {
     await ensureClientIdFromOrder();
     loadOrderForEdit();

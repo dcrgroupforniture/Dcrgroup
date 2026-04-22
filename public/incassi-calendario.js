@@ -252,12 +252,13 @@ deleteBtn?.addEventListener('click', deleteManual);
 prevBtn?.addEventListener('click', ()=>{ cursor.setMonth(cursor.getMonth()-1); renderMonth(); });
 nextBtn?.addEventListener('click', ()=>{ cursor.setMonth(cursor.getMonth()+1); renderMonth(); });
 
-function waitForAuth() {
+function waitForTenantReady() {
   return new Promise(resolve => {
-    const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user); });
+    if (window.__tenant) { resolve(window.__tenant); return; }
+    document.addEventListener('tenantReady', e => resolve(e.detail), { once: true });
   });
 }
 
-waitForAuth().then(() => {
+waitForTenantReady().then(() => {
   loadClients().then(renderMonth).catch((e) => { console.error(e); alert('Errore caricamento calendario incassi.'); });
 });

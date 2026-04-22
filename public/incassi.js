@@ -403,12 +403,13 @@ $("cardKpiFattMese")?.addEventListener('click', async ()=> {
   openListModal('Ordini del mese', html);
 });
 
-function waitForAuth() {
+function waitForTenantReady() {
   return new Promise(resolve => {
-    const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user); });
+    if (window.__tenant) { resolve(window.__tenant); return; }
+    document.addEventListener('tenantReady', e => resolve(e.detail), { once: true });
   });
 }
 
-waitForAuth().then(() => {
+waitForTenantReady().then(() => {
   boot().catch((e) => { console.error(e); alert('Errore nel caricamento incassi.'); });
 });

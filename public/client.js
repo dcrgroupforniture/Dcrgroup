@@ -451,13 +451,14 @@ function createOrder(){
 // ===============================
 // Init
 // ===============================
-function waitForAuth() {
+function waitForTenantReady() {
   return new Promise(resolve => {
-    const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user); });
+    if (window.__tenant) { resolve(window.__tenant); return; }
+    document.addEventListener('tenantReady', e => resolve(e.detail), { once: true });
   });
 }
 
-waitForAuth().then(async () => {
+waitForTenantReady().then(async () => {
   try{
     await loadClient();
     await loadOrdersForClient();

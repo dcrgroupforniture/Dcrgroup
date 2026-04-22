@@ -747,18 +747,17 @@ function clickOrEnter(el, fn){
 
 clickOrEnter(document.getElementById("cardOrdersYear"), openOrdersYear);
 
-// Boot — attendi che Firebase Auth ripristini la sessione (async) prima di
-// leggere Firestore; senza questo le regole vedono l'utente come non autenticato.
-function waitForAuth() {
+// Boot — attendi che auth-guard imposti il tenant context (companyId + ruolo)
+// prima di leggere Firestore; senza questo le query non hanno il filtro companyId
+// e Firestore le rifiuta con permission-denied.
+function waitForTenantReady() {
   return new Promise(resolve => {
-    const unsub = onAuthStateChanged(auth, user => {
-      unsub();
-      resolve(user);
-    });
+    if (window.__tenant) { resolve(window.__tenant); return; }
+    document.addEventListener('tenantReady', e => resolve(e.detail), { once: true });
   });
 }
 
-waitForAuth().then(() => {
+waitForTenantReady().then(() => {
   loadAll().catch(err => {
     console.error(err);
     alert('Errore nel caricamento dei clienti.');
