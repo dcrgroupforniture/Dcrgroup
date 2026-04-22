@@ -21,12 +21,12 @@ import {
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD6Kj8vZU9sd2Om9F-yPxU27hE4Qwf46nY",
-  authDomain: "dcrgroup-crm-test.firebaseapp.com",
-  projectId: "dcrgroup-crm-test",
-  storageBucket: "dcrgroup-crm-test.firebasestorage.app",
-  messagingSenderId: "978078385169",
-  appId: "1:978078385169:web:bfba731d8b50020a0c1db0"
+  apiKey: "AIzaSyDsS2ZP2HqvDTgUjlwxTLttrcQmuqUKyOY",
+  authDomain: "definitivo-dcr-group.firebaseapp.com",
+  projectId: "definitivo-dcr-group",
+  storageBucket: "definitivo-dcr-group.firebasestorage.app",
+  messagingSenderId: "363900943966",
+  appId: "1:363900943966:web:0b9f82c97cb37e50a3becf"
 };
 
 const app = initializeApp(firebaseConfig);
